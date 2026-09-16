@@ -1323,13 +1323,32 @@
 
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
-        function showToast(text) {
+                function showToast(text) {
             var existingToast = document.querySelector('.toast-msg');
             if (existingToast) existingToast.remove();
 
             var toast = document.createElement('div');
             toast.className = 'toast-msg';
             toast.innerText = text;
+            
+            // تنسيق مباشر يضمن ظهور التنبيه في أعلى الشاشة وفوق كافة النوافذ والسلة
+            toast.style.cssText = "position: fixed !important; " +
+                                  "top: 20px !important; " +
+                                  "left: 50% !important; " +
+                                  "transform: translateX(-50%) !important; " +
+                                  "background-color: #222222 !important; " +
+                                  "color: #ffffff !important; " +
+                                  "padding: 12px 20px !important; " +
+                                  "border-radius: 8px !important; " +
+                                  "font-weight: bold !important; " +
+                                  "font-size: 14px !important; " +
+                                  "z-index: 999999 !important; " +
+                                  "box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important; " +
+                                  "text-align: center !important; " +
+                                  "transition: opacity 0.3s ease !important; " +
+                                  "width: 85% !important; " +
+                                  "max-width: 350px !important;";
+
             document.body.appendChild(toast);
 
             setTimeout(function() {
@@ -1337,6 +1356,7 @@
                 setTimeout(function() { toast.remove(); }, 300);
             }, 2500);
         }
+
 
         /* إصلاح البحث الصوتي */
         function startVoiceSearch() {
