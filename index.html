@@ -2031,8 +2031,8 @@ function renderCartModal() {
         imgEl.style.display = 'none';
         videoEl.style.display = 'block';
         videoEl.src = story.video;
-        videoEl.muted = true; // ضروري لكي تسمح المتصفحات بالتشغيل التلقائي
-        videoEl.setAttribute('playsinline', 'true'); // ضروري لأجهزة الآيباد والآيفون
+        videoEl.muted = true;
+        videoEl.setAttribute('playsinline', 'true');
         videoEl.play().catch(function(error) {
             console.log("Autoplay prevented:", error);
         });
