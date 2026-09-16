@@ -1544,146 +1544,152 @@
         }
 
         // 1. دالة إضافة المنتجات للسلة (مؤمنة بالكامل)
-        function addToCart(buttonElement, productName, unitPrice) {
-            try {
-                if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) {
-                    window.cartArray = [];
-                }
-                
-                var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
-                var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
-                var selectedOption = optionSelect ? optionSelect.value : "قياسي";
-                var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
-                var quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
-
-                var numPrice = Number(unitPrice) || 0;
-
-                var existingItem = cartArray.find(function(item) { 
-                    var name = item.name || item.title;
-                    return name === productName && item.option === selectedOption; 
-                });
-
-                if (existingItem) { 
-                    existingItem.qty = (existingItem.qty || 1) + quantity; 
-                } else { 
-                    cartArray.push({ 
-                        name: productName, 
-                        title: productName, 
-                        price: numPrice, 
-                        option: selectedOption, 
-                        qty: quantity 
-                    }); 
-                }
-
-                if (typeof saveCartToStorage === 'function') saveCartToStorage();
-                if (typeof updateCartCounter === 'function') updateCartCounter();
-                if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
-            } catch (err) {
-                console.error("خطأ في الإضافة للسلة:", err);
-            }
+        // 1. دالة إضافة المنتجات للسلة (معالجة أمان البيانات والترميز)
+function addToCart(buttonElement, productName, unitPrice) {
+    try {
+        if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) {
+            window.cartArray = [];
         }
 
-        // 2. دالة إغلاق نافذة السلة (تعالج زر X بشكل مباشر)
-        function closeCartModal() {
-            var cartModal = document.getElementById('cart-modal');
-            if (cartModal) {
-                cartModal.style.display = 'none';
-            }
-        }
+        var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
+        var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
+        var selectedOption = optionSelect ? optionSelect.value : "قياسي";
+        var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
+        var quantity = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
 
-        // 3. دالة فتح السلة
-        function navGoCart(btnElement) {
-            if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
-            renderCartModal();
-            var cartModal = document.getElementById('cart-modal');
-            if (cartModal) cartModal.style.display = 'flex';
-        }
+        var numPrice = Number(unitPrice) || 0;
+        var safeName = String(productName || 'منتج').trim();
 
-        // 4. دالة الشراء السريع
-        function quickBuy(buttonElement, productName, unitPrice) {
-            addToCart(buttonElement, productName, unitPrice);
-            navGoCart(null);
-        }
+        var existingItem = cartArray.find(function(item) {
+            var name = String(item.name || item.title || '').trim();
+            return name === safeName && (item.option || 'قياسي') === selectedOption;
+        });
 
-        // 5. دالة تحديث عداد السلة
-        function updateCartCounter() {
-            if (typeof cartArray === 'undefined') window.cartArray = [];
-            var totalQty = cartArray.reduce(function(sum, item) { return sum + (item.qty || 1); }, 0);
-            var counter = document.getElementById('cart-counter');
-            if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
-        }
-
-        // 6. التحكم بالكميات داخل السلة
-        function changeCartQty(index, change) {
-            if (typeof cartArray !== 'undefined' && cartArray[index]) {
-                var currentQty = cartArray[index].qty || 1;
-                var newQty = currentQty + change;
-                
-                if (newQty <= 0) {
-                    cartArray.splice(index, 1);
-                } else {
-                    cartArray[index].qty = newQty;
-                }
-                
-                if (typeof saveCartToStorage === 'function') saveCartToStorage();
-                if (typeof updateCartCounter === 'function') updateCartCounter();
-                renderCartModal();
-            }
-        }
-
-        // 7. حذف عنصر من السلة
-        function removeFromCart(index) {
-            if (typeof cartArray !== 'undefined' && cartArray[index]) {
-                cartArray.splice(index, 1);
-                if (typeof saveCartToStorage === 'function') saveCartToStorage();
-                if (typeof updateCartCounter === 'function') updateCartCounter();
-                renderCartModal();
-            }
-        }
-
-        // 8. عرض عناصر السلة في النافذة
-                function renderCartModal() {
-            var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
-            if (!container) return;
-
-            var summaryArea = document.getElementById('cart-summary-area');
-
-            if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
-                if (summaryArea) summaryArea.style.display = 'none';
-                if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
-                return;
-            }
-
-            if (summaryArea) summaryArea.style.display = 'block';
-
-            var html = '';
-            cartArray.forEach(function(item, index) {
-                var qty = Number(item.qty) || 1;
-                var productName = item.name || item.title || 'منتج';
-                var price = Number(item.price) || 0;
-                var itemTotal = price * qty;
-                var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary);">' + item.option + '</div>' : '';
-
-                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border-color); width:100%; box-sizing:border-box;">' +
-            '<div style="flex:1; min-width:120px; padding-left:8px;">' +
-                '<div style="font-weight:bold; font-size:13px; color:var(--text-primary); word-break:break-word;">' + productName + '</div>' +
-                optionText +
-                '<div style="font-weight:bold; color:var(--accent); font-size:12px; margin-top:2px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
-            '</div>' +
-            '<div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">' +
-                '<button type="button" onclick="changeCartQty(' + index + ', -1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold; font-size:15px;">-</button>' +
-                '<span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">' + qty + '</span>' +
-                '<button type="button" onclick="changeCartQty(' + index + ', 1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold; font-size:15px;">+</button>' +
-                '<button type="button" onclick="removeFromCart(' + index + ')" style="background:none; border:none; color:#ef4444; padding:0 4px; cursor:pointer; font-size:16px;">🗑️</button>' +
-            '</div>' +
-        '</div>';
-
+        if (existingItem) {
+            existingItem.qty = (Number(existingItem.qty) || 1) + quantity;
+        } else {
+            cartArray.push({
+                name: safeName,
+                title: safeName,
+                price: numPrice,
+                option: selectedOption,
+                qty: quantity
             });
-
-            container.innerHTML = html;
-            if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
         }
+
+        if (typeof saveCartToStorage === 'function') saveCartToStorage();
+        if (typeof updateCartCounter === 'function') updateCartCounter();
+        if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
+    } catch (err) {
+        console.error("خطأ في الإضافة للسلة:", err);
+    }
+}
+
+// 2. دالة إغلاق نافذة السلة
+function closeCartModal() {
+    var cartModal = document.getElementById('cart-modal');
+    if (cartModal) {
+        cartModal.style.display = 'none';
+    }
+}
+
+// 3. دالة فتح السلة
+function navGoCart(btnElement) {
+    if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
+    renderCartModal();
+    var cartModal = document.getElementById('cart-modal');
+    if (cartModal) cartModal.style.display = 'flex';
+}
+
+// 4. دالة الشراء السريع
+function quickBuy(buttonElement, productName, unitPrice) {
+    addToCart(buttonElement, productName, unitPrice);
+    navGoCart(null);
+}
+
+// 5. دالة تحديث عداد السلة
+function updateCartCounter() {
+    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) window.cartArray = [];
+    var totalQty = cartArray.reduce(function(sum, item) {
+        return sum + (Number(item.qty) || 1);
+    }, 0);
+    var counter = document.getElementById('cart-counter');
+    if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
+}
+
+// 6. التحكم بالكميات داخل السلة
+function changeCartQty(index, change) {
+    if (typeof cartArray !== 'undefined' && cartArray[index]) {
+        var currentQty = Number(cartArray[index].qty) || 1;
+        var newQty = currentQty + change;
+
+        if (newQty <= 0) {
+            cartArray.splice(index, 1);
+        } else {
+            cartArray[index].qty = newQty;
+        }
+
+        if (typeof saveCartToStorage === 'function') saveCartToStorage();
+        if (typeof updateCartCounter === 'function') updateCartCounter();
+        renderCartModal();
+    }
+}
+
+// 7. حذف عنصر من السلة
+function removeFromCart(index) {
+    if (typeof cartArray !== 'undefined' && cartArray[index]) {
+        cartArray.splice(index, 1);
+        if (typeof saveCartToStorage === 'function') saveCartToStorage();
+        if (typeof updateCartCounter === 'function') updateCartCounter();
+        renderCartModal();
+    }
+}
+
+// 8. عرض عناصر السلة في النافذة (معالجة شاملة لكافة الأجهزة والشاشات)
+function renderCartModal() {
+    var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
+    if (!container) return;
+
+    var summaryArea = document.getElementById('cart-summary-area');
+
+    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary, #666); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
+        if (summaryArea) summaryArea.style.display = 'none';
+        if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+        return;
+    }
+
+    if (summaryArea) summaryArea.style.display = 'block';
+
+    var html = '';
+    for (var i = 0; i < cartArray.length; i++) {
+        var item = cartArray[i];
+        if (!item) continue;
+
+        var qty = Number(item.qty) || 1;
+        var productName = String(item.name || item.title || 'منتج').trim();
+        var price = Number(item.price) || 0;
+        var itemTotal = price * qty;
+        var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary, #777); margin-top:2px;">' + item.option + '</div>' : '';
+
+        html += '<div style="display:-webkit-box; display:-webkit-flex; display:flex; -webkit-box-pack:justify; -webkit-justify-content:space-between; justify-content:space-between; -webkit-box-align:center; -webkit-align-items:center; align-items:center; padding:12px 0; border-bottom:1px solid var(--border-color, #eee); width:100%; box-sizing:border-box;">' +
+                    '<div style="-webkit-box-flex:1; -webkit-flex:1; flex:1; min-width:0; padding-left:8px; text-align:right;">' +
+                        '<div style="font-weight:bold; font-size:13px; color:var(--text-primary, #111); word-wrap:break-word; overflow-wrap:break-word;">' + productName + '</div>' +
+                        optionText +
+                        '<div style="font-weight:bold; color:var(--accent, #2563eb); font-size:12px; margin-top:3px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
+                    '</div>' +
+                    '<div style="display:-webkit-box; display:-webkit-flex; display:flex; -webkit-box-align:center; -webkit-align-items:center; align-items:center; gap:4px; flex-shrink:0;">' +
+                        '<button type="button" onclick="changeCartQty(' + i + ', -1)" style="width:30px; height:30px; border-radius:6px; border:1px solid var(--border-color, #ccc); background:var(--bg-primary, #fff); color:var(--text-primary, #000); cursor:pointer; font-weight:bold; font-size:16px; line-height:1; display:inline-flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;">-</button>' +
+                        '<span style="font-weight:bold; font-size:13px; min-width:22px; text-align:center; display:inline-block;">' + qty + '</span>' +
+                        '<button type="button" onclick="changeCartQty(' + i + ', 1)" style="width:30px; height:30px; border-radius:6px; border:1px solid var(--border-color, #ccc); background:var(--bg-primary, #fff); color:var(--text-primary, #000); cursor:pointer; font-weight:bold; font-size:16px; line-height:1; display:inline-flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;">+</button>' +
+                        '<button type="button" onclick="removeFromCart(' + i + ')" style="background:none; border:none; color:#ef4444; padding:4px 6px; cursor:pointer; font-size:18px; line-height:1;">🗑️</button>' +
+                    '</div>' +
+                '</div>';
+    }
+
+    container.innerHTML = html;
+    if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+}
 
 
         function calculateGrandTotal() {
