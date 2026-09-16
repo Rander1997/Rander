@@ -872,7 +872,8 @@
                 <button class="header-btn" onclick="shareApp()" title="مشاركة التطبيق">🔗</button>
             </div>
             <button id="install-pwa-btn" class="install-pwa-btn" onclick="triggerAppInstall()">📲 تثبيت</button>
-            <button class="cart-btn" id="cart-counter" onclick="scrollToCart()">(0) 🛒</button>
+            <button class="cart-btn" id="cart-counter" onclick="if(typeof renderCartModal === 'function') renderCartModal(); document.getElementById('cart-modal').style.display='flex';">(0) 🛒</button>
+
         </div>
     </header>
 
