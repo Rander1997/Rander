@@ -1323,7 +1323,7 @@
 
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
-                        function showToast(text) {
+                                function showToast(text) {
             var existingToast = document.querySelector('.toast-msg');
             if (existingToast) existingToast.remove();
 
@@ -1331,28 +1331,25 @@
             toast.className = 'toast-msg';
             toast.innerText = text;
             
-            // تحديد الارتفاع بـ fit-content لتجنب الصورة السوداء الطويلة
+            // استخدام width: max-content لكي ينكمش العنصر ليناسب حجم النص فقط
             toast.style.cssText = "position: fixed !important; " +
                                   "top: 25px !important; " +
                                   "left: 50% !important; " +
                                   "transform: translateX(-50%) !important; " +
                                   "background-color: #1e293b !important; " +
                                   "color: #ffffff !important; " +
-                                  "padding: 10px 18px !important; " +
-                                  "border-radius: 50px !important; " +
+                                  "padding: 10px 20px !important; " +
+                                  "border-radius: 30px !important; " +
                                   "font-weight: 600 !important; " +
                                   "font-size: 13px !important; " +
                                   "z-index: 999999 !important; " +
                                   "box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important; " +
                                   "text-align: center !important; " +
-                                  "transition: opacity 0.3s ease, transform 0.3s ease !important; " +
-                                  "width: auto !important; " +
-                                  "max-width: 85% !important; " +
-                                  "height: auto !important; " +
-                                  "min-height: unset !important; " +
-                                  "max-height: unset !important; " +
-                                  "border: 1px solid rgba(255, 255, 255, 0.1) !important; " +
-                                  "display: inline-block !important;";
+                                  "transition: opacity 0.3s ease !important; " +
+                                  "width: max-content !important; " +
+                                  "max-width: 90% !important; " +
+                                  "white-space: nowrap !important; " +
+                                  "border: 1px solid rgba(255, 255, 255, 0.15) !important;";
 
             document.body.appendChild(toast);
 
