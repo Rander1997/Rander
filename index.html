@@ -1683,6 +1683,8 @@ function removeFromCart(index) {
 // 8. عرض عناصر السلة في النافذة (معالجة شاملة لكافة الأجهزة والشاشات)
 // دالة عرض عناصر السلة (متوافقة 100% مع أندرويد ووضع العرض في الآيباد)
 function renderCartModal() {
+    alert("Cart Length: " + (typeof cartArray !== 'undefined' ? cartArray.length : "Undefined"));
+    
     var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
     if (!container) return;
 
