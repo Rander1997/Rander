@@ -1323,33 +1323,31 @@
 
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
-                                function showToast(text) {
+        function showToast(text) {
             var existingToast = document.querySelector('.toast-msg');
             if (existingToast) existingToast.remove();
 
             var toast = document.createElement('div');
             toast.className = 'toast-msg';
-            toast.innerText = text;
             
-            // استخدام width: max-content لكي ينكمش العنصر ليناسب حجم النص فقط
+            // استخدام span داخلي لضبط حجم البكسل بدقة على قد النص تماماً
+            toast.innerHTML = '<span style="display: inline-block; background-color: #1e293b; color: #ffffff; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 13px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); text-align: center;">' + text + '</span>';
+            
+            // إجبار الحاوية الخارجية على أن تكون بلا أي أبعاد أو خلفيات سوداء
             toast.style.cssText = "position: fixed !important; " +
-                                  "top: 25px !important; " +
-                                  "left: 50% !important; " +
-                                  "transform: translateX(-50%) !important; " +
-                                  "background-color: #1e293b !important; " +
-                                  "color: #ffffff !important; " +
-                                  "padding: 10px 20px !important; " +
-                                  "border-radius: 30px !important; " +
-                                  "font-weight: 600 !important; " +
-                                  "font-size: 13px !important; " +
+                                  "top: 20px !important; " +
+                                  "left: 0 !important; " +
+                                  "right: 0 !important; " +
+                                  "width: 100% !important; " +
+                                  "height: auto !important; " +
+                                  "min-height: 0 !important; " +
+                                  "max-height: none !important; " +
+                                  "background: transparent !important; " +
+                                  "background-color: transparent !important; " +
                                   "z-index: 999999 !important; " +
-                                  "box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important; " +
                                   "text-align: center !important; " +
-                                  "transition: opacity 0.3s ease !important; " +
-                                  "width: max-content !important; " +
-                                  "max-width: 90% !important; " +
-                                  "white-space: nowrap !important; " +
-                                  "border: 1px solid rgba(255, 255, 255, 0.15) !important;";
+                                  "pointer-events: none !important; " +
+                                  "transition: opacity 0.3s ease !important;";
 
             document.body.appendChild(toast);
 
