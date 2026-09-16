@@ -891,38 +891,91 @@
     </div>
 </div>
 
-<!-- نافذة السلة المنبثقة كاملة -->
-<div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
-    <div class="cart-modal-content">
-        
-        <!-- رأس النافذة وزر الإغلاق -->
-        <div class="cart-header" style="display:flex; justify-content:space-between; align-items:center;">
-            <h3>سلة التسوق 🛒</h3>
-            <span class="close-btn" onclick="closeCartModal()" style="cursor:pointer; font-size:24px;">&times;</span>
+    <!-- نافذة السلة المنبثقة الكاملة والمعدلة -->
+    <div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
+        <div class="cart-modal-content">
+            
+            <!-- رأس النافذة -->
+            <div class="cart-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:15px;">
+                <h3 style="margin:0; font-size:18px;">🛒 سلة التسوق</h3>
+                <span class="close-btn" onclick="closeCartModal()" style="cursor:pointer; font-size:24px; font-weight:bold;">&times;</span>
+            </div>
+
+            <!-- مكان عرض المنتجات مضافة مع أزرار الزيادة والنقصان -->
+            <div id="cart-items-container" style="max-height:200px; overflow-y:auto; margin-bottom:15px;">
+                <!-- يتم توليد عناصر السلة هنا تلقائياً بواسطة JavaScript -->
+            </div>
+
+            <!-- حقول بيانات الزبون -->
+            <div class="cart-checkout-section" style="border-top:1px solid var(--border-color); padding-top:12px;">
+                
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">الاسم الكامل:</label>
+                    <input type="text" id="cust-name" class="form-input" placeholder="اكتب اسمك الثلاثي" required style="width:100%;">
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">المحافظة:</label>
+                    <select id="cust-city" onchange="calculateGrandTotal()" class="form-input" style="width:100%;" required>
+                        <option value="" disabled selected>اختر المحافظة...</option>
+                        <option value="بغداد" data-cost="3000">بغداد (التوصيل: 3,000 د.ع)</option>
+                        <option value="النجف" data-cost="5000">النجف الأشرف (التوصيل: 5,000 د.ع)</option>
+                        <option value="البصرة" data-cost="5000">البصرة (التوصيل: 5,000 د.ع)</option>
+                        <option value="أربيل" data-cost="5000">أربيل (التوصيل: 5,000 د.ع)</option>
+                        <option value="كربلاء" data-cost="5000">كربلاء المقدسة (التوصيل: 5,000 د.ع)</option>
+                        <option value="بابل" data-cost="5000">بابل (التوصيل: 5,000 د.ع)</option>
+                        <option value="ذي قار" data-cost="5000">ذي قار (التوصيل: 5,000 د.ع)</option>
+                        <option value="ميسان" data-cost="5000">ميسان (التوصيل: 5,000 د.ع)</option>
+                        <option value="المثنى" data-cost="5000">المثنى (التوصيل: 5,000 د.ع)</option>
+                        <option value="القادسية" data-cost="5000">القادسية (الديوانية) (التوصيل: 5,000 د.ع)</option>
+                        <option value="واسط" data-cost="5000">واسط (التوصيل: 5,000 د.ع)</option>
+                        <option value="ديالى" data-cost="5000">ديالى (التوصيل: 5,000 د.ع)</option>
+                        <option value="الأنبار" data-cost="5000">الأنبار (التوصيل: 5,000 د.ع)</option>
+                        <option value="كركوك" data-cost="5000">كركوك (التوصيل: 5,000 د.ع)</option>
+                        <option value="صلاح الدين" data-cost="5000">صلاح الدين (التوصيل: 5,000 د.ع)</option>
+                        <option value="نينوى" data-cost="5000">نينوى (التوصيل: 5,000 د.ع)</option>
+                        <option value="السليمانية" data-cost="5000">السليمانية (التوصيل: 5,000 د.ع)</option>
+                        <option value="دهوك" data-cost="5000">دهوك (التوصيل: 5,000 د.ع)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">العنوان التفصيلي:</label>
+                    <input type="text" id="cust-address" class="form-input" placeholder="مثال: الحي - اسم الشارع - نقطة دالة مجاورة" required style="width:100%;">
+                </div>
+
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">رقم الهاتف:</label>
+                    <input type="tel" id="cust-phone" class="form-input" placeholder="07XXXXXXXXX" required style="width:100%;">
+                </div>
+
+            </div>
+
+            <!-- جدول ملخص الحساب والحساب المالي -->
+            <div class="cart-summary" style="background:var(--bg-primary); padding:12px 15px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;">
+                    <span>مجموع المنتجات:</span>
+                    <span><strong id="cart-subtotal">0</strong> د.ع</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; color:var(--text-secondary);">
+                    <span>أجور التوصيل:</span>
+                    <span><strong id="cart-delivery-cost">0</strong> د.ع</span>
+                </div>
+                <hr style="border:none; border-top:1px dashed var(--border-color); margin:8px 0;">
+                <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:900; color:var(--accent);">
+                    <span>المجموع الكلي:</span>
+                    <span><strong id="cart-total-price">0</strong> د.ع</span>
+                </div>
+            </div>
+
+            <!-- زر إرسال الطلب -->
+            <button class="buy-button" onclick="sendOrder()" style="width:100%; padding:12px; font-size:15px; border-radius:10px;">
+                تأكيد الطلب عبر الواتساب 💬
+            </button>
+
         </div>
+    </div>
 
-        <!-- مكان عرض المنتجات -->
-        <div id="cart-items-container"></div>
-
-        <!-- حقول بيانات الزبون والتوصيل -->
-        <div class="cart-checkout-section">
-            <div class="form-group" style="margin-top:10px;">
-                <input type="text" id="cust-name" placeholder="الاسم الكامل" required style="width:100%; padding:8px;">
-            </div>
-            <div class="form-group" style="margin-top:10px;">
-                <select id="cust-city" onchange="calculateGrandTotal()" style="width:100%; padding:8px;">
-                    <option value="بغداد" data-cost="5000">بغداد</option>
-                    <option value="بابل" data-cost="5000">بابل</option>
-                    <option value="النجف" data-cost="5000">النجف</option>
-                    <option value="بقية المحافظات" data-cost="6000">بقية المحافظات</option>
-                </select>
-            </div>
-            <div class="form-group" style="margin-top:10px;">
-                <input type="text" id="cust-address" placeholder="العنوان التفصيلي" required style="width:100%; padding:8px;">
-            </div>
-            <div class="form-group" style="margin-top:10px;">
-                <input type="tel" id="cust-phone" placeholder="رقم الهاتف" required style="width:100%; padding:8px;">
-            </div>
 
             <!-- ملخص الحساب والإجمالي -->
             <div class="cart-summary" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
@@ -1486,96 +1539,183 @@
             renderCartModal();
         }
 
-        function renderCartModal() {
-            var container = document.getElementById('cart-items-list');
-            if (cartArray.length === 0) {
+                function renderCartModal() {
+            var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
+            if (!container) return;
+
+            if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
                 container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
-                document.getElementById('cart-summary-area').style.display = 'none';
+                var summaryArea = document.getElementById('cart-summary-area');
+                if (summaryArea) summaryArea.style.display = 'none';
+                calculateGrandTotal();
                 return;
             }
 
-            document.getElementById('cart-summary-area').style.display = 'block';
+            var summaryArea = document.getElementById('cart-summary-area');
+            if (summaryArea) summaryArea.style.display = 'block';
+
             var html = '';
             cartArray.forEach(function(item, index) {
+                var qty = item.qty || item.quantity || 1;
+                var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary);">' + item.option + '</div>' : '';
+                var itemTotal = item.price * qty;
+
                 html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">' +
                             '<div>' +
                                 '<div style="font-weight:bold; font-size:13px;">' + item.name + '</div>' +
-                                '<div style="font-size:11px; color:var(--text-secondary);">' + item.option + '</div>' +
-                                '<div style="font-weight:bold; color:var(--accent); font-size:12px; margin-top:2px;">' + (item.price * item.qty).toLocaleString('ar-IQ') + ' د.ع</div>' +
+                                optionText +
+                                '<div style="font-weight:bold; color:var(--accent); font-size:12px; margin-top:2px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
                             '</div>' +
-                            '<div class="cart-qty-control">' +
+                            '<div class="cart-qty-control" style="display:flex; align-items:center; gap:6px;">' +
                                 '<button class="cart-qty-btn" onclick="changeCartQty(' + index + ', -1)">-</button>' +
-                                '<span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">' + item.qty + '</span>' +
+                                '<span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">' + qty + '</span>' +
                                 '<button class="cart-qty-btn" onclick="changeCartQty(' + index + ', 1)">+</button>' +
+                                '<button onclick="removeFromCart(' + index + ')" style="background:none; border:none; color:#ef4444; margin-right:4px; cursor:pointer; font-size:14px;">🗑️</button>' +
                             '</div>' +
                         '</div>';
             });
+
             container.innerHTML = html;
             calculateGrandTotal();
         }
 
-        function calculateGrandTotal() {
-            var subtotal = cartArray.reduce(function(sum, item) { return sum + (item.price * item.qty); }, 0);
-            var citySelect = document.getElementById('cust-city');
-            var deliveryCost = parseInt(citySelect.options[citySelect.selectedIndex].getAttribute('data-delivery')) || 3000;
+        function changeCartQty(index, change) {
+            if (cartArray && cartArray[index]) {
+                var currentQty = cartArray[index].qty || cartArray[index].quantity || 1;
+                currentQty += change;
+                
+                if (currentQty <= 0) {
+                    cartArray.splice(index, 1);
+                } else {
+                    cartArray[index].qty = currentQty;
+                    cartArray[index].quantity = currentQty;
+                }
+                
+                if (typeof saveCartToStorage === 'function') saveCartToStorage();
+                if (typeof updateCartCounter === 'function') updateCartCounter();
+                renderCartModal();
+            }
+        }
 
-            document.getElementById('cart-subtotal').innerText = subtotal.toLocaleString('ar-IQ') + ' د.ع';
-            document.getElementById('cart-delivery-cost').innerText = deliveryCost.toLocaleString('ar-IQ') + ' د.ع';
-            document.getElementById('cart-total-price').innerText = (subtotal + deliveryCost).toLocaleString('ar-IQ') + ' د.ع';
+        function removeFromCart(index) {
+            if (cartArray && cartArray[index]) {
+                cartArray.splice(index, 1);
+                if (typeof saveCartToStorage === 'function') saveCartToStorage();
+                if (typeof updateCartCounter === 'function') updateCartCounter();
+                renderCartModal();
+            }
+        }
+
+        function calculateGrandTotal() {
+            var subtotal = 0;
+            if (cartArray && cartArray.length > 0) {
+                subtotal = cartArray.reduce(function(sum, item) { 
+                    var qty = item.qty || item.quantity || 1;
+                    return sum + (item.price * qty); 
+                }, 0);
+            }
+
+            var citySelect = document.getElementById('cust-city');
+            var deliveryCost = 0;
+
+            if (citySelect && citySelect.selectedIndex >= 0) {
+                var selectedOption = citySelect.options[citySelect.selectedIndex];
+                if (selectedOption) {
+                    deliveryCost = parseInt(selectedOption.getAttribute('data-cost') || selectedOption.getAttribute('data-delivery')) || 0;
+                }
+            }
+
+            var grandTotal = subtotal + deliveryCost;
+
+            var subtotalEl = document.getElementById('cart-subtotal');
+            var deliveryEl = document.getElementById('cart-delivery-cost');
+            var totalEl = document.getElementById('cart-total-price');
+
+            if (subtotalEl) subtotalEl.innerText = subtotal.toLocaleString('ar-IQ') + ' د.ع';
+            if (deliveryEl) deliveryEl.innerText = deliveryCost.toLocaleString('ar-IQ') + ' د.ع';
+            if (totalEl) totalEl.innerText = grandTotal.toLocaleString('ar-IQ') + ' د.ع';
         }
 
         function navGoCart(btnElement) {
-            if (btnElement) setActiveNav(btnElement);
+            if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
             renderCartModal();
-            document.getElementById('cart-modal').style.display = 'flex';
+            var cartModal = document.getElementById('cart-modal');
+            if (cartModal) cartModal.style.display = 'flex';
         }
 
         function sendAllCartToWhatsApp() {
-    try {
-        var nameEl = document.getElementById('cust-name');
-        var citySelectEl = document.getElementById('cust-city');
-        var addressEl = document.getElementById('cust-address');
-        var phoneEl = document.getElementById('cust-phone');
+            try {
+                var nameEl = document.getElementById('cust-name');
+                var citySelectEl = document.getElementById('cust-city');
+                var addressEl = document.getElementById('cust-address');
+                var phoneEl = document.getElementById('cust-phone');
 
-        var name = nameEl ? nameEl.value.trim() : "";
-        var address = addressEl ? addressEl.value.trim() : "";
-        var phone = phoneEl ? phoneEl.value.trim() : "";
-        var city = (citySelectEl && citySelectEl.selectedIndex >= 0) ? citySelectEl.options[citySelectEl.selectedIndex].text : "";
+                var name = nameEl ? nameEl.value.trim() : "";
+                var address = addressEl ? addressEl.value.trim() : "";
+                var phone = phoneEl ? phoneEl.value.trim() : "";
+                
+                if (!nameEl || !citySelectEl || !addressEl || !phoneEl || !name || !address || !phone || citySelectEl.selectedIndex <= 0) {
+                    if (typeof showToast === 'function') {
+                        showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة!");
+                    } else {
+                        alert("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة!");
+                    }
+                    return;
+                }
 
-        if (!name || !address || !phone) {
-            if (typeof showToast === 'function') {
-                showToast("⚠️ يرجى إكمال جميع بيانات التوصيل!");
-            } else {
-                alert("⚠️ يرجى إكمال جميع بيانات التوصيل!");
+                if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
+                    alert("السلة فارغة!");
+                    return;
+                }
+
+                var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
+                var city = citySelectEl.value;
+                var deliveryCost = parseInt(selectedOption.getAttribute('data-cost') || selectedOption.getAttribute('data-delivery')) || 0;
+
+                var subtotal = 0;
+                var itemsList = "";
+
+                cartArray.forEach(function(item, i) {
+                    var qty = item.qty || item.quantity || 1;
+                    var itemTotal = item.price * qty;
+                    subtotal += itemTotal;
+                    var optionText = item.option ? " (" + item.option + ")" : "";
+                    itemsList += (i + 1) + ". *" + item.name + optionText + "*\n   الكمية: " + qty + " | السعر: " + itemTotal.toLocaleString('ar-IQ') + " د.ع\n";
+                });
+
+                var grandTotal = subtotal + deliveryCost;
+
+                var message = "*طلب جديد من متجر RANDER* 🛒\n\n";
+                message += "*معلومات الزبون:*\n";
+                message += "👤 *الاسم:* " + name + "\n";
+                message += "📞 *الهاتف:* " + phone + "\n";
+                message += "📍 *المحافظة:* " + city + "\n";
+                message += "🏠 *العنوان التفصيلي:* " + address + "\n\n";
+                
+                message += "*الطلبات:*\n" + itemsList + "\n";
+
+                if (typeof getGiftMessageText === 'function') {
+                    message += getGiftMessageText() + "\n";
+                }
+
+                message += "*الملخص المالي:*\n";
+                message += "💵 *مجموع المنتجات:* " + subtotal.toLocaleString('ar-IQ') + " د.ع\n";
+                message += "🚚 *أجور التوصيل:* " + deliveryCost.toLocaleString('ar-IQ') + " د.ع\n";
+                message += "💰 *المجموع الكلي:* " + grandTotal.toLocaleString('ar-IQ') + " د.ع\n";
+
+                var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
+                window.open(waUrl, '_blank');
+            } catch (err) {
+                console.error("Order Error:", err);
+                alert("حدث خطأ أثناء الإرسال: " + err.message);
             }
-            return;
         }
 
-        if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
-            alert("السلة فارغة!");
-            return;
+        // ربط دالة sendOrder بنفس الدالة للتوافق مع الأزرار
+        function sendOrder() {
+            sendAllCartToWhatsApp();
         }
 
-        var message = "مرحباً RANDER، طلب جديد:\n\n";
-        cartArray.forEach(function(item, i) {
-            var optionText = item.option ? " (" + item.option + ")" : "";
-            var qtyText = item.qty || item.quantity || 1;
-            message += (i + 1) + ". " + item.name + optionText + " - الكمية: " + qtyText + "\n";
-        });
-
-        message += "\n👤 الاسم: " + name + "\n📞 الهاتف: " + phone + "\n📍 العنوان: " + city + " - " + address + "\n";
-
-        if (typeof getGiftMessageText === 'function') {
-            message += getGiftMessageText();
-        }
-
-        var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
-        window.open(waUrl, '_blank');
-    } catch (err) {
-        console.error("Order Error:", err);
-        alert("حدث خطأ أثناء الإرسال: " + err.message);
-    }
-}
 
         /* ---------------------------------------------------- */
         /* منطق ميزة تثبيت التطبيق (PWA Install Prompt Logic) */
