@@ -1642,7 +1642,7 @@
         }
 
         // 8. عرض عناصر السلة في النافذة
-        function renderCartModal() {
+                function renderCartModal() {
             var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
             if (!container) return;
 
@@ -1659,23 +1659,23 @@
 
             var html = '';
             cartArray.forEach(function(item, index) {
-                var qty = item.qty || 1;
+                var qty = Number(item.qty) || 1;
                 var productName = item.name || item.title || 'منتج';
                 var price = Number(item.price) || 0;
                 var itemTotal = price * qty;
                 var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary);">' + item.option + '</div>' : '';
 
-                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">' +
-                            '<div>' +
-                                '<div style="font-weight:bold; font-size:13px;">' + productName + '</div>' +
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border-color);">' +
+                            '<div style="flex:1; padding-left:10px;">' +
+                                '<div style="font-weight:bold; font-size:14px; color:var(--text-primary);">' + productName + '</div>' +
                                 optionText +
-                                '<div style="font-weight:bold; color:var(--accent); font-size:12px; margin-top:2px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
+                                '<div style="font-weight:bold; color:var(--accent); font-size:13px; margin-top:2px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
                             '</div>' +
                             '<div style="display:flex; align-items:center; gap:6px;">' +
-                                '<button type="button" onclick="changeCartQty(' + index + ', -1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold;">-</button>' +
-                                '<span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">' + qty + '</span>' +
-                                '<button type="button" onclick="changeCartQty(' + index + ', 1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold;">+</button>' +
-                                '<button type="button" onclick="removeFromCart(' + index + ')" style="background:none; border:none; color:#ef4444; margin-right:4px; cursor:pointer; font-size:16px;">🗑️</button>' +
+                                '<button type="button" onclick="changeCartQty(' + index + ', -1)" style="width:30px; height:30px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold; font-size:16px;">-</button>' +
+                                '<span style="font-weight:bold; font-size:14px; min-width:20px; text-align:center;">' + qty + '</span>' +
+                                '<button type="button" onclick="changeCartQty(' + index + ', 1)" style="width:30px; height:30px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold; font-size:16px;">+</button>' +
+                                '<button type="button" onclick="removeFromCart(' + index + ')" style="background:none; border:none; color:#ef4444; padding:0 4px; cursor:pointer; font-size:18px;">🗑️</button>' +
                             '</div>' +
                         '</div>';
             });
@@ -1683,6 +1683,7 @@
             container.innerHTML = html;
             if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
         }
+
 
         function calculateGrandTotal() {
             var subtotal = 0;
