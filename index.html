@@ -1163,50 +1163,6 @@
         </div>
     </div>
 
-    <!-- نافذة السلة الشاملة -->
-    <div id="cart-modal" class="modal-overlay" onclick="closeCartOnOutsideClick(event)">
-        <div class="modal-card">
-            <h3 style="text-align:center; margin-bottom:15px;">🛒 سلة المشتريات</h3>
-            <div id="cart-items-list"></div>
-
-            <div id="cart-summary-area">
-                <div class="checkout-form" style="margin-top:15px; border-top:1px dashed var(--border-color); padding-top:10px;">
-                    <h4 style="margin-bottom:8px; font-size:13px;">📋 معلومات التوصيل</h4>
-                    <input type="text" id="cust-name" class="form-input" placeholder="الاسم الكامل">
-                    <select id="cust-city" class="form-input" onchange="calculateGrandTotal()">
-                        <option value="بغداد" data-delivery="3000">بغداد (3,000 د.ع)</option>
-                        <option value="المافظات" data-delivery="5000">باقي المحافظات (5,000 د.ع)</option>
-                    </select>
-                    <input type="text" id="cust-address" class="form-input" placeholder="العنوان التفصيلي">
-                    <input type="tel" id="cust-phone" class="form-input" placeholder="رقم الهاتف">
-                    <!-- خيار طلب الإهداء -->
-<div class="gift-option-box">
-    <label style="cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-        <input type="checkbox" id="gift-checkbox" onchange="toggleGiftInputs()"> 🎁 إرسال هذا الطلب كهدية؟
-    </label>
-    <div id="gift-inputs-container" class="gift-inputs">
-        <input type="text" id="gift-to" class="form-input" placeholder="اسم المهدى إليه">
-        <input type="text" id="gift-from" class="form-input" placeholder="اسمك (المرسل)">
-        <textarea id="gift-message" class="form-input" rows="2" placeholder="اكتب رسالة الإهداء الخاصة..."></textarea>
-    </div>
-</div>
-
-                <div style="margin-top:10px; font-size:13px; color:var(--text-secondary);">
-                    <div>المجموع الفرعي: <span id="cart-subtotal">0 د.ع</span></div>
-                    <div>التوصيل: <span id="cart-delivery-cost">3,000 د.ع</span></div>
-                </div>
-
-                <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; font-weight:bold; font-size:15px;">
-                    <span>المجموع الكلي:</span>
-                    <span id="cart-total-price" style="color:var(--accent);">0 د.ع</span>
-                </div>
-
-                <button class="buy-button" style="margin-top:12px;" onclick="sendAllCartToWhatsApp()">تأكيد وإرسال الطلب 💬</button>
-            </div>
-
-            <button onclick="closeCartModal()" style="margin-top:12px; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); padding:10px; border-radius:10px; width:100%; font-weight:bold; cursor:pointer;">إغلاق السلة</button>
-        </div>
-    </div>
 
     <!-- شريط الملاحة السفلي -->
     <nav class="bottom-nav">
