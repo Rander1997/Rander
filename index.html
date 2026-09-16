@@ -1323,42 +1323,47 @@
 
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
-        function showToast(text) {
+                function showToast(text) {
             var existingToast = document.querySelector('.toast-msg');
             if (existingToast) existingToast.remove();
 
             var toast = document.createElement('div');
             toast.className = 'toast-msg';
-            toast.innerText = text;
             
-            // إلغاء أي امتداد وجعل الحاوية تأخذ حجم النص فقط وتتوسد في المنتصف تماماً
+            // الحاوية الخارجية تلغي تماماً أي مساحة وتجعل الموقع طافياً بلا أي امتداد
             toast.style.cssText = "position: fixed !important; " +
-                                  "top: 25px !important; " +
-                                  "left: 50% !important; " +
-                                  "-webkit-transform: translateX(-50%) !important; " +
-                                  "transform: translateX(-50%) !important; " +
+                                  "top: 20px !important; " +
+                                  "left: 0 !important; " +
+                                  "right: 0 !important; " +
+                                  "text-align: center !important; " +
+                                  "z-index: 999999 !important; " +
+                                  "pointer-events: none !important; " +
+                                  "background: transparent !important; " +
+                                  "height: 0 !important; " +
+                                  "overflow: visible !important;";
+
+            // رسالة التوست الحقيقية بحجمها فقط دون أي امتداد أو ظل طويل
+            var inner = document.createElement('div');
+            inner.innerText = text;
+            inner.style.cssText = "display: inline-block !important; " +
                                   "background-color: #1e293b !important; " +
                                   "color: #ffffff !important; " +
                                   "padding: 10px 20px !important; " +
                                   "border-radius: 30px !important; " +
                                   "font-weight: 600 !important; " +
                                   "font-size: 13px !important; " +
-                                  "z-index: 999999 !important; " +
                                   "box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important; " +
                                   "text-align: center !important; " +
-                                  "transition: opacity 0.3s ease !important; " +
-                                  "width: fit-content !important; " +
-                                  "max-width: 90% !important; " +
-                                  "height: auto !important; " +
-                                  "min-height: 0 !important; " +
-                                  "max-height: none !important; " +
-                                  "display: block !important; " +
-                                  "border: 1px solid rgba(255, 255, 255, 0.15) !important;";
+                                  "pointer-events: auto !important; " +
+                                  "border: 1px solid rgba(255, 255, 255, 0.15) !important; " +
+                                  "max-width: 90% !important;";
 
+            toast.appendChild(inner);
             document.body.appendChild(toast);
 
             setTimeout(function() {
                 toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
                 setTimeout(function() { if(toast.parentNode) toast.remove(); }, 300);
             }, 2500);
         }
