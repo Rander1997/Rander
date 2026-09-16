@@ -2027,12 +2027,17 @@ function renderCartModal() {
             var imgEl = document.getElementById('story-media-img');
             var videoEl = document.getElementById('story-media-video');
 
-            if (story.video) {
-                imgEl.style.display = 'none';
-                videoEl.style.display = 'block';
-                videoEl.src = story.video;
-                videoEl.play();
-            } else {
+                if (story.video) {
+        imgEl.style.display = 'none';
+        videoEl.style.display = 'block';
+        videoEl.src = story.video;
+        videoEl.muted = true; // ضروري لكي تسمح المتصفحات بالتشغيل التلقائي
+        videoEl.setAttribute('playsinline', 'true'); // ضروري لأجهزة الآيباد والآيفون
+        videoEl.play().catch(function(error) {
+            console.log("Autoplay prevented:", error);
+        });
+    }
+
                 videoEl.style.display = 'none';
                 videoEl.pause();
                 imgEl.style.display = 'block';
