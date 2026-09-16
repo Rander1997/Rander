@@ -1995,11 +1995,10 @@ function renderCartModal() {
 
         // بيانات القصص التفاعلية
         var storiesData = [
-    { id: 'p1', title: 'حقيبة ظهر', img: 'https://i.imgur.com/QfL2xFh.jpeg' },
-    { id: 'p1_cup', title: 'كوب قهوة', img: 'https://i.imgur.com/NjTaTUH.jpeg' },
-    { id: 'p2', title: 'iPad Air', img: 'https://i.imgur.com/BtDsDLH.jpeg' }
-];
-
+            { id: 'p1', title: 'حقيبة ظهر', img: 'https://i.imgur.com/QfL2xFh.jpeg' },
+            { id: 'p1_cup', title: 'كوب قهوة', img: 'https://i.imgur.com/NjTaTUH.jpeg' },
+            { id: 'p2', title: 'iPad Air', img: 'https://i.imgur.com/BtDsDLH.jpeg' }
+        ];
 
         function renderStories() {
             var container = document.getElementById('stories-bar');
@@ -2023,23 +2022,12 @@ function renderCartModal() {
             var imgEl = document.getElementById('story-media-img');
             var videoEl = document.getElementById('story-media-video');
 
-                    if (story.video) {
-        imgEl.style.display = 'none';
-        videoEl.style.display = 'block';
-        videoEl.src = story.video;
-        videoEl.muted = true;
-        videoEl.setAttribute('playsinline', 'true');
-        videoEl.play().catch(function(error) {
-            console.log("Autoplay prevented:", error);
-        });
-    } else {
-        videoEl.style.display = 'none';
-        videoEl.pause();
-        imgEl.style.display = 'block';
-        imgEl.src = story.img || (product ? product.images[0] : '');
-    }
-
-
+            if (story.video) {
+                imgEl.style.display = 'none';
+                videoEl.style.display = 'block';
+                videoEl.src = story.video;
+                videoEl.play();
+            } else {
                 videoEl.style.display = 'none';
                 videoEl.pause();
                 imgEl.style.display = 'block';
