@@ -1,3 +1,49 @@
+function sendAllCartToWhatsApp() {
+    try {
+        var nameEl = document.getElementById('cust-name');
+        var citySelectEl = document.getElementById('cust-city');
+        var addressEl = document.getElementById('cust-address');
+        var phoneEl = document.getElementById('cust-phone');
+
+        var name = nameEl ? nameEl.value.trim() : "";
+        var address = addressEl ? addressEl.value.trim() : "";
+        var phone = phoneEl ? phoneEl.value.trim() : "";
+        var city = (citySelectEl && citySelectEl.selectedIndex >= 0) ? citySelectEl.options[citySelectEl.selectedIndex].text : "";
+
+        if (!name || !address || !phone) {
+            if (typeof showToast === 'function') {
+                showToast("⚠️ يرجى إكمال جميع بيانات التوصيل!");
+            } else {
+                alert("⚠️ يرجى إكمال جميع بيانات التوصيل!");
+            }
+            return;
+        }
+
+        if (!typeof cartArray !== 'undefined' || !cartArray || cartArray.length === 0) {
+            alert("السلة فارغة!");
+            return;
+        }
+
+        var message = "مرحباً RANDER، طلب جديد:\n\n";
+        cartArray.forEach(function(item, i) {
+            var optionText = item.option ? " (" + item.option + ")" : "";
+            var qtyText = item.qty || item.quantity || 1;
+            message += (i + 1) + ". " + item.name + optionText + " - الكمية: " + qtyText + "\n";
+        });
+
+        message += "\n👤 الاسم: " + name + "\n📞 الهاتف: " + phone + "\n📍 العنوان: " + city + " - " + address + "\n";
+
+        if (typeof getGiftMessageText === 'function') {
+            message += getGiftMessageText();
+        }
+
+        var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
+        window.open(waUrl, '_blank');
+    } catch (err) {
+        console.error("Order Error:", err);
+        alert("حدث خطأ أثناء الإرسال: " + err.message);
+    }
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1510,32 +1556,51 @@
             document.getElementById('cart-modal').style.display = 'flex';
         }
 
-        function scrollToCart() { navGoCart(null); }
-        function closeCartModal() { document.getElementById('cart-modal').style.display = 'none'; }
-        function closeCartOnOutsideClick(e) { if (e.target.id === 'cart-modal') closeCartModal(); }
-
         function sendAllCartToWhatsApp() {
-    var name = document.getElementById('cust-name').value.trim();
-    var citySelect = document.getElementById('cust-city');
-    var city = citySelect.options[citySelect.selectedIndex].text;
-    var address = document.getElementById('cust-address').value.trim();
-    var phone = document.getElementById('cust-phone').value.trim();
+    try {
+        var nameEl = document.getElementById('cust-name');
+        var citySelectEl = document.getElementById('cust-city');
+        var addressEl = document.getElementById('cust-address');
+        var phoneEl = document.getElementById('cust-phone');
 
-    if (!name || !address || !phone) {
-        showToast("⚠️ يرجى إكمال جميع بيانات التوصيل!");
-        return;
+        var name = nameEl ? nameEl.value.trim() : "";
+        var address = addressEl ? addressEl.value.trim() : "";
+        var phone = phoneEl ? phoneEl.value.trim() : "";
+        var city = (citySelectEl && citySelectEl.selectedIndex >= 0) ? citySelectEl.options[citySelectEl.selectedIndex].text : "";
+
+        if (!name || !address || !phone) {
+            if (typeof showToast === 'function') {
+                showToast("⚠️ يرجى إكمال جميع بيانات التوصيل!");
+            } else {
+                alert("⚠️ يرجى إكمال جميع بيانات التوصيل!");
+            }
+            return;
+        }
+
+        if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
+            alert("السلة فارغة!");
+            return;
+        }
+
+        var message = "مرحباً RANDER، طلب جديد:\n\n";
+        cartArray.forEach(function(item, i) {
+            var optionText = item.option ? " (" + item.option + ")" : "";
+            var qtyText = item.qty || item.quantity || 1;
+            message += (i + 1) + ". " + item.name + optionText + " - الكمية: " + qtyText + "\n";
+        });
+
+        message += "\n👤 الاسم: " + name + "\n📞 الهاتف: " + phone + "\n📍 العنوان: " + city + " - " + address + "\n";
+
+        if (typeof getGiftMessageText === 'function') {
+            message += getGiftMessageText();
+        }
+
+        var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
+        window.open(waUrl, '_blank');
+    } catch (err) {
+        console.error("Order Error:", err);
+        alert("حدث خطأ أثناء الإرسال: " + err.message);
     }
-
-    var message = "مرحباً RANDER، طلب جديد:\n\n";
-    cartArray.forEach(function(item, i) {
-        var optionText = item.option ? " (" + item.option + ")" : "";
-        message += (i + 1) + ". " + item.name + optionText + " - الكمية: " + item.qty + "\n";
-    });
-
-    message += "\n👤 الاسم: " + name + "\n📞 الهاتف: " + phone + "\n📍 العنوان: " + city + " - " + address + "\n";
-    message += getGiftMessageText();
-
-    window.open("https://wa.me/9647862253180?text=" + encodeURIComponent(message), '_blank');
 }
 
         /* ---------------------------------------------------- */
