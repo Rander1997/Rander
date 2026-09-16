@@ -960,7 +960,8 @@
 </div>
 
     <!-- نافذة السلة المنبثقة الكاملة والمعدلة -->
- <div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
+ <!-- Modal السلة -->
+<div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
     <div class="cart-modal-content">
         
         <!-- رأس النافذة -->
@@ -970,7 +971,7 @@
         </div>
 
         <!-- مكان عرض المنتجات مضافة مع أزرار الزيادة والنقصان -->
-        <div id="cart-items-list" style="max-height:200px; overflow-y:auto; margin-bottom:15px;">
+        <div id="cart-items-list" style="max-height:250px; overflow-y:auto; margin-bottom:15px; padding-left:5px;">
             <!-- يتم توليد عناصر السلة هنا تلقائياً بواسطة JavaScript -->
         </div>
 
@@ -1037,12 +1038,14 @@
         </div>
 
         <!-- زر إرسال الطلب -->
-        <button class="buy-button" onclick="sendOrder()" style="width:100%; padding:12px; font-size:15px; border-radius:10px;">
+        <button class="buy-button" onclick="sendOrder()" style="width:100%; padding:12px; font-size:15px; border-radius:10px; cursor:pointer;">
             تأكيد الطلب عبر الواتساب 💬
         </button>
 
     </div>
 </div>
+
+
 
 
 
