@@ -960,90 +960,91 @@
 </div>
 
     <!-- نافذة السلة المنبثقة الكاملة والمعدلة -->
-    <div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
-        <div class="cart-modal-content">
+ <div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
+    <div class="cart-modal-content">
+        
+        <!-- رأس النافذة -->
+        <div class="cart-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:15px;">
+            <h3 style="margin:0; font-size:18px;">🛒 سلة التسوق</h3>
+            <span class="close-btn" onclick="closeCartModal()" style="cursor:pointer; font-size:24px; font-weight:bold;">&times;</span>
+        </div>
+
+        <!-- مكان عرض المنتجات مضافة مع أزرار الزيادة والنقصان -->
+        <div id="cart-items-list" style="max-height:200px; overflow-y:auto; margin-bottom:15px;">
+            <!-- يتم توليد عناصر السلة هنا تلقائياً بواسطة JavaScript -->
+        </div>
+
+        <!-- حقول بيانات الزبون -->
+        <div class="cart-checkout-section" style="border-top:1px solid var(--border-color); padding-top:12px;">
             
-            <!-- رأس النافذة -->
-            <div class="cart-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:15px;">
-                <h3 style="margin:0; font-size:18px;">🛒 سلة التسوق</h3>
-                <span class="close-btn" onclick="closeCartModal()" style="cursor:pointer; font-size:24px; font-weight:bold;">&times;</span>
+            <div class="form-group" style="margin-bottom:10px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">الاسم الكامل:</label>
+                <input type="text" id="cust-name" class="form-input" placeholder="اكتب اسمك الثلاثي" required style="width:100%; box-sizing:border-box;">
             </div>
 
-            <!-- مكان عرض المنتجات مضافة مع أزرار الزيادة والنقصان -->
-            <div id="cart-items-list" style="max-height:200px; overflow-y:auto; margin-bottom:15px;"></div>
-
-                <!-- يتم توليد عناصر السلة هنا تلقائياً بواسطة JavaScript -->
+            <div class="form-group" style="margin-bottom:10px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">المحافظة:</label>
+                <select id="cust-city" onchange="calculateGrandTotal()" class="form-input" style="width:100%; box-sizing:border-box;" required>
+                    <option value="" disabled selected>اختر المحافظة...</option>
+                    <option value="بغداد" data-cost="3000">بغداد (التوصيل: 3,000 د.ع)</option>
+                    <option value="النجف" data-cost="5000">النجف الأشرف (التوصيل: 5,000 د.ع)</option>
+                    <option value="البصرة" data-cost="5000">البصرة (التوصيل: 5,000 د.ع)</option>
+                    <option value="أربيل" data-cost="5000">أربيل (التوصيل: 5,000 د.ع)</option>
+                    <option value="كربلاء" data-cost="5000">كربلاء المقدسة (التوصيل: 5,000 د.ع)</option>
+                    <option value="بابل" data-cost="5000">بابل (التوصيل: 5,000 د.ع)</option>
+                    <option value="ذي قار" data-cost="5000">ذي قار (التوصيل: 5,000 د.ع)</option>
+                    <option value="ميسان" data-cost="5000">ميسان (التوصيل: 5,000 د.ع)</option>
+                    <option value="المثنى" data-cost="5000">المثنى (التوصيل: 5,000 د.ع)</option>
+                    <option value="القادسية" data-cost="5000">القادسية (الديوانية) (التوصيل: 5,000 د.ع)</option>
+                    <option value="واسط" data-cost="5000">واسط (التوصيل: 5,000 د.ع)</option>
+                    <option value="ديالى" data-cost="5000">ديالى (التوصيل: 5,000 د.ع)</option>
+                    <option value="الأنبار" data-cost="5000">الأنبار (التوصيل: 5,000 د.ع)</option>
+                    <option value="كركوك" data-cost="5000">كركوك (التوصيل: 5,000 د.ع)</option>
+                    <option value="صلاح الدين" data-cost="5000">صلاح الدين (التوصيل: 5,000 د.ع)</option>
+                    <option value="نينوى" data-cost="5000">نينوى (التوصيل: 5,000 د.ع)</option>
+                    <option value="السليمانية" data-cost="5000">السليمانية (التوصيل: 5,000 د.ع)</option>
+                    <option value="دهوك" data-cost="5000">دهوك (التوصيل: 5,000 د.ع)</option>
+                </select>
             </div>
 
-            <!-- حقول بيانات الزبون -->
-            <div class="cart-checkout-section" style="border-top:1px solid var(--border-color); padding-top:12px;">
-                
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">الاسم الكامل:</label>
-                    <input type="text" id="cust-name" class="form-input" placeholder="اكتب اسمك الثلاثي" required style="width:100%;">
-                </div>
-
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">المحافظة:</label>
-                    <select id="cust-city" onchange="calculateGrandTotal()" class="form-input" style="width:100%;" required>
-                        <option value="" disabled selected>اختر المحافظة...</option>
-                        <option value="بغداد" data-cost="3000">بغداد (التوصيل: 3,000 د.ع)</option>
-                        <option value="النجف" data-cost="5000">النجف الأشرف (التوصيل: 5,000 د.ع)</option>
-                        <option value="البصرة" data-cost="5000">البصرة (التوصيل: 5,000 د.ع)</option>
-                        <option value="أربيل" data-cost="5000">أربيل (التوصيل: 5,000 د.ع)</option>
-                        <option value="كربلاء" data-cost="5000">كربلاء المقدسة (التوصيل: 5,000 د.ع)</option>
-                        <option value="بابل" data-cost="5000">بابل (التوصيل: 5,000 د.ع)</option>
-                        <option value="ذي قار" data-cost="5000">ذي قار (التوصيل: 5,000 د.ع)</option>
-                        <option value="ميسان" data-cost="5000">ميسان (التوصيل: 5,000 د.ع)</option>
-                        <option value="المثنى" data-cost="5000">المثنى (التوصيل: 5,000 د.ع)</option>
-                        <option value="القادسية" data-cost="5000">القادسية (الديوانية) (التوصيل: 5,000 د.ع)</option>
-                        <option value="واسط" data-cost="5000">واسط (التوصيل: 5,000 د.ع)</option>
-                        <option value="ديالى" data-cost="5000">ديالى (التوصيل: 5,000 د.ع)</option>
-                        <option value="الأنبار" data-cost="5000">الأنبار (التوصيل: 5,000 د.ع)</option>
-                        <option value="كركوك" data-cost="5000">كركوك (التوصيل: 5,000 د.ع)</option>
-                        <option value="صلاح الدين" data-cost="5000">صلاح الدين (التوصيل: 5,000 د.ع)</option>
-                        <option value="نينوى" data-cost="5000">نينوى (التوصيل: 5,000 د.ع)</option>
-                        <option value="السليمانية" data-cost="5000">السليمانية (التوصيل: 5,000 د.ع)</option>
-                        <option value="دهوك" data-cost="5000">دهوك (التوصيل: 5,000 د.ع)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">العنوان التفصيلي:</label>
-                    <input type="text" id="cust-address" class="form-input" placeholder="مثال: الحي - اسم الشارع - نقطة دالة مجاورة" required style="width:100%;">
-                </div>
-
-                <div class="form-group" style="margin-bottom:15px;">
-                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">رقم الهاتف:</label>
-                    <input type="tel" id="cust-phone" class="form-input" placeholder="07XXXXXXXXX" required style="width:100%;">
-                </div>
-
+            <div class="form-group" style="margin-bottom:10px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">العنوان التفصيلي:</label>
+                <input type="text" id="cust-address" class="form-input" placeholder="مثال: الحي - اسم الشارع - نقطة دالة مجاورة" required style="width:100%; box-sizing:border-box;">
             </div>
 
-            <!-- جدول ملخص الحساب والحساب المالي -->
-            <div class="cart-summary" style="background:var(--bg-primary); padding:12px 15px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:15px;">
-                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;">
-                    <span>مجموع المنتجات:</span>
-                    <span><strong id="cart-subtotal">0</strong> د.ع</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; color:var(--text-secondary);">
-                    <span>أجور التوصيل:</span>
-                    <span><strong id="cart-delivery-cost">0</strong> د.ع</span>
-                </div>
-                <hr style="border:none; border-top:1px dashed var(--border-color); margin:8px 0;">
-                <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:900; color:var(--accent);">
-                    <span>المجموع الكلي:</span>
-                    <span><strong id="cart-total-price">0</strong> د.ع</span>
-                </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">رقم الهاتف:</label>
+                <input type="tel" id="cust-phone" class="form-input" placeholder="07XXXXXXXXX" required style="width:100%; box-sizing:border-box;">
             </div>
-
-            <!-- زر إرسال الطلب -->
-            <button class="buy-button" onclick="sendOrder()" style="width:100%; padding:12px; font-size:15px; border-radius:10px;">
-                تأكيد الطلب عبر الواتساب 💬
-            </button>
 
         </div>
+
+        <!-- جدول ملخص الحساب والحساب المالي -->
+        <div class="cart-summary" style="background:var(--bg-primary); padding:12px 15px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;">
+                <span>مجموع المنتجات:</span>
+                <span><strong id="cart-subtotal">0</strong> د.ع</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; color:var(--text-secondary);">
+                <span>أجور التوصيل:</span>
+                <span><strong id="cart-delivery-cost">0</strong> د.ع</span>
+            </div>
+            <hr style="border:none; border-top:1px dashed var(--border-color); margin:8px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:900; color:var(--accent);">
+                <span>المجموع الكلي:</span>
+                <span><strong id="cart-total-price">0</strong> د.ع</span>
+            </div>
+        </div>
+
+        <!-- زر إرسال الطلب -->
+        <button class="buy-button" onclick="sendOrder()" style="width:100%; padding:12px; font-size:15px; border-radius:10px;">
+            تأكيد الطلب عبر الواتساب 💬
+        </button>
+
     </div>
+</div>
+
+
 
     
     <section class="hero">
