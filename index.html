@@ -917,6 +917,52 @@
     </div>
 </div>
 
+<!-- نافذة السلة المنبثقة كاملة -->
+<div id="cart-modal" class="cart-modal" onclick="closeCartOnOutsideClick(event)" style="display:none;">
+    <div class="cart-modal-content">
+        
+        <!-- رأس النافذة وزر الإغلاق -->
+        <div class="cart-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>سلة التسوق 🛒</h3>
+            <span class="close-btn" onclick="closeCartModal()" style="cursor:pointer; font-size:24px;">&times;</span>
+        </div>
+
+        <!-- مكان عرض المنتجات -->
+        <div id="cart-items-container"></div>
+
+        <!-- حقول بيانات الزبون والتوصيل -->
+        <div class="cart-checkout-section">
+            <div class="form-group" style="margin-top:10px;">
+                <input type="text" id="cust-name" placeholder="الاسم الكامل" required style="width:100%; padding:8px;">
+            </div>
+            <div class="form-group" style="margin-top:10px;">
+                <select id="cust-city" onchange="calculateGrandTotal()" style="width:100%; padding:8px;">
+                    <option value="بغداد" data-cost="5000">بغداد</option>
+                    <option value="بابل" data-cost="5000">بابل</option>
+                    <option value="النجف" data-cost="5000">النجف</option>
+                    <option value="بقية المحافظات" data-cost="6000">بقية المحافظات</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-top:10px;">
+                <input type="text" id="cust-address" placeholder="العنوان التفصيلي" required style="width:100%; padding:8px;">
+            </div>
+            <div class="form-group" style="margin-top:10px;">
+                <input type="tel" id="cust-phone" placeholder="رقم الهاتف" required style="width:100%; padding:8px;">
+            </div>
+
+            <!-- ملخص الحساب والإجمالي -->
+            <div class="cart-summary" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                <p>المجموع: <span id="cart-subtotal">0</span> د.ع</p>
+                <p>التوصيل: <span id="cart-delivery-cost">0</span> د.ع</p>
+                <h4>الإجمالي: <span id="cart-total-price">0</span> د.ع</h4>
+            </div>
+
+            <!-- زر التأكيد والإرسال -->
+            <button type="button" class="btn-send-order" onclick="sendAllCartToWhatsApp()" style="width:100%; padding:12px; background:#25D366; color:#fff; border:none; border-radius:8px; font-size:16px; margin-top:10px; cursor:pointer;">تأكيد وإرسال الطلب 🚀</button>
+        </div>
+
+    </div>
+</div>
     
     <section class="hero">
         <h1>متجر RANDER </h1>
