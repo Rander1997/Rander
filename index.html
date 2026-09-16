@@ -905,7 +905,8 @@
 <div id="story-modal" class="story-modal">
     <div class="story-modal-content">
         <span class="story-close-btn" onclick="closeStory()">&times;</span>
-        <img id="story-media-img" class="story-media" src="" alt="Story">
+        <img id="story-media-img" class="story-media" src="" alt="Story" style="display:none;">
+<video id="story-media-video" class="story-media" autoplay loop muted playsinline style="display:none;"></video>
         <div class="story-buy-bar">
             <div>
                 <strong id="story-product-name" style="font-size: 13px; display: block; color: #111;">اسم المنتج</strong>
@@ -1514,27 +1515,28 @@
         function closeCartOnOutsideClick(e) { if (e.target.id === 'cart-modal') closeCartModal(); }
 
         function sendAllCartToWhatsApp() {
-            var name = document.getElementById('cust-name').value.trim();
-            var city = document.getElementById('cust-city').value;
-            var address = document.getElementById('cust-address').value.trim();
-            var phone = document.getElementById('cust-phone').value.trim();
+    var name = document.getElementById('cust-name').value.trim();
+    var citySelect = document.getElementById('cust-city');
+    var city = citySelect.options[citySelect.selectedIndex].text;
+    var address = document.getElementById('cust-address').value.trim();
+    var phone = document.getElementById('cust-phone').value.trim();
 
-            if (!name || !address || !phone) {
-                showToast("⚠️ يرجى إكمال جميع بيانات التوصيل!");
-                return;
-            }
+    if (!name || !address || !phone) {
+        showToast("⚠️ يرجى إكمال جميع بيانات التوصيل!");
+        return;
+    }
 
-            var message = "مرحباً RANDER، طلب جديد:\n\n";
-            cartArray.forEach(function(item, i) {
-                message += (i + 1) + ". " + item.name + " (" + item.option + ") - الكمية: " + item.qty + "\n";
-            });
+    var message = "مرحباً RANDER، طلب جديد:\n\n";
+    cartArray.forEach(function(item, i) {
+        var optionText = item.option ? " (" + item.option + ")" : "";
+        message += (i + 1) + ". " + item.name + optionText + " - الكمية: " + item.qty + "\n";
+    });
 
-            message += "\n👤 الاسم: " + name + "\n📱 الهاتف: " + phone + "\n📍 العنوان: " + city + " - " + address;
-            message += getGiftMessageText();
-            window.open("https://wa.me/9647862253180?text=" + encodeURIComponent(message), '_blank');
+    message += "\n👤 الاسم: " + name + "\n📞 الهاتف: " + phone + "\n📍 العنوان: " + city + " - " + address + "\n";
+    message += getGiftMessageText();
 
-
-        }
+    window.open("https://wa.me/9647862253180?text=" + encodeURIComponent(message), '_blank');
+}
 
         /* ---------------------------------------------------- */
         /* منطق ميزة تثبيت التطبيق (PWA Install Prompt Logic) */
@@ -1742,25 +1744,44 @@ function renderStories() {
     `).join('');
 }
 
-function openStory(productId) {
-    const product = productsData[productId];
-    if (!product) return;
+function openStory(storyId) {
+    const story = storiesData.find(s => s.id === storyId);
+    if (!story) return;
 
-    document.getElementById('story-media-img').src = product.images[0];
-    document.getElementById('story-product-name').innerText = product.name;
-    document.getElementById('story-product-price').innerText = product.price.toLocaleString('ar-IQ') + ' د.ع';
-    
-    const buyBtn = document.getElementById('story-buy-btn');
-    buyBtn.onclick = () => {
-        closeStory();
-        if (typeof addToCart === 'function') addToCart(productId);
-        if (typeof scrollToCart === 'function') scrollToCart();
-    };
+    const product = productsData[story.productId || story.id];
+    const imgEl = document.getElementById('story-media-img');
+    const videoEl = document.getElementById('story-media-video');
+
+    if (story.video) {
+        imgEl.style.display = 'none';
+        videoEl.style.display = 'block';
+        videoEl.src = story.video;
+        videoEl.play();
+    } else {
+        videoEl.style.display = 'none';
+        videoEl.pause();
+        imgEl.style.display = 'block';
+        imgEl.src = story.img || (product ? product.images[0] : '');
+    }
+
+    if (product) {
+        document.getElementById('story-product-name').innerText = product.name;
+        document.getElementById('story-product-price').innerText = product.price.toLocaleString('ar-IQ') + ' د.ع';
+        
+        const buyBtn = document.getElementById('story-buy-btn');
+        buyBtn.onclick = () => {
+            closeStory();
+            if (typeof addToCart === 'function') addToCart(story.productId || story.id);
+            if (typeof scrollToCart === 'function') scrollToCart();
+        };
+    }
 
     document.getElementById('story-modal').style.display = 'flex';
 }
 
 function closeStory() {
+    const videoEl = document.getElementById('story-media-video');
+    if (videoEl) videoEl.pause();
     document.getElementById('story-modal').style.display = 'none';
 }
 
