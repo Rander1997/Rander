@@ -1551,45 +1551,69 @@
             });
         }
 
-        function addToCart(buttonElement, productName, unitPrice) {
-    if (typeof cartArray === 'undefined') window.cartArray = [];
-    
-    var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
-    var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
-    var selectedOption = optionSelect ? optionSelect.value : "قياسي";
-    var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
-    var quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+        // 1. دالة إضافة المنتجات للسلة (مؤمنة بالكامل)
+function addToCart(buttonElement, productName, unitPrice) {
+    try {
+        if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) {
+            window.cartArray = [];
+        }
+        
+        var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
+        var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
+        var selectedOption = optionSelect ? optionSelect.value : "قياسي";
+        var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
+        var quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
 
-    // توحيد نمط السعر إلى رقم دائماً
-    var numPrice = Number(unitPrice) || 0;
+        var numPrice = Number(unitPrice) || 0;
 
-    var existingItem = cartArray.find(function(item) { 
-        var name = item.name || item.title;
-        return name === productName && item.option === selectedOption; 
-    });
+        var existingItem = cartArray.find(function(item) { 
+            var name = item.name || item.title;
+            return name === productName && item.option === selectedOption; 
+        });
 
-    if (existingItem) { 
-        existingItem.qty = (existingItem.qty || 1) + quantity; 
-    } else { 
-        cartArray.push({ 
-            name: productName, 
-            title: productName, 
-            price: numPrice, 
-            option: selectedOption, 
-            qty: quantity 
-        }); 
+        if (existingItem) { 
+            existingItem.qty = (existingItem.qty || 1) + quantity; 
+        } else { 
+            cartArray.push({ 
+                name: productName, 
+                title: productName, 
+                price: numPrice, 
+                option: selectedOption, 
+                qty: quantity 
+            }); 
+        }
+
+        if (typeof saveCartToStorage === 'function') saveCartToStorage();
+        if (typeof updateCartCounter === 'function') updateCartCounter();
+        if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
+    } catch (err) {
+        console.error("خطأ في الإضافة للسلة:", err);
     }
-
-    saveCartToStorage();
-    updateCartCounter();
-    if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
 }
 
+// 2. دالة إغلاق نافذة السلة (تعالج زر X بشكل مباشر)
+function closeCartModal() {
+    var cartModal = document.getElementById('cart-modal');
+    if (cartModal) {
+        cartModal.style.display = 'none';
+    }
+}
+
+// 3. دالة فتح السلة
+function navGoCart(btnElement) {
+    if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
+    renderCartModal();
+    var cartModal = document.getElementById('cart-modal');
+    if (cartModal) cartModal.style.display = 'flex';
+}
+
+// 4. دالة الشراء السريع
 function quickBuy(buttonElement, productName, unitPrice) {
     addToCart(buttonElement, productName, unitPrice);
-    if (typeof navGoCart === 'function') navGoCart(null);
+    navGoCart(null);
 }
 
+// 5. دالة تحديث عداد السلة
 function updateCartCounter() {
     if (typeof cartArray === 'undefined') window.cartArray = [];
     var totalQty = cartArray.reduce(function(sum, item) { return sum + (item.qty || 1); }, 0);
@@ -1597,7 +1621,7 @@ function updateCartCounter() {
     if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
 }
 
-/* دالة السلة للتحكم بالكميات */
+// 6. التحكم بالكميات داخل السلة
 function changeCartQty(index, change) {
     if (typeof cartArray !== 'undefined' && cartArray[index]) {
         var currentQty = cartArray[index].qty || 1;
@@ -1609,34 +1633,60 @@ function changeCartQty(index, change) {
             cartArray[index].qty = newQty;
         }
         
-        saveCartToStorage();
-        updateCartCounter();
+        if (typeof saveCartToStorage === 'function') saveCartToStorage();
+        if (typeof updateCartCounter === 'function') updateCartCounter();
         renderCartModal();
     }
 }
 
+// 7. حذف عنصر من السلة
 function removeFromCart(index) {
     if (typeof cartArray !== 'undefined' && cartArray[index]) {
         cartArray.splice(index, 1);
-        saveCartToStorage();
-        updateCartCounter();
+        if (typeof saveCartToStorage === 'function') saveCartToStorage();
+        if (typeof updateCartCounter === 'function') updateCartCounter();
         renderCartModal();
     }
 }
 
-/* دالة عرض وتوليد عناصر السلة بداخل Modal السلة */
+// 8. عرض عناصر السلة في النافذة
 function renderCartModal() {
     var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
     if (!container) return;
 
-    var summaryArea = document.getElementById('cart-summary-area');
-
     if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
         container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
-        if (summaryArea) summaryArea.style.display = 'none';
         if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
         return;
     }
+
+    var html = '';
+    cartArray.forEach(function(item, index) {
+        var qty = item.qty || 1;
+        var productName = item.name || item.title || 'منتج';
+        var price = Number(item.price) || 0;
+        var itemTotal = price * qty;
+        var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary);">' + item.option + '</div>' : '';
+
+        html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">' +
+                    '<div>' +
+                        '<div style="font-weight:bold; font-size:13px;">' + productName + '</div>' +
+                        optionText +
+                        '<div style="font-weight:bold; color:var(--accent); font-size:12px; margin-top:2px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
+                    '</div>' +
+                    '<div style="display:flex; align-items:center; gap:6px;">' +
+                        '<button type="button" onclick="changeCartQty(' + index + ', -1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold;">-</button>' +
+                        '<span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">' + qty + '</span>' +
+                        '<button type="button" onclick="changeCartQty(' + index + ', 1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold;">+</button>' +
+                        '<button type="button" onclick="removeFromCart(' + index + ')" style="background:none; border:none; color:#ef4444; margin-right:4px; cursor:pointer; font-size:16px;">🗑️</button>' +
+                    '</div>' +
+                '</div>';
+    });
+
+    container.innerHTML = html;
+    if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+}
+
 
     if (summaryArea) summaryArea.style.display = 'block';
 
