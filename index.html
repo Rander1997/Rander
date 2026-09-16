@@ -1683,15 +1683,21 @@ function removeFromCart(index) {
 // 8. عرض عناصر السلة في النافذة (معالجة شاملة لكافة الأجهزة والشاشات)
 // دالة عرض عناصر السلة (متوافقة 100% مع أندرويد ووضع العرض في الآيباد)
 function renderCartModal() {
-    alert("Cart Length: " + (typeof cartArray !== 'undefined' ? cartArray.length : "Undefined"));
-    
+    // إزالة التنبيه بعد أن تأكدنا من عمله
     var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
     if (!container) return;
+
+    // إجبار حاوية المنتجات على الظهور بحجم واضح ومستقل على الأندرويد
+    container.style.display = "block";
+    container.style.visibility = "visible";
+    container.style.minHeight = "150px"; 
+    container.style.maxHeight = "300px";
+    container.style.overflowY = "auto";
 
     var summaryArea = document.getElementById('cart-summary-area');
 
     if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary, #666); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
+        container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:#666; font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
         if (summaryArea) summaryArea.style.display = 'none';
         if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
         return;
@@ -1708,22 +1714,20 @@ function renderCartModal() {
         var productName = String(item.name || item.title || 'منتج').trim();
         var price = Number(item.price) || 0;
         var itemTotal = price * qty;
-        var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary, #777); margin-top:2px;">' + item.option + '</div>' : '';
+        var optionText = item.option ? '<div style="font-size:11px; color:#777; margin-top:2px;">' + item.option + '</div>' : '';
 
-        // هيكل آمن ومستقر 100% يمنع اختفاء العناصر على أندرويد
-        html += '<div style="display:block; width:100%; padding:10px 0; border-bottom:1px solid var(--border-color, #eee); box-sizing:border-box; clear:both; overflow:hidden;">' +
-                    '<div style="float:right; width:60%; text-align:right; box-sizing:border-box; padding-left:5px;">' +
-                        '<div style="font-weight:bold; font-size:13px; color:var(--text-primary, #111); word-break:break-word;">' + productName + '</div>' +
+        // تصميم بسيط ومستقر يظهر بشكل قاطع على الشاشات الصغرى
+        html += '<div style="display:block; width:100%; padding:10px 5px; border-bottom:1px solid #ddd; box-sizing:border-box; clear:both; overflow:hidden;">' +
+                    '<div style="float:right; width:60%; text-align:right; box-sizing:border-box;">' +
+                        '<div style="font-weight:bold; font-size:13px; color:#111;">' + productName + '</div>' +
                         optionText +
-                        '<div style="font-weight:bold; color:var(--accent, #2563eb); font-size:12px; margin-top:3px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
+                        '<div style="font-weight:bold; color:#2563eb; font-size:12px; margin-top:3px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
                     '</div>' +
                     '<div style="float:left; width:40%; text-align:left; box-sizing:border-box; padding-top:4px;">' +
-                        '<div style="display:inline-block; white-space:nowrap;">' +
-                            '<button type="button" onclick="changeCartQty(' + i + ', -1)" style="width:26px; height:26px; border-radius:4px; border:1px solid var(--border-color, #ccc); background:var(--bg-primary, #fff); color:var(--text-primary, #000); cursor:pointer; font-weight:bold; font-size:14px; line-height:1;">-</button>' +
-                            '<span style="font-weight:bold; font-size:13px; margin:0 6px; display:inline-block; vertical-align:middle;">' + qty + '</span>' +
-                            '<button type="button" onclick="changeCartQty(' + i + ', 1)" style="width:26px; height:26px; border-radius:4px; border:1px solid var(--border-color, #ccc); background:var(--bg-primary, #fff); color:var(--text-primary, #000); cursor:pointer; font-weight:bold; font-size:14px; line-height:1;">+</button>' +
-                            '<button type="button" onclick="removeFromCart(' + i + ')" style="background:none; border:none; color:#ef4444; padding:0 4px; cursor:pointer; font-size:15px; vertical-align:middle; margin-right:4px;">🗑️</button>' +
-                        '</div>' +
+                        '<button type="button" onclick="changeCartQty(' + i + ', -1)" style="width:26px; height:26px; border:1px solid #ccc; background:#fff; font-weight:bold; cursor:pointer;">-</button>' +
+                        '<span style="font-weight:bold; font-size:13px; margin:0 5px;">' + qty + '</span>' +
+                        '<button type="button" onclick="changeCartQty(' + i + ', 1)" style="width:26px; height:26px; border:1px solid #ccc; background:#fff; font-weight:bold; cursor:pointer;">+</button>' +
+                        '<button type="button" onclick="removeFromCart(' + i + ')" style="background:none; border:none; color:red; cursor:pointer; font-size:14px; margin-right:4px;">🗑️</button>' +
                     '</div>' +
                 '</div>';
     }
@@ -1731,6 +1735,7 @@ function renderCartModal() {
     container.innerHTML = html;
     if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
 }
+
 
 
         function calculateGrandTotal() {
