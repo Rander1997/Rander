@@ -2027,7 +2027,7 @@ function renderCartModal() {
             var imgEl = document.getElementById('story-media-img');
             var videoEl = document.getElementById('story-media-video');
 
-                if (story.video) {
+                    if (story.video) {
         imgEl.style.display = 'none';
         videoEl.style.display = 'block';
         videoEl.src = story.video;
@@ -2036,7 +2036,13 @@ function renderCartModal() {
         videoEl.play().catch(function(error) {
             console.log("Autoplay prevented:", error);
         });
+    } else {
+        videoEl.style.display = 'none';
+        videoEl.pause();
+        imgEl.style.display = 'block';
+        imgEl.src = story.img || (product ? product.images[0] : '');
     }
+
 
                 videoEl.style.display = 'none';
                 videoEl.pause();
