@@ -1552,71 +1552,120 @@
         }
 
         function addToCart(buttonElement, productName, unitPrice) {
-            if (typeof cartArray === 'undefined') cartArray = [];
-            var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
-            var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
-            var selectedOption = optionSelect ? optionSelect.value : "قياسي";
-            var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
-            var quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+    if (typeof cartArray === 'undefined') window.cartArray = [];
+    
+    var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
+    var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
+    var selectedOption = optionSelect ? optionSelect.value : "قياسي";
+    var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
+    var quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
 
-            var existingItem = cartArray.find(function(item) { return item.name === productName && item.option === selectedOption; });
-            if (existingItem) { 
-                existingItem.qty = (existingItem.qty || 1) + quantity; 
-            } else { 
-                cartArray.push({ name: productName, price: unitPrice, option: selectedOption, qty: quantity }); 
-            }
+    // توحيد نمط السعر إلى رقم دائماً
+    var numPrice = Number(unitPrice) || 0;
 
-            saveCartToStorage();
-            showToast("🛒 تم الإضافة للسلة!");
+    var existingItem = cartArray.find(function(item) { 
+        var name = item.name || item.title;
+        return name === productName && item.option === selectedOption; 
+    });
+
+    if (existingItem) { 
+        existingItem.qty = (existingItem.qty || 1) + quantity; 
+    } else { 
+        cartArray.push({ 
+            name: productName, 
+            title: productName, 
+            price: numPrice, 
+            option: selectedOption, 
+            qty: quantity 
+        }); 
+    }
+
+    saveCartToStorage();
+    updateCartCounter();
+    if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
+}
+
+function quickBuy(buttonElement, productName, unitPrice) {
+    addToCart(buttonElement, productName, unitPrice);
+    if (typeof navGoCart === 'function') navGoCart(null);
+}
+
+function updateCartCounter() {
+    if (typeof cartArray === 'undefined') window.cartArray = [];
+    var totalQty = cartArray.reduce(function(sum, item) { return sum + (item.qty || 1); }, 0);
+    var counter = document.getElementById('cart-counter');
+    if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
+}
+
+/* دالة السلة للتحكم بالكميات */
+function changeCartQty(index, change) {
+    if (typeof cartArray !== 'undefined' && cartArray[index]) {
+        var currentQty = cartArray[index].qty || 1;
+        var newQty = currentQty + change;
+        
+        if (newQty <= 0) {
+            cartArray.splice(index, 1);
+        } else {
+            cartArray[index].qty = newQty;
         }
+        
+        saveCartToStorage();
+        updateCartCounter();
+        renderCartModal();
+    }
+}
 
-        function quickBuy(buttonElement, productName, unitPrice) {
-            addToCart(buttonElement, productName, unitPrice);
-            navGoCart(null);
-        }
+function removeFromCart(index) {
+    if (typeof cartArray !== 'undefined' && cartArray[index]) {
+        cartArray.splice(index, 1);
+        saveCartToStorage();
+        updateCartCounter();
+        renderCartModal();
+    }
+}
 
-        function updateCartCounter() {
-            if (typeof cartArray === 'undefined') cartArray = [];
-            var totalQty = cartArray.reduce(function(sum, item) { return sum + (item.qty || 1); }, 0);
-            var counter = document.getElementById('cart-counter');
-            if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
-        }
+/* دالة عرض وتوليد عناصر السلة بداخل Modal السلة */
+function renderCartModal() {
+    var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
+    if (!container) return;
 
-        /* دالة السلة الوحيدة والموحدة للتحكم بالكميات */
-        function changeCartQty(index, change) {
-            if (typeof cartArray !== 'undefined' && cartArray[index]) {
-                cartArray[index].qty = (cartArray[index].qty || 1) + change;
-                
-                if (cartArray[index].qty <= 0) {
-                    cartArray.splice(index, 1);
-                }
-                
-                saveCartToStorage();
-                updateCartCounter();
-                renderCartModal();
-            }
-        }
+    var summaryArea = document.getElementById('cart-summary-area');
 
-        function removeFromCart(index) {
-            if (typeof cartArray !== 'undefined' && cartArray[index]) {
-                cartArray.splice(index, 1);
-                saveCartToStorage();
-                updateCartCounter();
-                renderCartModal();
-            }
-        }
+    if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
+        if (summaryArea) summaryArea.style.display = 'none';
+        if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+        return;
+    }
 
-        function renderCartModal() {
-            var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
-            if (!container) return;
+    if (summaryArea) summaryArea.style.display = 'block';
 
-            if (typeof cartArray === 'undefined' || !cartArray || cartArray.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:var(--text-secondary); font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
-                var summaryArea = document.getElementById('cart-summary-area');
-                if (summaryArea) summaryArea.style.display = 'none';
-                calculateGrandTotal();
-                return;
-            }
+    var html = '';
+    cartArray.forEach(function(item, index) {
+        var qty = item.qty || 1;
+        var productName = item.name || item.title || 'منتج';
+        var price = Number(item.price) || 0;
+        var itemTotal = price * qty;
+        var optionText = item.option ? '<div style="font-size:11px; color:var(--text-secondary);">' + item.option + '</div>' : '';
+
+        html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">' +
+                    '<div>' +
+                        '<div style="font-weight:bold; font-size:13px;">' + productName + '</div>' +
+                        optionText +
+                        '<div style="font-weight:bold; color:var(--accent); font-size:12px; margin-top:2px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
+                    '</div>' +
+                    '<div style="display:flex; align-items:center; gap:6px;">' +
+                        '<button type="button" onclick="changeCartQty(' + index + ', -1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold;">-</button>' +
+                        '<span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">' + qty + '</span>' +
+                        '<button type="button" onclick="changeCartQty(' + index + ', 1)" style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); cursor:pointer; font-weight:bold;">+</button>' +
+                        '<button type="button" onclick="removeFromCart(' + index + ')" style="background:none; border:none; color:#ef4444; margin-right:4px; cursor:pointer; font-size:16px;">🗑️</button>' +
+                    '</div>' +
+                '</div>';
+    });
+
+    container.innerHTML = html;
+    if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+}
 
             var summaryArea = document.getElementById('cart-summary-area');
             if (summaryArea) summaryArea.style.display = 'block';
