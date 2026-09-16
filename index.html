@@ -1323,7 +1323,7 @@
 
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
-                function showToast(text) {
+                        function showToast(text) {
             var existingToast = document.querySelector('.toast-msg');
             if (existingToast) existingToast.remove();
 
@@ -1331,29 +1331,34 @@
             toast.className = 'toast-msg';
             toast.innerText = text;
             
-            // تنسيق مباشر يضمن ظهور التنبيه في أعلى الشاشة وفوق كافة النوافذ والسلة
+            // تحديد الارتفاع بـ fit-content لتجنب الصورة السوداء الطويلة
             toast.style.cssText = "position: fixed !important; " +
-                                  "top: 20px !important; " +
+                                  "top: 25px !important; " +
                                   "left: 50% !important; " +
                                   "transform: translateX(-50%) !important; " +
-                                  "background-color: #222222 !important; " +
+                                  "background-color: #1e293b !important; " +
                                   "color: #ffffff !important; " +
-                                  "padding: 12px 20px !important; " +
-                                  "border-radius: 8px !important; " +
-                                  "font-weight: bold !important; " +
-                                  "font-size: 14px !important; " +
+                                  "padding: 10px 18px !important; " +
+                                  "border-radius: 50px !important; " +
+                                  "font-weight: 600 !important; " +
+                                  "font-size: 13px !important; " +
                                   "z-index: 999999 !important; " +
-                                  "box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important; " +
+                                  "box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important; " +
                                   "text-align: center !important; " +
-                                  "transition: opacity 0.3s ease !important; " +
-                                  "width: 85% !important; " +
-                                  "max-width: 350px !important;";
+                                  "transition: opacity 0.3s ease, transform 0.3s ease !important; " +
+                                  "width: auto !important; " +
+                                  "max-width: 85% !important; " +
+                                  "height: auto !important; " +
+                                  "min-height: unset !important; " +
+                                  "max-height: unset !important; " +
+                                  "border: 1px solid rgba(255, 255, 255, 0.1) !important; " +
+                                  "display: inline-block !important;";
 
             document.body.appendChild(toast);
 
             setTimeout(function() {
                 toast.style.opacity = '0';
-                setTimeout(function() { toast.remove(); }, 300);
+                setTimeout(function() { if(toast.parentNode) toast.remove(); }, 300);
             }, 2500);
         }
 
