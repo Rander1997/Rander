@@ -1826,10 +1826,8 @@
         }
 
         // فتح نافذة الدفع الإلكتروني
-        function openPaymentModal(method) {
-    // إغلاق السلة فوراً لتظهر نافذة الدفع فوقها
-    closeCartModal();
-
+        // فتح نافذة الدفع الإلكتروني
+function openPaymentModal(method) {
     var nameEl = document.getElementById('cust-name');
     var citySelectEl = document.getElementById('cust-city');
     var addressEl = document.getElementById('cust-address');
@@ -1840,55 +1838,59 @@
     var address = addressEl ? addressEl.value.trim() : "";
     var phone = phoneEl ? phoneEl.value.trim() : "";
 
+    // 1. التحقق من الحقول أولاً: إذا كانت فارغة، اظهر التوست ولا تُغلق السلة
     if (!name || !city || !address || !phone) {
         if(typeof showToast === 'function') {
             showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
         } else {
             alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
         }
+        return; // إيقاف التنفيذ والبقاء داخل السلة
+    }
+
+    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
+        alert("السلة فارغة!");
         return;
     }
 
-            if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
-                alert("السلة فارغة!");
-                return;
-            }
+    // 2. إذا كانت الحقول كاملة: أغلق السلة الآن وافتح نافذة الدفع
+    closeCartModal();
 
-            currentSelectedPaymentMethod = method;
+    currentSelectedPaymentMethod = method;
 
-            var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
-            var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
-            var subtotal = 0;
-            cartArray.forEach(function(item) {
-                subtotal += (Number(item.price) || 0) * (item.qty || 1);
-            });
-            var grandTotal = subtotal + deliveryCost;
+    var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
+    var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
+    var subtotal = 0;
+    cartArray.forEach(function(item) {
+        subtotal += (Number(item.price) || 0) * (item.qty || 1);
+    });
+    var grandTotal = subtotal + deliveryCost;
 
-            var titleEl = document.getElementById('modal-title');
-            var iconEl = document.getElementById('modal-header-icon');
-            var totalEl = document.getElementById('modal-grand-total');
-            var walletInput = document.getElementById('wallet-number-input');
-            var walletLabel = document.getElementById('wallet-label-text');
-            var qrImg = document.getElementById('wallet-qr-img');
+    var titleEl = document.getElementById('modal-title');
+    var iconEl = document.getElementById('modal-header-icon');
+    var totalEl = document.getElementById('modal-grand-total');
+    var walletInput = document.getElementById('wallet-number-input');
+    var walletLabel = document.getElementById('wallet-label-text');
+    var qrImg = document.getElementById('wallet-qr-img');
 
-            if (totalEl) totalEl.innerText = grandTotal.toLocaleString('ar-IQ') + " د.ع";
+    if (totalEl) totalEl.innerText = grandTotal.toLocaleString('ar-IQ') + " د.ع";
 
-            if (method === 'ZainCash') {
-                iconEl.innerText = "🟣";
-                titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
-                walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
-                walletInput.value = "07862253180";
-                qrImg.src = "zaincash-qr.jpg";
-            } else if (method === 'SuperQi') {
-                iconEl.innerText = "🟡";
-                titleEl.innerText = "الدفع عبر SuperQi";
-                walletLabel.innerText = "رقم محفظة SuperQi المحول لها:";
-                walletInput.value = "07862253180";
-                qrImg.src = "superqi-qr.jpg";
-            }
+        if (method === 'ZainCash') {
+        iconEl.innerHTML = '<img src="zaincash-icon.jpg" alt="ZainCash" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; display: inline-block;">';
+        titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
+        walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
+        walletInput.value = "07862253180";
+        qrImg.src = "zaincash-qr.jpg";
+    } else if (method === 'SuperQi') {
+        iconEl.innerHTML = '<img src="superqi-icon.jpg" alt="SuperQi" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; display: inline-block;">';
+        titleEl.innerText = "الدفع عبر SuperQi";
+        walletLabel.innerText = "رقم محفظة SuperQi المحول لها:";
+        walletInput.value = "07862253180";
+        qrImg.src = "superqi-qr.jpg";
+    }
 
-            document.getElementById('paymentModal').style.display = 'flex';
-        }
+    document.getElementById('paymentModal').style.display = 'flex';
+}
 
         // إغلاق النافذة
         function closePaymentModal() {
