@@ -1262,7 +1262,53 @@
         <button class="nav-item" onclick="navGoCart(this)"><span>🛒</span>السلة</button>
     </nav>
 
-    <script>
+    <!-- نافذة الدفع الإلكتروني المنبثقة (زين كاش / SuperQi) -->
+<div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; direction: rtl;">
+    <div style="background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;">
+        
+        <!-- زر إغلاق النافذة -->
+        <button onclick="closePaymentModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+
+        <!-- أيقونة وعنوان طريقة الدفع -->
+        <div id="modal-header-icon" style="font-size: 36px; margin-bottom: 5px;">💳</div>
+        <h3 id="modal-title" style="margin: 0 0 10px 0; color: #333; font-size: 18px;">الدفع الإلكتروني</h3>
+        
+        <!-- المبلغ الإجمالي المحسوب تلقائياً -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+            <span style="font-size: 13px; color: #64748b; display: block;">المبلغ الإجمالي المطلوب تحويله:</span>
+            <strong id="modal-grand-total" style="font-size: 20px; color: #0f172a;">0 د.ع</strong>
+        </div>
+
+        <!-- باركود QR Code -->
+        <div style="margin-bottom: 15px;">
+            <img id="wallet-qr-img" src="" alt="QR Code" style="width: 150px; height: 150px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 10px; padding: 5px; background: #fff; display: inline-block;">
+        </div>
+
+        <!-- رقم المحفظة مع زر النسخ السريع -->
+        <div style="margin-bottom: 15px; text-align: right;">
+            <label id="wallet-label-text" style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">رقم المحفظة المحول لها:</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="wallet-number-input" value="07862253180" readonly style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f1f5f9; text-align: center; font-weight: bold;">
+                <button onclick="copyWalletNumber()" style="background: #0ea5e9; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold;">نسخ</button>
+            </div>
+        </div>
+
+        <!-- التعليمات -->
+        <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 10px; border-radius: 10px; font-size: 12px; color: #92400e; text-align: right; margin-bottom: 15px; line-height: 1.5;">
+            1. قم بتحويل المبلغ عبر التطبيق إلى الرقم أعلاه أو امسح الـ QR Code.<br>
+            2. التقط لقطة شاشة (Screenshot) لإيصال الدفع.<br>
+            3. اضغط على الزر أدناه لإرسال الطلب والوصل عبر الواتساب.
+        </div>
+
+        <!-- زر إرسال الطلب النهائي للواتساب -->
+        <button onclick="submitOrderWithPayment()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
+            <span>💬</span> تم الدفع، إرسال الطلب والإيصال عبر الواتساب
+        </button>
+    </div>
+</div>
+
+<!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
+<script>
         // قاعدة بيانات كاملة للمنتجات
         var productsData = {
             'p1': {
@@ -1316,7 +1362,6 @@
             initPWAInstaller();
             renderStories();
             
-            // تسجيل الـ Service Worker لتمكين ميزة الـ PWA والتثبيت
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(function(reg) { console.log('Service Worker Registered Successfully', reg); })
@@ -1340,14 +1385,13 @@
 
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
-                        function showToast(text) {
+        function showToast(text) {
             var existingToast = document.querySelector('.toast-msg');
             if (existingToast) existingToast.remove();
 
             var toast = document.createElement('div');
             toast.className = 'toast-msg';
             
-            // الحاوية الخارجية في أسفل الشاشة تماماً مع التوسيط الأفقـي
             toast.style.cssText = "position: fixed !important; " +
                                   "bottom: 30px !important; " +
                                   "left: 50% !important; " +
@@ -1361,7 +1405,6 @@
                                   "height: auto !important; " +
                                   "overflow: visible !important;";
 
-            // رسالة التوست الحقيقية بحجم النص فقط وبدون أي امتداد
             var inner = document.createElement('div');
             inner.innerText = text;
             inner.style.cssText = "display: inline-block !important; " +
@@ -1388,9 +1431,6 @@
             }, 2500);
         }
 
-
-
-        /* إصلاح البحث الصوتي */
         function startVoiceSearch() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1408,7 +1448,6 @@
             }
         }
 
-        /* دالة تنظيف النص للبحث باللغتين العربية والإنجليزية */
         function normalizeText(text) {
             return text
                 .toLowerCase()
@@ -1595,165 +1634,150 @@
             });
         }
 
-        // 1. دالة إضافة المنتجات للسلة (مؤمنة بالكامل)
-        // 1. دالة إضافة المنتجات للسلة (معالجة أمان البيانات والترميز)
-function addToCart(buttonElement, productName, unitPrice) {
-    try {
-        if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) {
-            window.cartArray = [];
+        function addToCart(buttonElement, productName, unitPrice) {
+            try {
+                if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) {
+                    window.cartArray = [];
+                }
+
+                var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
+                var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
+                var selectedOption = optionSelect ? optionSelect.value : "قياسي";
+                var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
+                var quantity = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
+
+                var numPrice = Number(unitPrice) || 0;
+                var safeName = String(productName || 'منتج').trim();
+
+                var existingItem = cartArray.find(function(item) {
+                    var name = String(item.name || item.title || '').trim();
+                    return name === safeName && (item.option || 'قياسي') === selectedOption;
+                });
+
+                if (existingItem) {
+                    existingItem.qty = (Number(existingItem.qty) || 1) + quantity;
+                } else {
+                    cartArray.push({
+                        name: safeName,
+                        title: safeName,
+                        price: numPrice,
+                        option: selectedOption,
+                        qty: quantity
+                    });
+                }
+
+                if (typeof saveCartToStorage === 'function') saveCartToStorage();
+                if (typeof updateCartCounter === 'function') updateCartCounter();
+                if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
+            } catch (err) {
+                console.error("خطأ في الإضافة للسلة:", err);
+            }
         }
 
-        var productCard = buttonElement ? buttonElement.closest('.product-card') : null;
-        var optionSelect = productCard ? productCard.querySelector('.product-option') : null;
-        var selectedOption = optionSelect ? optionSelect.value : "قياسي";
-        var qtyInput = productCard ? productCard.querySelector('.product-qty') : null;
-        var quantity = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
-
-        var numPrice = Number(unitPrice) || 0;
-        var safeName = String(productName || 'منتج').trim();
-
-        var existingItem = cartArray.find(function(item) {
-            var name = String(item.name || item.title || '').trim();
-            return name === safeName && (item.option || 'قياسي') === selectedOption;
-        });
-
-        if (existingItem) {
-            existingItem.qty = (Number(existingItem.qty) || 1) + quantity;
-        } else {
-            cartArray.push({
-                name: safeName,
-                title: safeName,
-                price: numPrice,
-                option: selectedOption,
-                qty: quantity
-            });
+        function closeCartModal() {
+            var cartModal = document.getElementById('cart-modal');
+            if (cartModal) {
+                cartModal.style.display = 'none';
+            }
         }
 
-        if (typeof saveCartToStorage === 'function') saveCartToStorage();
-        if (typeof updateCartCounter === 'function') updateCartCounter();
-        if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
-    } catch (err) {
-        console.error("خطأ في الإضافة للسلة:", err);
-    }
-}
-
-// 2. دالة إغلاق نافذة السلة
-function closeCartModal() {
-    var cartModal = document.getElementById('cart-modal');
-    if (cartModal) {
-        cartModal.style.display = 'none';
-    }
-}
-
-// 3. دالة فتح السلة
-function navGoCart(btnElement) {
-    if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
-    renderCartModal();
-    var cartModal = document.getElementById('cart-modal');
-    if (cartModal) cartModal.style.display = 'flex';
-}
-
-// 4. دالة الشراء السريع
-function quickBuy(buttonElement, productName, unitPrice) {
-    addToCart(buttonElement, productName, unitPrice);
-    navGoCart(null);
-}
-
-// 5. دالة تحديث عداد السلة
-function updateCartCounter() {
-    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) window.cartArray = [];
-    var totalQty = cartArray.reduce(function(sum, item) {
-        return sum + (Number(item.qty) || 1);
-    }, 0);
-    var counter = document.getElementById('cart-counter');
-    if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
-}
-
-// 6. التحكم بالكميات داخل السلة
-function changeCartQty(index, change) {
-    if (typeof cartArray !== 'undefined' && cartArray[index]) {
-        var currentQty = Number(cartArray[index].qty) || 1;
-        var newQty = currentQty + change;
-
-        if (newQty <= 0) {
-            cartArray.splice(index, 1);
-        } else {
-            cartArray[index].qty = newQty;
+        function navGoCart(btnElement) {
+            if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
+            renderCartModal();
+            var cartModal = document.getElementById('cart-modal');
+            if (cartModal) cartModal.style.display = 'flex';
         }
 
-        if (typeof saveCartToStorage === 'function') saveCartToStorage();
-        if (typeof updateCartCounter === 'function') updateCartCounter();
-        renderCartModal();
-    }
-}
+        function quickBuy(buttonElement, productName, unitPrice) {
+            addToCart(buttonElement, productName, unitPrice);
+            navGoCart(null);
+        }
 
-// 7. حذف عنصر من السلة
-function removeFromCart(index) {
-    if (typeof cartArray !== 'undefined' && cartArray[index]) {
-        cartArray.splice(index, 1);
-        if (typeof saveCartToStorage === 'function') saveCartToStorage();
-        if (typeof updateCartCounter === 'function') updateCartCounter();
-        renderCartModal();
-    }
-}
+        function updateCartCounter() {
+            if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) window.cartArray = [];
+            var totalQty = cartArray.reduce(function(sum, item) {
+                return sum + (Number(item.qty) || 1);
+            }, 0);
+            var counter = document.getElementById('cart-counter');
+            if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
+        }
 
-// 8. عرض عناصر السلة في النافذة (معالجة شاملة لكافة الأجهزة والشاشات)
-// دالة عرض عناصر السلة (متوافقة 100% مع أندرويد ووضع العرض في الآيباد)
-function renderCartModal() {
-    // إزالة التنبيه بعد أن تأكدنا من عمله
-    var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
-    if (!container) return;
+        function changeCartQty(index, change) {
+            if (typeof cartArray !== 'undefined' && cartArray[index]) {
+                var currentQty = Number(cartArray[index].qty) || 1;
+                var newQty = currentQty + change;
 
-    // إجبار حاوية المنتجات على الظهور بحجم واضح ومستقل على الأندرويد
-    container.style.display = "block";
-    container.style.visibility = "visible";
-    container.style.minHeight = "150px"; 
-    container.style.maxHeight = "300px";
-    container.style.overflowY = "auto";
+                if (newQty <= 0) {
+                    cartArray.splice(index, 1);
+                } else {
+                    cartArray[index].qty = newQty;
+                }
 
-    var summaryArea = document.getElementById('cart-summary-area');
+                if (typeof saveCartToStorage === 'function') saveCartToStorage();
+                if (typeof updateCartCounter === 'function') updateCartCounter();
+                renderCartModal();
+            }
+        }
 
-    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:#666; font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
-        if (summaryArea) summaryArea.style.display = 'none';
-        if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
-        return;
-    }
+        function removeFromCart(index) {
+            if (typeof cartArray !== 'undefined' && cartArray[index]) {
+                cartArray.splice(index, 1);
+                if (typeof saveCartToStorage === 'function') saveCartToStorage();
+                if (typeof updateCartCounter === 'function') updateCartCounter();
+                renderCartModal();
+            }
+        }
 
-    if (summaryArea) summaryArea.style.display = 'block';
+        function renderCartModal() {
+            var container = document.getElementById('cart-items-list') || document.getElementById('cart-items-container');
+            if (!container) return;
 
-    var html = '';
-    for (var i = 0; i < cartArray.length; i++) {
-        var item = cartArray[i];
-        if (!item) continue;
+            container.style.display = "block";
+            container.style.visibility = "visible";
+            container.style.minHeight = "150px"; 
+            container.style.maxHeight = "300px";
+            container.style.overflowY = "auto";
 
-        var qty = Number(item.qty) || 1;
-        var productName = String(item.name || item.title || 'منتج').trim();
-        var price = Number(item.price) || 0;
-        var itemTotal = price * qty;
-        var optionText = item.option ? '<div style="font-size:11px; color:#777; margin-top:2px;">' + item.option + '</div>' : '';
+            var summaryArea = document.getElementById('cart-summary-area');
 
-        // تصميم بسيط ومستقر يظهر بشكل قاطع على الشاشات الصغرى
-        html += '<div style="display:block; width:100%; padding:10px 5px; border-bottom:1px solid #ddd; box-sizing:border-box; clear:both; overflow:hidden;">' +
-                    '<div style="float:right; width:60%; text-align:right; box-sizing:border-box;">' +
-                        '<div style="font-weight:bold; font-size:13px; color:##b45309;">' + productName + '</div>' +
-                        optionText +
-                        '<div style="font-weight:bold; color:#2563eb; font-size:12px; margin-top:3px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
-                    '</div>' +
-                    '<div style="float:left; width:40%; text-align:left; box-sizing:border-box; padding-top:4px;">' +
-                        '<button type="button" onclick="changeCartQty(' + i + ', -1)" style="width:26px; height:26px; border:1px solid #ccc; background:#fff; font-weight:bold; cursor:pointer;">-</button>' +
-                        '<span style="font-weight:bold; font-size:13px; margin:0 5px;">' + qty + '</span>' +
-                        '<button type="button" onclick="changeCartQty(' + i + ', 1)" style="width:26px; height:26px; border:1px solid #ccc; background:#fff; font-weight:bold; cursor:pointer;">+</button>' +
-                        '<button type="button" onclick="removeFromCart(' + i + ')" style="background:none; border:none; color:red; cursor:pointer; font-size:14px; margin-right:4px;">🗑️</button>' +
-                    '</div>' +
-                '</div>';
-    }
+            if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:25px 10px; color:#666; font-weight:bold;">سلتك فارغة حالياً 🛍️</div>';
+                if (summaryArea) summaryArea.style.display = 'none';
+                if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+                return;
+            }
 
-    container.innerHTML = html;
-    if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
-}
+            if (summaryArea) summaryArea.style.display = 'block';
 
+            var html = '';
+            for (var i = 0; i < cartArray.length; i++) {
+                var item = cartArray[i];
+                if (!item) continue;
 
+                var qty = Number(item.qty) || 1;
+                var productName = String(item.name || item.title || 'منتج').trim();
+                var price = Number(item.price) || 0;
+                var itemTotal = price * qty;
+                var optionText = item.option ? '<div style="font-size:11px; color:#777; margin-top:2px;">' + item.option + '</div>' : '';
+
+                html += '<div style="display:block; width:100%; padding:10px 5px; border-bottom:1px solid #ddd; box-sizing:border-box; clear:both; overflow:hidden;">' +
+                            '<div style="float:right; width:60%; text-align:right; box-sizing:border-box;">' +
+                                '<div style="font-weight:bold; font-size:13px; color:#b45309;">' + productName + '</div>' +
+                                optionText +
+                                '<div style="font-weight:bold; color:#2563eb; font-size:12px; margin-top:3px;">' + itemTotal.toLocaleString('ar-IQ') + ' د.ع</div>' +
+                            '</div>' +
+                            '<div style="float:left; width:40%; text-align:left; box-sizing:border-box; padding-top:4px;">' +
+                                '<button type="button" onclick="changeCartQty(' + i + ', -1)" style="width:26px; height:26px; border:1px solid #ccc; background:#fff; font-weight:bold; cursor:pointer;">-</button>' +
+                                '<span style="font-weight:bold; font-size:13px; margin:0 5px;">' + qty + '</span>' +
+                                '<button type="button" onclick="changeCartQty(' + i + ', 1)" style="width:26px; height:26px; border:1px solid #ccc; background:#fff; font-weight:bold; cursor:pointer;">+</button>' +
+                                '<button type="button" onclick="removeFromCart(' + i + ')" style="background:none; border:none; color:red; cursor:pointer; font-size:14px; margin-right:4px;">🗑️</button>' +
+                            '</div>' +
+                        '</div>';
+            }
+
+            container.innerHTML = html;
+            if (typeof calculateGrandTotal === 'function') calculateGrandTotal();
+        }
 
         function calculateGrandTotal() {
             var subtotal = 0;
@@ -1790,170 +1814,168 @@ function renderCartModal() {
             }
         }
 
-        let currentSelectedPaymentMethod = 'COD';
+        var currentSelectedPaymentMethod = 'COD';
 
-// فتح نافذة الدفع الإلكتروني
-function openPaymentModal(method) {
-    currentSelectedPaymentMethod = method;
-
-    // التحقق من اكتمال بيانات الزبون أولاً قبل فتح نافذة الدفع
-    var nameEl = document.getElementById('cust-name');
-    var citySelectEl = document.getElementById('cust-city');
-    var addressEl = document.getElementById('cust-address');
-    var phoneEl = document.getElementById('cust-phone');
-
-    var name = nameEl ? nameEl.value.trim() : "";
-    var city = citySelectEl ? citySelectEl.value : "";
-    var address = addressEl ? addressEl.value.trim() : "";
-    var phone = phoneEl ? phoneEl.value.trim() : "";
-
-    if (!name || !city || !address || !phone) {
-        if(typeof showToast === 'function') {
-            showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
-        } else {
-            alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
-        }
-        return;
-    }
-
-    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
-        alert("السلة فارغة!");
-        return;
-    }
-
-    // حساب المجموع الكلي لعرضه في النافذة
-    var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
-    var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
-    var subtotal = 0;
-    cartArray.forEach(function(item) {
-        subtotal += (Number(item.price) || 0) * (item.qty || 1);
-    });
-    var grandTotal = subtotal + deliveryCost;
-
-    // تحديث المحتوى حسب طريقة الدفع
-    var titleEl = document.getElementById('modal-title');
-    var iconEl = document.getElementById('modal-header-icon');
-    var totalEl = document.getElementById('modal-grand-total');
-
-    totalEl.innerText = grandTotal.toLocaleString('ar-IQ') + " د.ع";
-
-    if (method === 'ZainCash') {
-        iconEl.innerText = "🟣";
-        titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
-    } else if (method === 'SuperQi') {
-        iconEl.innerText = "🟡";
-        titleEl.innerText = "الدفع عبر SuperQi";
-    }
-
-    // إظهار النافذة المنبثقة
-    document.getElementById('paymentModal').style.display = 'flex';
-}
-
-// إغلاق النافذة
-function closePaymentModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-}
-
-// نسخ رقم المحفظة
-function copyWalletNumber() {
-    var copyText = document.getElementById("wallet-number-input");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(copyText.value);
-    if(typeof showToast === 'function') {
-        showToast("✅ تم نسخ رقم المحفظة بنجاح!");
-    } else {
-        alert("تم نسخ رقم المحفظة: " + copyText.value);
-    }
-}
-
-// دالة إرسال الطلب نهائياً للواتساب بعد خطوة الدفع
-function submitOrderWithPayment() {
-    closePaymentModal();
-    sendAllCartToWhatsApp(currentSelectedPaymentMethod);
-}
-
-// الدالة الأساسية لتوليد رسالة الواتساب
-function sendAllCartToWhatsApp(paymentMethod) {
-    try {
-        var nameEl = document.getElementById('cust-name');
-        var citySelectEl = document.getElementById('cust-city');
-        var addressEl = document.getElementById('cust-address');
-        var phoneEl = document.getElementById('cust-phone');
-
-        var name = nameEl ? nameEl.value.trim() : "";
-        var city = citySelectEl ? citySelectEl.value : "";
-        var address = addressEl ? addressEl.value.trim() : "";
-        var phone = phoneEl ? phoneEl.value.trim() : "";
-
-        // 👉 شرط التحقق من البيانات (نفس الموجود في باقي الأزرار)
-        if (!name || !city || !address || !phone) {
-            if(typeof showToast === 'function') {
-                showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+        // دالة التوجيه للأزرار الثلاثة
+        function sendOrder(method) {
+            if (method === 'COD') {
+                sendAllCartToWhatsApp('COD');
             } else {
-                alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+                openPaymentModal(method);
             }
-            return;
         }
 
-        var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
-        var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
+        // فتح نافذة الدفع الإلكتروني
+        function openPaymentModal(method) {
+            var nameEl = document.getElementById('cust-name');
+            var citySelectEl = document.getElementById('cust-city');
+            var addressEl = document.getElementById('cust-address');
+            var phoneEl = document.getElementById('cust-phone');
 
-        var subtotal = 0;
-        var itemList = "";
+            var name = nameEl ? nameEl.value.trim() : "";
+            var city = citySelectEl ? citySelectEl.value : "";
+            var address = addressEl ? addressEl.value.trim() : "";
+            var phone = phoneEl ? phoneEl.value.trim() : "";
 
-        cartArray.forEach(function(item, i) {
-            var qty = item.qty || 1;
-            var itemTotal = (Number(item.price) || 0) * qty;
-            subtotal += itemTotal;
-            var optionText = item.option ? " (" + item.option + ")" : "";
-            itemList += (i + 1) + ". 🛒 " + (item.name || item.title) + optionText + " *x" + qty + "* - " + itemTotal.toLocaleString('ar-IQ') + " د.ع\n";
-        });
+            if (!name || !city || !address || !phone) {
+                if(typeof showToast === 'function') {
+                    showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+                } else {
+                    alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+                }
+                return;
+            }
 
-        var grandTotal = subtotal + deliveryCost;
+            if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
+                alert("السلة فارغة!");
+                return;
+            }
 
-        
+            currentSelectedPaymentMethod = method;
 
-        // تحديد نص حالة وطريقة الدفع
-        var paymentText = "الدفع عند الاستلام";
-        if(paymentMethod === 'ZainCash') paymentText = "زين كاش (مدفوع إلكترونياً 🟣)";
-        if(paymentMethod === 'SuperQi') paymentText = "SuperQi (مدفوع إلكترونياً 🟡)";
+            var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
+            var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
+            var subtotal = 0;
+            cartArray.forEach(function(item) {
+                subtotal += (Number(item.price) || 0) * (item.qty || 1);
+            });
+            var grandTotal = subtotal + deliveryCost;
 
-        var message = "*🛍️ طلب جديد من متجر RANDER*\n\n";
-        message += "*👤 معلومات الزبون:*\n";
-        message += "▪️ *الاسم:* " + name + "\n";
-        message += "▪️ *الهاتف:* " + phone + "\n";
-        message += "▪️ *المحافظة:* " + city + "\n";
-        message += "▪️ *العنوان التفصيلي:* " + address + "\n\n";
-        message += "*🛒 الطلبات:*\n" + itemList + "\n";
-        message += "*💳 طريقة الدفع الحالة:* " + paymentText + "\n";
-        message += "📎 *(يرجى إرسال صورة إيصال الدفع هنا أدناه)*\n\n";
-        message += "*💰 الملخص المالي:*\n";
-        message += "▫️ *مجموع المنتجات:* " + subtotal.toLocaleString('ar-IQ') + " د.ع\n";
-        message += "▫️ *أجور التوصيل:* " + deliveryCost.toLocaleString('ar-IQ') + " د.ع\n";
-        message += "▫️ *المجموع الكلي:* " + grandTotal.toLocaleString('ar-IQ') + " د.ع";
+            var titleEl = document.getElementById('modal-title');
+            var iconEl = document.getElementById('modal-header-icon');
+            var totalEl = document.getElementById('modal-grand-total');
+            var walletInput = document.getElementById('wallet-number-input');
+            var walletLabel = document.getElementById('wallet-label-text');
+            var qrImg = document.getElementById('wallet-qr-img');
 
-        var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
-        window.open(waUrl, '_blank');
+            if (totalEl) totalEl.innerText = grandTotal.toLocaleString('ar-IQ') + " د.ع";
 
-    } catch (err) {
-        console.error("Order Error:", err);
-        alert("حدث خطأ أثناء الإرسال: " + err.message);
-    }
-}
+            if (method === 'ZainCash') {
+                iconEl.innerText = "🟣";
+                titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
+                walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
+                walletInput.value = "07862253180";
+                qrImg.src = "zaincash-qr.jpg";
+            } else if (method === 'SuperQi') {
+                iconEl.innerText = "🟡";
+                titleEl.innerText = "الدفع عبر SuperQi";
+                walletLabel.innerText = "رقم محفظة SuperQi المحول لها:";
+                walletInput.value = "07862253180";
+                qrImg.src = "superqi-qr.jpg";
+            }
 
-// دالة لتوجيه الأزرار (تفتح النافذة للإلكتروني، وتُرسل مباشرة للاستلام)
-function sendOrder(method) {
-    if (method === 'COD') {
-        sendAllCartToWhatsApp('COD');
-    } else {
-        openPaymentModal(method);
-    }
-}
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
 
-        /* ---------------------------------------------------- */
-        /* منطق ميزة تثبيت التطبيق (PWA Install Prompt Logic) */
-        /* ---------------------------------------------------- */
+        // إغلاق النافذة
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        // نسخ رقم المحفظة
+        function copyWalletNumber() {
+            var copyText = document.getElementById("wallet-number-input");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            if(typeof showToast === 'function') {
+                showToast("✅ تم نسخ رقم المحفظة بنجاح!");
+            } else {
+                alert("تم نسخ رقم المحفظة: " + copyText.value);
+            }
+        }
+
+        // دالة إرسال الطلب نهائياً للواتساب بعد خطوة الدفع
+        function submitOrderWithPayment() {
+            closePaymentModal();
+            sendAllCartToWhatsApp(currentSelectedPaymentMethod);
+        }
+
+        // الدالة الأساسية لتوليد رسالة الواتساب
+        function sendAllCartToWhatsApp(paymentMethod) {
+            try {
+                var nameEl = document.getElementById('cust-name');
+                var citySelectEl = document.getElementById('cust-city');
+                var addressEl = document.getElementById('cust-address');
+                var phoneEl = document.getElementById('cust-phone');
+
+                var name = nameEl ? nameEl.value.trim() : "";
+                var city = citySelectEl ? citySelectEl.value : "";
+                var address = addressEl ? addressEl.value.trim() : "";
+                var phone = phoneEl ? phoneEl.value.trim() : "";
+
+                if (!name || !city || !address || !phone) {
+                    if(typeof showToast === 'function') {
+                        showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+                    } else {
+                        alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+                    }
+                    return;
+                }
+
+                var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
+                var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
+
+                var subtotal = 0;
+                var itemList = "";
+
+                cartArray.forEach(function(item, i) {
+                    var qty = item.qty || 1;
+                    var itemTotal = (Number(item.price) || 0) * qty;
+                    subtotal += itemTotal;
+                    var optionText = item.option ? " (" + item.option + ")" : "";
+                    itemList += (i + 1) + ". 🛒 " + (item.name || item.title) + optionText + " *x" + qty + "* - " + itemTotal.toLocaleString('ar-IQ') + " د.ع\n";
+                });
+
+                var grandTotal = subtotal + deliveryCost;
+
+                var paymentText = "الدفع عند الاستلام";
+                if(paymentMethod === 'ZainCash') paymentText = "زين كاش (مدفوع إلكترونياً 🟣)";
+                if(paymentMethod === 'SuperQi') paymentText = "SuperQi (مدفوع إلكترونياً 🟡)";
+
+                var message = "*🛍️ طلب جديد من متجر RANDER*\n\n";
+                message += "*👤 معلومات الزبون:*\n";
+                message += "▪️ *الاسم:* " + name + "\n";
+                message += "▪️ *الهاتف:* " + phone + "\n";
+                message += "▪️ *المحافظة:* " + city + "\n";
+                message += "▪️ *العنوان التفصيلي:* " + address + "\n\n";
+                message += "*🛒 الطلبات:*\n" + itemList + "\n";
+                message += "*💳 طريقة الدفع:* " + paymentText + "\n";
+                message += "📎 *(يرجى إرسال صورة إيصال الدفع هنا أدناه)*\n\n";
+                message += "*💰 الملخص المالي:*\n";
+                message += "▫️ *مجموع المنتجات:* " + subtotal.toLocaleString('ar-IQ') + " د.ع\n";
+                message += "▫️ *أجور التوصيل:* " + deliveryCost.toLocaleString('ar-IQ') + " د.ع\n";
+                message += "▫️ *المجموع الكلي:* " + grandTotal.toLocaleString('ar-IQ') + " د.ع";
+
+                var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
+                window.open(waUrl, '_blank');
+
+            } catch (err) {
+                console.error("Order Error:", err);
+                alert("حدث خطأ أثناء الإرسال: " + err.message);
+            }
+        }
+
         var deferredPrompt = null;
 
         function initPWAInstaller() {
@@ -2011,7 +2033,6 @@ function sendOrder(method) {
             if (banner) banner.style.display = 'none';
         }
         
-        // 1. إنشاء قائمة بتتابع الشاشات المفتوحة وتأمين الشاشة الرئيسية
         window.navStack = window.navStack || [];
         var exitTimer = null;
 
@@ -2022,7 +2043,6 @@ function sendOrder(method) {
             history.pushState({ depth: window.navStack.length }, '', '');
         }
 
-        // 2. التحكم بحدث زر الرجوع
         window.addEventListener('popstate', function (e) {
             var modal = document.getElementById('detail-modal');
             var isModalVisible = modal && (modal.classList.contains('active') || modal.style.display === 'flex' || modal.style.display === 'block');
@@ -2057,7 +2077,6 @@ function sendOrder(method) {
             }
         });
 
-        // إنشاء عنصر إشعار انقطاع الاتصال
         var offlineBanner = document.createElement('div');
         offlineBanner.className = 'offline-banner';
         offlineBanner.innerHTML = '<div class="offline-icon-box">📡</div>' +
@@ -2103,7 +2122,6 @@ function sendOrder(method) {
             }
         }
 
-        // بيانات القصص التفاعلية
         var storiesData = [
             { id: 'p1', title: 'حقيبة ظهر', img: 'https://i.imgur.com/QfL2xFh.jpeg' },
             { id: 'p1_cup', title: 'كوب قهوة', img: 'https://i.imgur.com/NjTaTUH.jpeg' },
@@ -2164,150 +2182,6 @@ function sendOrder(method) {
             if (videoEl) videoEl.pause();
             document.getElementById('story-modal').style.display = 'none';
         }
-    
-
-
-
-<!-- نافذة الدفع الإلكتروني المنبثقة (زين كاش / SuperQi) -->
-<div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; direction: rtl;">
-    <div style="background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;">
-        
-        <!-- زر إغلاق النافذة -->
-        <button onclick="closePaymentModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
-
-        <!-- أيقونة وعنوان طريقة الدفع -->
-        <div id="modal-header-icon" style="font-size: 36px; margin-bottom: 5px;">💳</div>
-        <h3 id="modal-title" style="margin: 0 0 10px 0; color: #333; font-size: 18px;">الدفع الإلكتروني</h3>
-        
-        <!-- المبلغ الإجمالي المحسوب تلقائياً -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-            <span style="font-size: 13px; color: #64748b; display: block;">المبلغ الإجمالي المطلوب تحويله:</span>
-            <strong id="modal-grand-total" style="font-size: 20px; color: #0f172a;">0 د.ع</strong>
-        </div>
-
-        <!-- باركود QR Code -->
-        <div style="margin-bottom: 15px;">
-            <img id="wallet-qr-img" src="" alt="QR Code" style="width: 150px; height: 150px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 10px; padding: 5px; background: #fff; display: inline-block;">
-        </div>
-
-        <!-- رقم المحفظة مع زر النسخ السريع -->
-        <div style="margin-bottom: 15px; text-align: right;">
-            <label id="wallet-label-text" style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">رقم المحفظة المحول لها:</label>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="wallet-number-input" value="07862253180" readonly style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f1f5f9; text-align: center; font-weight: bold;">
-                <button onclick="copyWalletNumber()" style="background: #0ea5e9; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold;">نسخ</button>
-            </div>
-        </div>
-
-        <!-- التعليمات -->
-        <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 10px; border-radius: 10px; font-size: 12px; color: #92400e; text-align: right; margin-bottom: 15px; line-height: 1.5;">
-            1. قم بتحويل المبلغ عبر التطبيق إلى الرقم أعلاه أو امسح الـ QR Code.<br>
-            2. التقط لقطة شاشة (Screenshot) لإيصال الدفع.<br>
-            3. اضغط على الزر أدناه لإرسال الطلب والوصل عبر الواتساب.
-        </div>
-
-        <!-- زر إرسال الطلب النهائي للواتساب -->
-        <button onclick="submitOrderWithPayment()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
-            <span>💬</span> تم الدفع، إرسال الطلب والإيصال عبر الواتساب
-        </button>
-    </div>
-</div>
-
-<!-- دوال الجافاسكريبت البرمجية -->
-<script>
-var currentSelectedPaymentMethod = 'COD';
-
-function sendOrder(method) {
-    if (method === 'COD') {
-        sendAllCartToWhatsApp('COD');
-    } else {
-        openPaymentModal(method);
-    }
-}
-
-function openPaymentModal(method) {
-    var nameEl = document.getElementById('cust-name');
-    var citySelectEl = document.getElementById('cust-city');
-    var addressEl = document.getElementById('cust-address');
-    var phoneEl = document.getElementById('cust-phone');
-
-    var name = nameEl ? nameEl.value.trim() : "";
-    var city = citySelectEl ? citySelectEl.value : "";
-    var address = addressEl ? addressEl.value.trim() : "";
-    var phone = phoneEl ? phoneEl.value.trim() : "";
-
-    if (!name || !city || !address || !phone) {
-        if(typeof showToast === 'function') {
-            showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
-        } else {
-            alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
-        }
-        return;
-    }
-
-    currentSelectedPaymentMethod = method;
-
-    var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
-    var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
-    
-    var subtotal = 0;
-    if(typeof cartArray !== 'undefined') {
-        cartArray.forEach(function(item) {
-            subtotal += (Number(item.price) || 0) * (item.qty || 1);
-        });
-    }
-    var grandTotal = subtotal + deliveryCost;
-
-    document.getElementById('modal-grand-total').innerText = grandTotal.toLocaleString('ar-IQ') + " د.ع";
-
-    var titleEl = document.getElementById('modal-title');
-    var iconEl = document.getElementById('modal-header-icon');
-    var walletInput = document.getElementById('wallet-number-input');
-    var walletLabel = document.getElementById('wallet-label-text');
-    var qrImg = document.getElementById('wallet-qr-img');
-
-    if (method === 'ZainCash') {
-        iconEl.innerText = "🟣";
-        titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
-        walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
-        walletInput.value = "07862253180";
-        qrImg.src = "zaincash-qr.jpg";
-    } else if (method === 'SuperQi') {
-        iconEl.innerText = "🟡";
-        titleEl.innerText = "الدفع عبر SuperQi";
-        walletLabel.innerText = "رقم محفظة SuperQi المحول لها:";
-        walletInput.value = "07862253180";
-        qrImg.src = "superqi-qr.jpg";
-    }
-
-    document.getElementById('paymentModal').style.display = 'flex';
-}
-
-function closePaymentModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-}
-
-function copyWalletNumber() {
-    var walletInput = document.getElementById('wallet-number-input');
-    walletInput.select();
-    walletInput.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(walletInput.value);
-    
-    if(typeof showToast === 'function') {
-        showToast("✅ تم نسخ رقم المحفظة بنجاح!");
-    } else {
-        alert("تم نسخ رقم المحفظة بنجاح!");
-    }
-}
-
-function submitOrderWithPayment() {
-    closePaymentModal();
-    if(typeof sendAllCartToWhatsApp === 'function') {
-        sendAllCartToWhatsApp(currentSelectedPaymentMethod);
-    } else {
-        alert("خطأ: دالة إرسال الواتساب غير متوفرة.");
-    }
-}
 </script>
 
 
