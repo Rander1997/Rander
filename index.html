@@ -1827,24 +1827,28 @@
 
         // فتح نافذة الدفع الإلكتروني
         function openPaymentModal(method) {
-            var nameEl = document.getElementById('cust-name');
-            var citySelectEl = document.getElementById('cust-city');
-            var addressEl = document.getElementById('cust-address');
-            var phoneEl = document.getElementById('cust-phone');
+    // إغلاق السلة فوراً لتظهر نافذة الدفع فوقها
+    closeCartModal();
 
-            var name = nameEl ? nameEl.value.trim() : "";
-            var city = citySelectEl ? citySelectEl.value : "";
-            var address = addressEl ? addressEl.value.trim() : "";
-            var phone = phoneEl ? phoneEl.value.trim() : "";
+    var nameEl = document.getElementById('cust-name');
+    var citySelectEl = document.getElementById('cust-city');
+    var addressEl = document.getElementById('cust-address');
+    var phoneEl = document.getElementById('cust-phone');
 
-            if (!name || !city || !address || !phone) {
-                if(typeof showToast === 'function') {
-                    showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
-                } else {
-                    alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
-                }
-                return;
-            }
+    var name = nameEl ? nameEl.value.trim() : "";
+    var city = citySelectEl ? citySelectEl.value : "";
+    var address = addressEl ? addressEl.value.trim() : "";
+    var phone = phoneEl ? phoneEl.value.trim() : "";
+
+    if (!name || !city || !address || !phone) {
+        if(typeof showToast === 'function') {
+            showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+        } else {
+            alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+        }
+        return;
+    }
+}
 
             if (typeof cartArray === 'undefined' || !Array.isArray(cartArray) || cartArray.length === 0) {
                 alert("السلة فارغة!");
