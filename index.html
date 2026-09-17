@@ -2165,10 +2165,139 @@ function sendOrder(method) {
             document.getElementById('story-modal').style.display = 'none';
         }
     
+var currentSelectedPaymentMethod = '';
 
+// دالة فتح النافذة المنبثقة للدفع الإلكتروني مع فحص البيانات أولاً
+function openPaymentModal(method) {
+    var nameEl = document.getElementById('cust-name');
+    var citySelectEl = document.getElementById('cust-city');
+    var addressEl = document.getElementById('cust-address');
+    var phoneEl = document.getElementById('cust-phone');
+
+    var name = nameEl ? nameEl.value.trim() : "";
+    var city = citySelectEl ? citySelectEl.value : "";
+    var address = addressEl ? addressEl.value.trim() : "";
+    var phone = phoneEl ? phoneEl.value.trim() : "";
+
+    if (!name || !city || !address || !phone) {
+        if(typeof showToast === 'function') {
+            showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+        } else {
+            alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+        }
+        return;
+    }
+
+    currentSelectedPaymentMethod = method;
+
+    var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
+    var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
+    
+    var subtotal = 0;
+    cartArray.forEach(function(item) {
+        subtotal += (Number(item.price) || 0) * (item.qty || 1);
+    });
+    var grandTotal = subtotal + deliveryCost;
+
+    document.getElementById('modal-grand-total').innerText = grandTotal.toLocaleString('ar-IQ') + " د.ع";
+
+    var titleEl = document.getElementById('modal-title');
+    var iconEl = document.getElementById('modal-header-icon');
+    var walletInput = document.getElementById('wallet-number-input');
+    var walletLabel = document.getElementById('wallet-label-text');
+    var qrImg = document.getElementById('wallet-qr-img');
+
+    if (method === 'ZainCash') {
+        iconEl.innerText = "🟣";
+        titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
+        walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
+        walletInput.value = "07862253180";
+        qrImg.src = "zaincash-qr.jpg"; // صورة باركود زين كاش
+    } else if (method === 'SuperQi') {
+        iconEl.innerText = "🟡";
+        titleEl.innerText = "الدفع عبر SuperQi";
+        walletLabel.innerText = "رقم محفظة SuperQi المحول لها:";
+        walletInput.value = "07862253180";
+        qrImg.src = "superqi-qr.jpg"; // صورة باركود سوبر كي
+    }
+
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+// دالة إغلاق النافذة
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+// دالة نسخ رقم المحفظة
+function copyWalletNumber() {
+    var walletInput = document.getElementById('wallet-number-input');
+    walletInput.select();
+    walletInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(walletInput.value);
+    
+    if(typeof showToast === 'function') {
+        showToast("✅ تم نسخ رقم المحفظة بنجاح!");
+    } else {
+        alert("تم نسخ رقم المحفظة بنجاح!");
+    }
+}
+
+// دالة الضغط على زر إرسال الطلب بعد الدفع
+function submitOrderWithPayment() {
+    closePaymentModal();
+    sendAllCartToWhatsApp(currentSelectedPaymentMethod);
+}
+
+// دالة التوجيه للأزرار الثلاثة
+function sendOrder(method) {
+    if (method === 'COD') {
+        sendAllCartToWhatsApp('COD');
+    } else {
+        openPaymentModal(method);
+    }
+}
 
 </script>
 
+
+    <!-- نافذة الدفع الإلكتروني المنبثقة -->
+<div id="paymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); direction: rtl; position: relative;">
+        
+        <button onclick="closePaymentModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+
+        <div id="modal-header-icon" style="font-size: 36px; margin-bottom: 5px;">💳</div>
+        <h3 id="modal-title" style="margin: 0 0 10px 0; color: #333; font-size: 18px;">الدفع الإلكتروني</h3>
+        
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+            <span style="font-size: 13px; color: #64748b; display: block;">المبلغ الإجمالي المطلوب تحويله:</span>
+            <strong id="modal-grand-total" style="font-size: 20px; color: #0f172a;">0 د.ع</strong>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <img id="wallet-qr-img" src="" alt="QR Code" style="width: 150px; height: 150px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 10px; padding: 5px; background: #fff; display: inline-block;">
+        </div>
+
+        <div style="margin-bottom: 15px; text-align: right;">
+            <label id="wallet-label-text" style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">رقم المحفظة المحول لها:</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="wallet-number-input" value="07862253180" readonly style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f1f5f9; text-align: center; font-weight: bold;">
+                <button onclick="copyWalletNumber()" style="background: #0ea5e9; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold;">نسخ</button>
+            </div>
+        </div>
+
+        <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 10px; border-radius: 10px; font-size: 12px; color: #92400e; text-align: right; margin-bottom: 15px; line-height: 1.5;">
+            1. قم بتحويل المبلغ عبر التطبيق إلى الرقم أعلاه أو امسح الـ QR Code.<br>
+            2. التقط لقطة شاشة (Screenshot) لإيصال الدفع.<br>
+            3. اضغط على الزر أدناه لإرسال الطلب والوصل عبر الواتساب.
+        </div>
+
+        <button onclick="submitOrderWithPayment()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
+            <span>💬</span> تم الدفع، إرسال الطلب والإيصال عبر الواتساب
+        </button>
+    </div>
+</div>
 
 </body>
 </html>
