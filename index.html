@@ -1877,7 +1877,7 @@ function openPaymentModal(method) {
 
         if (method === 'ZainCash') {
         // إذا كانت للأيقونة (زين كاش)، نجعل خلفية الدائرة بنفسجية لكي يظهر الشعار الأبيض بداخلها بوضوح
-iconEl.innerHTML = '<img src="https://i.imgur.com/Heerq69.png" alt="ZainCash" style="width: 45px; height: 45px; border-radius: 50%; object-fit: contain; background: #6b21a8; padding: 8px; border: 2px solid #e2e8f0; display: inline-block;">';
+iconEl.innerHTML = '<img src="https://i.imgur.com/Heerq69.png" alt="ZainCash" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #6b21a8; border: 2px solid #e2e8f0; display: block; margin: 0 auto;">';
         titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
         walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
         walletInput.value = "07862253180";
