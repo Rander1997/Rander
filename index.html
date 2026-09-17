@@ -1886,6 +1886,16 @@ function sendAllCartToWhatsApp(paymentMethod) {
         var address = addressEl ? addressEl.value.trim() : "";
         var phone = phoneEl ? phoneEl.value.trim() : "";
 
+        // 👉 شرط التحقق من البيانات (نفس الموجود في باقي الأزرار)
+        if (!name || !city || !address || !phone) {
+            if(typeof showToast === 'function') {
+                showToast("⚠️ يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+            } else {
+                alert("يرجى إكمال جميع بيانات التوصيل واختيار المحافظة أولاً!");
+            }
+            return;
+        }
+
         var selectedOption = citySelectEl.options[citySelectEl.selectedIndex];
         var deliveryCost = parseInt(selectedOption.getAttribute('data-cost')) || 0;
 
@@ -1901,6 +1911,8 @@ function sendAllCartToWhatsApp(paymentMethod) {
         });
 
         var grandTotal = subtotal + deliveryCost;
+
+        
 
         // تحديد نص حالة وطريقة الدفع
         var paymentText = "الدفع عند الاستلام";
