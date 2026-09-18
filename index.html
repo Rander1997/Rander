@@ -951,23 +951,30 @@ body.dark-mode textarea {
         <!-- الأزرار العلوية متساوية في المستوى تماماً -->
         <div style="display: flex; gap: 12px; align-items: center;">
             
-            <!-- زر مشاركة التطبيق في مستواه الطبيعي مع إنزال الكلمة للأسفل -->
+            <!-- زر مشاركة التطبيق -->
             <div style="position: relative; display: inline-block;">
                 <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق" style="display: flex; align-items: center; justify-content: center;">🔗</button>
                 <span style="position: absolute; width: 100%; left: 0; bottom: -18px; font-size: 10px; color: inherit; text-align: center; pointer-events: none;">مشاركة</span>
             </div>
 
-            <!-- زر تثبيت التطبيق PWA (يظهر عند التوفر) -->
+            <!-- زر تثبيت التطبيق PWA -->
             <button id="install-pwa-btn" class="install-pwa-btn" onclick="triggerAppInstall()" style="display: none;">تثبيت 📲</button>
 
-            <!-- زر السلة بنفس الكود المطلوب تماماً -->
-            <button class="cart-btn" id="cart-counter" onclick="if(typeof renderCartModal === 'function') renderCartModal()">🛒</button>
+            <!-- زر السلة المحدث ليعمل بضغطة واحدة -->
+            <button class="cart-btn" id="cart-counter" onclick="
+                var modal = document.getElementById('cart-modal') || document.getElementById('cartModal') || document.getElementById('cart-sidebar');
+                if(modal) {
+                    modal.style.display = 'block';
+                    modal.classList.add('active', 'open');
+                }
+                if(typeof renderCartModal === 'function') {
+                    renderCartModal();
+                }
+            ">🛒</button>
             
         </div>
     </div>
 </header>
-
-
 
 
 
