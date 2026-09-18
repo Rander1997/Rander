@@ -1973,8 +1973,14 @@ iconEl.innerHTML = '<img src="https://i.imgur.com/Heerq69.png" alt="ZainCash" st
                 message += "▫️ *أجور التوصيل:* " + deliveryCost.toLocaleString('ar-IQ') + " د.ع\n";
                 message += "▫️ *المجموع الكلي:* " + grandTotal.toLocaleString('ar-IQ') + " د.ع";
 
-                var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
-                window.open(waUrl, '_blank');
+                    // حفظ بيانات الزبون محلياً للاستخدام القادم
+    if(document.getElementById('name')) localStorage.setItem('saved_name', document.getElementById('name').value);
+    if(document.getElementById('phone')) localStorage.setItem('saved_phone', document.getElementById('phone').value);
+    if(document.getElementById('address')) localStorage.setItem('saved_address', document.getElementById('address').value);
+    if(document.getElementById('city')) localStorage.setItem('saved_city', document.getElementById('city').value);
+
+    var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
+    window.open(waUrl, '_blank');
 
             } catch (err) {
                 console.error("Order Error:", err);
