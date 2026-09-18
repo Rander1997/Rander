@@ -903,6 +903,31 @@
             color: #fff; font-size: 24px;
             cursor: pointer; z-index: 10;
         }
+
+/* خصائص الوضع الليلي */
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .card, 
+body.dark-mode .modal-content, 
+body.dark-mode header,
+body.dark-mode .cart-container {
+    background-color: #1e1e1e !important;
+    color: #e2e8f0 !important;
+    border-color: #2d3748 !important;
+}
+
+body.dark-mode input, 
+body.dark-mode select, 
+body.dark-mode textarea {
+    background-color: #2d3748 !important;
+    color: #ffffff !important;
+    border-color: #4a5568 !important;
+}
+
+        
 </style>
 
 </head>
@@ -913,17 +938,35 @@
     <button id="scroll-top" class="scroll-top-btn" onclick="scrollToTop()">⬆️</button>
 
     <header>
-        <div class="logo">RANDER</div>
-                <div style="display:flex; gap:8px; align-items: center;">
-            <div class="header-actions">
-                <button class="header-btn" onclick="openAppInfo()" title="عن التطبيق">ℹ️</button>
-                <button class="header-btn" onclick="shareApp()" title="مشاركة التطبيق">🔗</button>
-            </div>
-            <button id="install-pwa-btn" class="install-pwa-btn" onclick="triggerAppInstall()">📲 تثبيت</button>
-            <button class="cart-btn" id="cart-counter" onclick="if(typeof renderCartModal === 'function') renderCartModal(); document.getElementById('cart-modal').style.display='flex';">(0) 🛒</button>
-
+    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <!-- الشعار وبجانبه زر الوضع الليلي -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="logo">RANDER</div>
+            <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
         </div>
-    </header>
+
+        <!-- الأزرار العلوية المطابقة لزر السلة -->
+        <div style="display: flex; gap: 12px; align-items: center;">
+            
+            <!-- زر معلومات التطبيق (بدون كتابة تحته) -->
+            <button class="cart-btn" onclick="openAppInfo()" title="عن التطبيق">ℹ️</button>
+
+            <!-- زر مشاركة التطبيق (مكتوب تحته "مشاركة") -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق">🔗</button>
+                <span style="font-size: 10px; margin-top: 2px; color: inherit;">مشاركة</span>
+            </div>
+
+            <!-- زر تثبيت التطبيق PWA (يظهر عند التوفر) -->
+            <button id="install-pwa-btn" class="install-pwa-btn" onclick="triggerAppInstall()" style="display: none;">تثبيت 📲</button>
+
+            <!-- زر السلة -->
+            <button class="cart-btn" id="cart-counter" onclick="if(typeof renderCartModal === 'function') renderCartModal()">🛒</button>
+            
+        </div>
+    </div>
+</header>
+
 
     <!-- نافذة معلومات التطبيق واتصل بنا -->
     <div id="app-info-modal" class="info-modal" onclick="closeAppInfo(event)">
@@ -2210,6 +2253,33 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (videoEl) videoEl.pause();
             document.getElementById('story-modal').style.display = 'none';
         }
+// ... الدوال القديمة الخاصة بمتجرك ...
+
+// دالة تبديل الوضع الليلي
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    
+    // حفظ تفضيل المستخدم
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        var btn = document.getElementById('dark-mode-toggle');
+        if (btn) btn.innerText = '☀️';
+    } else {
+        localStorage.setItem('theme', 'light');
+        var btn = document.getElementById('dark-mode-toggle');
+        if (btn) btn.innerText = '🌙';
+    }
+}
+
+// تفعيل الوضع المحفوظ مسبقاً فور فتح الصفحة
+window.addEventListener('DOMContentLoaded', (event) => {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        var toggleBtn = document.getElementById('dark-mode-toggle');
+        if (toggleBtn) toggleBtn.innerText = '☀️';
+    }
+});
+    
 </script>
 
 
