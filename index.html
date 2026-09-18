@@ -1992,17 +1992,33 @@ iconEl.innerHTML = '<img src="https://i.imgur.com/Heerq69.png" alt="ZainCash" st
             }
 
             window.addEventListener('beforeinstallprompt', function(e) {
-                e.preventDefault();
-                deferredPrompt = e;
-                
-                var topBtn = document.getElementById('install-pwa-btn');
-                var banner = document.getElementById('install-banner');
-                
-                if (topBtn) topBtn.style.display = 'inline-flex';
-                if (banner && !sessionStorage.getItem('dismissed_install_banner')) {
-                    banner.style.display = 'flex';
-                }
-            });
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    var topBtn = document.getElementById('install-pwa-btn');
+    var banner = document.getElementById('install-banner');
+    
+    if (topBtn) topBtn.style.display = 'inline-flex';
+    if (banner && !sessionStorage.getItem('dismissed_install_banner')) {
+        banner.style.display = 'flex';
+    }
+});
+
+// استرجاع بيانات الزبون المحفوظة مسبقاً عند تحميل الصفحة
+window.addEventListener('DOMContentLoaded', (event) => {
+    if(localStorage.getItem('saved_name') && document.getElementById('name')) {
+        document.getElementById('name').value = localStorage.getItem('saved_name');
+    }
+    if(localStorage.getItem('saved_phone') && document.getElementById('phone')) {
+        document.getElementById('phone').value = localStorage.getItem('saved_phone');
+    }
+    if(localStorage.getItem('saved_address') && document.getElementById('address')) {
+        document.getElementById('address').value = localStorage.getItem('saved_address');
+    }
+    if(localStorage.getItem('saved_city') && document.getElementById('city')) {
+        document.getElementById('city').value = localStorage.getItem('saved_city');
+    }
+});
 
             window.addEventListener('appinstalled', function() {
                 deferredPrompt = null;
