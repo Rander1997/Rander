@@ -1354,6 +1354,15 @@ body.dark-mode textarea {
             3. اضغط على الزر أدناه لإرسال الطلب والوصل عبر الواتساب.
         </div>
 
+    <!-- خانة رفع إيصال التحويل المالي -->
+    <div style="margin-bottom: 15px; text-align: right; background: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px dashed #00b0ff;">
+        <label for="receipt-file-input" style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: bold; color: #333;">
+            📷 أرفق صورة إيصال التحويل (لقطة شاشة):
+        </label>
+        <input type="file" id="receipt-file-input" accept="image/*" style="width: 100%; padding: 6px; font-size: 11px; background: #fff; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+    </div>
+
+        
         <!-- زر إرسال الطلب النهائي للواتساب -->
         <button onclick="submitOrderWithPayment()" style="width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
             <span>💬</span> تم الدفع، إرسال الطلب والإيصال عبر الواتساب
