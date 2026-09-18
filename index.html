@@ -948,13 +948,13 @@ body.dark-mode textarea {
             <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
         </div>
 
-        <!-- الأزرار العلوية مضبوطة المحاذاة تماماً -->
+        <!-- الأزرار العلوية متساوية في المستوى تماماً -->
         <div style="display: flex; gap: 12px; align-items: center;">
             
-            <!-- زر مشاركة التطبيق مع كلمة مشاركة في الأسفل بدون تأثير على المحاذاة -->
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق" style="margin: 0;">🔗</button>
-                <span style="font-size: 10px; line-height: 1.2; margin-top: 2px; color: inherit;">مشاركة</span>
+            <!-- زر مشاركة التطبيق مع تثبيت الكلمة تحته دون التأثير على الارتفاع -->
+            <div style="position: relative; display: inline-block; text-align: center;">
+                <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق" style="display: flex; align-items: center; justify-content: center;">🔗</button>
+                <span style="position: absolute; width: 100%; left: 0; bottom: -14px; font-size: 10px; color: inherit; text-align: center;">مشاركة</span>
             </div>
 
             <!-- زر تثبيت التطبيق PWA (يظهر عند التوفر) -->
@@ -966,6 +966,7 @@ body.dark-mode textarea {
         </div>
     </div>
 </header>
+
 
 
     <!-- نافذة معلومات التطبيق واتصل بنا -->
