@@ -939,22 +939,22 @@ body.dark-mode textarea {
 
     <header>
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-        <!-- الشعار وبجانبه زر الوضع الليلي -->
+        
+        <!-- الشعار كزر لمعلومات التطبيق، وبجانبه زر الوضع الليلي -->
         <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="logo">RANDER</div>
+            <button onclick="openAppInfo()" title="عن التطبيق" style="background: none; border: none; cursor: pointer; padding: 0;">
+                <div class="logo" style="margin: 0;">RANDER</div>
+            </button>
             <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
         </div>
 
-        <!-- الأزرار العلوية المطابقة لزر السلة -->
+        <!-- الأزرار العلوية مضبوطة المحاذاة تماماً -->
         <div style="display: flex; gap: 12px; align-items: center;">
             
-            <!-- زر معلومات التطبيق (بدون كتابة تحته) -->
-            <button class="cart-btn" onclick="openAppInfo()" title="عن التطبيق">ℹ️</button>
-
-            <!-- زر مشاركة التطبيق (مكتوب تحته "مشاركة") -->
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق">🔗</button>
-                <span style="font-size: 10px; margin-top: 2px; color: inherit;">مشاركة</span>
+            <!-- زر مشاركة التطبيق مع كلمة مشاركة في الأسفل بدون تأثير على المحاذاة -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق" style="margin: 0;">🔗</button>
+                <span style="font-size: 10px; line-height: 1.2; margin-top: 2px; color: inherit;">مشاركة</span>
             </div>
 
             <!-- زر تثبيت التطبيق PWA (يظهر عند التوفر) -->
