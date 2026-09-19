@@ -1393,22 +1393,14 @@ body.dark-mode textarea {
 </div>
 
     <!-- لوحة التحكم السريعة (محمية ومخفية) -->
-<div id="admin-panel" style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
+<div id="admin-panel" style="display: none; background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
     <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر</h3>
     
     <div style="display: flex; flex-direction: column; gap: 12px;">
         <input type="text" id="p-name" placeholder="اسم المنتج" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         <input type="text" id="p-price" placeholder="السعر (مثلاً: 25000)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         
-        <!-- الصورة الرئيسية -->
-        <input type="url" id="p-image" placeholder="رابط صورة المنتج الرئيسية المباشر" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        
-        <!-- الصورة الثانية الإضافية (تظهر عند النقر على المنتج) -->
-        <input type="url" id="p-image2" placeholder="رابط الصورة الإضافية الثانية (اختياري)" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        
-        <!-- وصف المنتج التفصيلي -->
-        <textarea id="p-desc" placeholder="وصف المنتج التفصيلي والمميزات..." style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; height: 80px; resize: vertical;"></textarea>
-
         <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
             <option value="school">مستلزمات مدرسية</option>
             <option value="ipads">ايبادات</option>
@@ -1420,7 +1412,8 @@ body.dark-mode textarea {
             <option value="accessories">اكسسوارات</option>
         </select>
 
-        <button onclick="executeQuickAdd()" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px;">إضافة المنتج فوراً للمتجر</button>
+        <!-- زر الإضافة المباشر -->
+        <button type="button" onclick="executeQuickAdd()" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">إضافة المنتج فوراً للمتجر</button>
     </div>
 </div>
 
@@ -2427,66 +2420,36 @@ function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
-    // 1. التخزين المؤقت: جلب المنتجات المخزنة محلياً وعرضها فوراً لسرعة فائقة (بدون انتظار الإنترنت)
-    const cachedProducts = localStorage.getItem('rander_cached_products');
-    if (cachedProducts) {
-        try {
-            let products = JSON.parse(cachedProducts);
-            products.forEach(product => {
-                renderProductCard(productsGrid, product, product.id);
-            });
-        } catch (e) {
-            console.log("خطأ في قراءة الذاكرة المحلية");
-        }
-    }
-
-    // 2. جلب التحديثات الحية من فايربيس وتحديث العرض والذاكرة المحلية
-    db.collection("products").orderBy("createdAt", "desc").onSnapshot((querySnapshot) => {
-        let liveProducts = [];
-        
-        // تفريغ الشبكة لتجنب التكرار وتحديثها بالبيانات الحية الجديدة
-        productsGrid.innerHTML = ''; 
-
+    db.collection("products").onSnapshot((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             let product = doc.data();
-            product.id = doc.id;
-            liveProducts.push(product);
+            let productId = doc.id;
 
-            renderProductCard(productsGrid, product, product.id);
+            // منع تكرار عرض المنتج إذا كان موجوداً على الشاشة
+            if (document.querySelector(`[data-id="${productId}"]`)) return;
+
+            let card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-id', productId);
+            card.setAttribute('data-category', product.category || 'all');
+
+            card.innerHTML = `
+                <span class="badge" style="background:#10b981;">✨ جديد</span>
+                <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
+                <img src="${product.images ? product.images[0] : product.image}" class="product-image" onclick="openProductDetail('${productId}')">
+                <div class="product-title">${product.name}</div>
+                <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
+                <div class="control-group">
+                    <label>اللون:</label>
+                    <select class="product-option"><option value="قياسي">قياسي</option></select>
+                </div>
+                <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة إلى السلة 🛒</button>
+            `;
+
+            productsGrid.prepend(card);
         });
-
-        // حفظ المنتجات في ذاكرة المتصفح المحلية (تخزين الصور الرئيسية للزيارات القادمة)
-        localStorage.setItem('rander_cached_products', JSON.stringify(liveProducts));
     });
 }
-
-// دالة مساعدة لإنشاء كارت المنتج وتمرير بيانات الوصف والصورة الثانية عند النقر
-function renderProductCard(grid, product, productId) {
-    if (document.querySelector(`[data-id="${productId}"]`)) return;
-
-    let card = document.createElement('div');
-    card.className = 'product-card';
-    card.setAttribute('data-id', productId);
-    card.setAttribute('data-category', product.category || 'all');
-
-    let mainImg = product.images ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
-
-    card.innerHTML = `
-        <span class="badge" style="background:#10b981;">✨ جديد</span>
-        <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-        <img src="${mainImg}" class="product-image" loading="lazy" onclick="openProductDetail('${productId}', '${product.name}', ${product.price}, '${mainImg}', '${product.image2 || ''}', \`${product.description || 'لا يوجد وصف متاح.'}\`)">
-        <div class="product-title">${product.name}</div>
-        <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
-        <div class="control-group">
-            <label>اللون:</label>
-            <select class="product-option"><option value="قياسي">قياسي</option></select>
-        </div>
-        <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة إلى السلة 🛒</button>
-    `;
-
-    grid.appendChild(card);
-}
-
 
 // تشغيل دالة الجلب عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function() {
@@ -2500,8 +2463,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const nameInput = document.getElementById('p-name');
     const priceInput = document.getElementById('p-price');
     const imageInput = document.getElementById('p-image');
-    const image2Input = document.getElementById('p-image2'); // حقل الصورة الثانية الجديد
-    const descInput = document.getElementById('p-desc');       // حقل الوصف الجديد
     const categorySelect = document.getElementById('p-category');
 
     if (!nameInput.value.trim() || !priceInput.value.trim()) {
@@ -2512,18 +2473,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const productName = nameInput.value.trim();
     const productPrice = parseFloat(priceInput.value.replace(/[^0-9.]/g, '')) || 0;
     const productImage = imageInput && imageInput.value.trim() ? imageInput.value.trim() : 'https://i.imgur.com/ZMtVEDi.png';
-    const productImage2 = image2Input && image2Input.value.trim() ? image2Input.value.trim() : '';
-    const productDesc = descInput && descInput.value.trim() ? descInput.value.trim() : 'لا يوجد وصف متاح.';
     const productCategory = categorySelect ? categorySelect.value : 'all';
 
-    // حفظ المنتج مع الصورة الثانية والوصف في فايربيس
     db.collection("products").add({
         name: productName,
         price: productPrice,
         image: productImage,
-        image2: productImage2,     // حفظ الصورة الثانية
-        description: productDesc, // حفظ الوصف
-        images: [productImage, productImage2].filter(img => img !== ''),
+        images: [productImage],
         category: productCategory,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     })
@@ -2532,8 +2488,6 @@ document.addEventListener("DOMContentLoaded", function() {
         nameInput.value = '';
         priceInput.value = '';
         if (imageInput) imageInput.value = '';
-        if (image2Input) image2Input.value = '';
-        if (descInput) descInput.value = '';
         location.reload();
     })
     .catch((error) => {
