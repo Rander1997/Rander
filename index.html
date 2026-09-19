@@ -1375,25 +1375,26 @@ body.dark-mode textarea {
     <!-- لوحة التحكم السريعة (محمية ومخفية) -->
 <div id="admin-panel" style="display: none; background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
     <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر</h3>
-    <form id="quick-product-form" onsubmit="addNewProduct(event)" style="display: flex; flex-direction: column; gap: 12px;">
+    
+    <div style="display: flex; flex-direction: column; gap: 12px;">
         <input type="text" id="p-name" placeholder="اسم المنتج" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         <input type="text" id="p-price" placeholder="السعر (مثلاً: 25000)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         
-        <!-- الأقسام المتطابقة مع متجرك 100% -->
         <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-            <option value="school">🎒 مستلزمات مدرسية</option>
-            <option value="ipads">📱 ايبادات</option>
+            <option value="school">مستلزمات مدرسية</option>
+            <option value="ipads">ايبادات</option>
             <option value="english">English</option>
-            <option value="phones">📲 هواتف</option>
-            <option value="used">🔄 أجهزة مستعملة</option>
-            <option value="watches">⌚ ساعات ذكية</option>
-            <option value="gaming">🎮 Gaming</option>
-            <option value="accessories">🎧 إكسسوارات</option>
+            <option value="phones">هواتف</option>
+            <option value="used">أجهزة مستعملة</option>
+            <option value="watches">ساعات ذكية</option>
+            <option value="gaming">Gaming</option>
+            <option value="accessories">اكسسوارات</option>
         </select>
 
-        <button type="button" onclick="addNewProduct()" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px;">إضافة المنتج فوراً للمتجر</button>
-    </form>
+        <!-- زر الإضافة المباشر -->
+        <button type="button" onclick="executeQuickAdd()" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">إضافة المنتج فوراً للمتجر</button>
+    </div>
 </div>
 
 
@@ -2435,14 +2436,19 @@ document.addEventListener("DOMContentLoaded", function() {
     loadCloudProducts();
 });
 
-    function addNewProduct() {
+    function executeQuickAdd() {
     const nameInput = document.getElementById('p-name');
     const priceInput = document.getElementById('p-price');
     const imageInput = document.getElementById('p-image');
     const categorySelect = document.getElementById('p-category');
 
-    if (!nameInput || !priceInput || !nameInput.value.trim() || !priceInput.value.trim()) {
-        alert("يرجى ملء حقل اسم المنتج والسعر!");
+    if (!nameInput.value.trim() || !priceInput.value.trim()) {
+        alert("يرجى ملء حقل اسم المنتج والسعر على الأقل!");
+        return;
+    }
+
+    if (typeof db === 'undefined') {
+        alert("❌ خطأ: قاعدة بيانات فايربيس (db) غير متصلة في هذه الصفحة!");
         return;
     }
 
@@ -2460,15 +2466,14 @@ document.addEventListener("DOMContentLoaded", function() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then(() => {
-        alert("✨ تم إضافة المنتج وإرساله إلى المتجر بنجاح!");
+        alert("✨ تمت إضافة المنتج إلى المتجر بنجاح!");
         nameInput.value = '';
         priceInput.value = '';
         if (imageInput) imageInput.value = '';
         location.reload();
     })
     .catch((error) => {
-        console.error("خطأ في إضافة المنتج: ", error);
-        alert("❌ حدث خطأ أثناء الإضافة: " + error.message);
+        alert("❌ خطأ أثناء الإضافة: " + error.message);
     });
 }
 
