@@ -1461,16 +1461,15 @@ try {
 function addNewProduct(event) {
     event.preventDefault();
 
-        const name = document.getElementById('p-name').value;
+    const name = document.getElementById('p-name').value;
     const priceInput = document.getElementById('p-price').value;
-        const image = document.getElementById('p-image').value; 
+    const image = document.getElementById('p-image').value; 
     const category = document.getElementById('p-category').value;
     
     const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
     const newKey = 'p_' + Date.now();
 
-
-        const newProduct = {
+    const newProduct = {
         id: newKey,
         name: name,
         price: price,
@@ -1479,21 +1478,20 @@ function addNewProduct(event) {
         images: [image]
     };
 
-    // استبدال التخزين المحلي بقاعدة بيانات فايربيس
+    // إرسال البيانات إلى فايربيس
     db.collection("products").add(newProduct)
     .then(() => {
+        // هذه الأوامر لن تتنفذ إلا بعد أن تتأكد فايربيس من حفظ المنتج بنجاح
         console.log("تم حفظ المنتج في السحابة بنجاح");
+        alert("✨ تمت إضافة المنتج إلى المتجر بنجاح!");
+        document.getElementById('quick-product-form').reset();
+        location.reload(); // تحديث الصفحة بعد نجاح الإضافة فقط
     })
     .catch((error) => {
+        // في حال حدوث خطأ، ستظهر هذه الرسالة ولن تتحدث الصفحة
         console.error("خطأ أثناء حفظ المنتج: ", error);
+        alert("❌ خطأ لم يتم الإضافة: " + error.message);
     });
-
-    document.getElementById('quick-product-form').reset();
-    alert("تم إضافة المنتج بنجاح!");
-
-    setTimeout(function() {
-        location.reload();
-    }, 100);
 }
 
 // 4. دالة تسجيل دخول الأدمن
