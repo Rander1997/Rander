@@ -1426,8 +1426,11 @@ body.dark-mode textarea {
     localStorage.setItem('rander_custom_products', JSON.stringify(savedCustomProducts));
 
     document.getElementById('quick-product-form').reset();
-    alert("مرحباً بك. تم تحديث عرض الصفحة بنجاح.");
+alert("تمت إضافة المنتج بنجاح!");
+// تأكد من حفظ التغييرات في الذاكرة قبل إعادة التحميل
+setTimeout(function() {
     location.reload();
+}, 100);
 }
     // دالة سرية لإظهار لوحة التحكم عند الطلب بكلمة مرور
 function loginAsAdmin() {
