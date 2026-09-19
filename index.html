@@ -1458,14 +1458,23 @@ try {
 }
 
 // 3. دالة إضافة منتج جديد
-function addNewProduct(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('p-name').value;
-    const priceInput = document.getElementById('p-price').value;
-    const image = document.getElementById('p-image').value; 
+function addNewProduct() {
+    const name = document.getElementById('p-name').value.trim();
+    const priceInput = document.getElementById('p-price').value.trim();
+    const image = document.getElementById('p-image').value.trim(); 
     const category = document.getElementById('p-category').value;
     
+    if (!name || !priceInput) {
+        alert("يرجى كتابة اسم المنتج والسعر!");
+        return;
+    }
+
+    // التحقق هل db معرف أم لا
+    if (typeof db === 'undefined') {
+        alert("❌ خطأ: كائن قاعدة البيانات (db) غير معرف في الصفحة!");
+        return;
+    }
+
     const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
     const newKey = 'p_' + Date.now();
 
@@ -1475,22 +1484,17 @@ function addNewProduct(event) {
         price: price,
         category: category,
         desc: "منتج جديد أضيف عبر لوحة التحكم السريعة",
-        images: [image]
+        images: [image ? image : 'https://i.imgur.com/ZMtVEDi.png']
     };
 
-    // إرسال البيانات إلى فايربيس
     db.collection("products").add(newProduct)
     .then(() => {
-        // هذه الأوامر لن تتنفذ إلا بعد أن تتأكد فايربيس من حفظ المنتج بنجاح
-        console.log("تم حفظ المنتج في السحابة بنجاح");
         alert("✨ تمت إضافة المنتج إلى المتجر بنجاح!");
         document.getElementById('quick-product-form').reset();
-        location.reload(); // تحديث الصفحة بعد نجاح الإضافة فقط
+        location.reload();
     })
     .catch((error) => {
-        // في حال حدوث خطأ، ستظهر هذه الرسالة ولن تتحدث الصفحة
-        console.error("خطأ أثناء حفظ المنتج: ", error);
-        alert("❌ خطأ لم يتم الإضافة: " + error.message);
+        alert("❌ خطأ في فايربيس: " + error.message);
     });
 }
 
