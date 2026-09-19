@@ -2435,23 +2435,21 @@ document.addEventListener("DOMContentLoaded", function() {
     loadCloudProducts();
 });
 
-    function addProductToFirebase(event) {
-    if (event) event.preventDefault();
-
-    let nameInput = document.getElementById('p-name');
-    let priceInput = document.getElementById('p-price');
-    let imageInput = document.getElementById('url');
-    let categorySelect = document.getElementById('p-category');
+    function addNewProduct() {
+    const nameInput = document.getElementById('p-name');
+    const priceInput = document.getElementById('p-price');
+    const imageInput = document.getElementById('p-image');
+    const categorySelect = document.getElementById('p-category');
 
     if (!nameInput || !priceInput || !nameInput.value.trim() || !priceInput.value.trim()) {
         alert("يرجى ملء حقل اسم المنتج والسعر!");
         return;
     }
 
-    let productName = nameInput.value.trim();
-    let productPrice = parseFloat(priceInput.value) || 0;
-    let productImage = imageInput && imageInput.value.trim() ? imageInput.value.trim() : 'https://i.imgur.com/ZMtVEDi.png';
-    let productCategory = categorySelect ? categorySelect.value : 'all';
+    const productName = nameInput.value.trim();
+    const productPrice = parseFloat(priceInput.value.replace(/[^0-9.]/g, '')) || 0;
+    const productImage = imageInput && imageInput.value.trim() ? imageInput.value.trim() : 'https://i.imgur.com/ZMtVEDi.png';
+    const productCategory = categorySelect ? categorySelect.value : 'all';
 
     db.collection("products").add({
         name: productName,
@@ -2466,10 +2464,11 @@ document.addEventListener("DOMContentLoaded", function() {
         nameInput.value = '';
         priceInput.value = '';
         if (imageInput) imageInput.value = '';
+        location.reload();
     })
     .catch((error) => {
         console.error("خطأ في إضافة المنتج: ", error);
-        alert("حدث خطأ أثناء الإضافة.");
+        alert("❌ حدث خطأ أثناء الإضافة: " + error.message);
     });
 }
 
