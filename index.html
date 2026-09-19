@@ -1724,6 +1724,7 @@ function displayProductModal(product) {
 
     var modal = document.getElementById('detail-modal');
     if (modal) modal.style.display = 'flex';
+        renderRecommendations(product.id);
 }
 
         function closeDetailModal() { 
