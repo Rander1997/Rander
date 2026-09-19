@@ -1469,14 +1469,6 @@ function addNewProduct(event) {
     const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
     const newKey = 'p_' + Date.now();
 
-    const newProduct = {
-        id: newKey,
-        name: name,
-        price: price,
-        category: category,
-        desc: "منتج جديد أضيف عبر لوحة التحكم السريعة",
-        images: [image]
-    };
 
         const newProduct = {
         id: newKey,
