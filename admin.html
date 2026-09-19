@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم المركزية - متجر راندر</title>
+    <!-- استدعاء فايربيس -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; padding: 20px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: #1e293b; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #cbd5e1; }
+        input, textarea, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; font-size: 14px; }
+        input:focus, textarea:focus, select:focus { border-color: #38bdf8; outline: none; }
+        button { background: #22c55e; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #16a34a; }
+        .login-box { text-align: center; padding: 40px 20px; }
+        .login-box input { margin-bottom: 15px; text-align: center; font-size: 18px; }
+        .login-box button { background: #38bdf8; color: #0f172a; }
+        .login-box button:hover { background: #0ea5e9; }
+        #admin-app { display: none; }
+        .error-msg { color: #ef4444; margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول الخاصة بالأدمن -->
+    <div id="login-screen" class="container login-box">
+        <h2>🔐 بوابة إدارة متجر راندر</h2>
+        <p style="color: #94a3b8; margin-bottom: 20px;">أدخل كلمة المرور السرية الخاصة بك للدخول إلى لوحة التحكم</p>
+        <input type="password" id="admin-pass" placeholder="كلمة المرور السرية">
+        <button onclick="checkAdminLogin()">دخول للوحة التحكم</button>
+        <div id="login-error" class="error-msg"></div>
+    </div>
+
+    <!-- تطبيق الأدمن الرئيسي (يظهر بعد كلمة المرور الصحيحة) -->
+    <div id="admin-app" class="container">
+        <h2>🛠️ لوحة تحكم متجر راندر (التحكم الشامل)</h2>
+        
+        <div class="form-group">
+            <label>اسم المنتج:</label>
+            <input type="text" id="p-name" placeholder="مثال: آيباد برو 2024">
+        </div>
+
+        <div class="form-group">
+            <label>السعر (د.ع):</label>
+            <input type="text" id="p-price" placeholder="مثال: 750000">
+        </div>
+
+        <div class="form-group">
+            <label>رابط الصورة الرئيسية (الأولى):</label>
+            <input type="url" id="p-image" placeholder="https://imgur.com/...">
+        </div>
+
+        <div class="form-group">
+            <label>رابط الصورة الثانية الإضافية (تظهر عند النقر):</label>
+            <input type="url" id="p-image2" placeholder="https://imgur.com/...">
+        </div>
+
+        <div class="form-group">
+            <label>وصف المنتج التفصيلي:</label>
+            <textarea id="p-desc" rows="3" placeholder="اكتب مواصفات المنتج، الضمان، التفاصيل..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>القسم:</label>
+            <select id="p-category">
+                <option value="school">مستلزمات مدرسية</option>
+                <option value="ipads">ايبادات</option>
+                <option value="english">English</option>
+                <option value="phones">هواتف</option>
+                <option value="used">أجهزة مستعملة</option>
+                <option value="watches">ساعات ذكية</option>
+                <option value="gaming">Gaming</option>
+                <option value="accessories">اكسسوارات</option>
+            </select>
+        </div>
+
+        <button onclick="addNewProductToStore()">✨ إضافة ونشر المنتج فوراً في المتجر</button>
+    </div>
+
+    <script>
+        // إعدادات اتصال فايربيس (نفس إعدادات متجرك)
+        const firebaseConfig = {
+            apiKey: "ضع_مفتاح_الـ_API_الخاص بك_هنا",
+            authDomain: "rander-store.firebaseapp.com",
+            projectId: "rander-store",
+            storageBucket: "rander-store.appspot.com",
+            messagingSenderId: "ضع_رقمك_هنا",
+            appId: "ضع_رقم_الـ_app_هنا"
+        };
+        
+        // إذا كان ملفك يقرأ الإعدادات مسبقاً، يمكنك ربط التطبيق مباشرة بـ firebase.initializeApp
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // كلمة المرور الخاصة بك لوحة التحكم (يمكنك تغييرها لأي كلمة تريدها)
+        const MY_SECRET_PASSWORD = "Rander2026"; 
+
+        function checkAdminLogin() {
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === MY_SECRET_PASSWORD) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-app').style.display = 'block';
+            } else {
+                document.getElementById('login-error').innerText = "❌ كلمة المرور غير صحيحة!";
+            }
+        }
+
+        function addNewProductToStore() {
+            const name = document.getElementById('p-name').value.trim();
+            const priceVal = document.getElementById('p-price').value.trim();
+            const image = document.getElementById('p-image').value.trim();
+            const image2 = document.getElementById('p-image2').value.trim();
+            const desc = document.getElementById('p-desc').value.trim();
+            const category = document.getElementById('p-category').value;
+
+            if (!name || !priceVal) {
+                alert("يرجى كتابة اسم المنتج والسعر على الأقل!");
+                return;
+            }
+
+            const price = parseFloat(priceVal.replace(/[^0-9.]/g, '')) || 0;
+            const mainImg = image || 'https://i.imgur.com/ZMtVEDi.png';
+
+            db.collection("products").add({
+                name: name,
+                price: price,
+                image: mainImg,
+                image2: image2,
+                description: desc || 'لا يوجد وصف متاح.',
+                images: [mainImg, image2].filter(img => img !== ''),
+                category: category,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                alert("🚀 تم نشر المنتج في المتجر بنجاح وبدون أي أخطاء!");
+                // تفريغ الحقول للإضافة التالية
+                document.getElementById('p-name').value = '';
+                document.getElementById('p-price').value = '';
+                document.getElementById('p-image').value = '';
+                document.getElementById('p-image2').value = '';
+                document.getElementById('p-desc').value = '';
+            })
+            .catch((error) => {
+                alert("❌ حدث خطأ أثناء الإرسال: " + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
