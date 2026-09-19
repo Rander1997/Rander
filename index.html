@@ -2437,6 +2437,9 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
     function executeQuickAdd() {
+    // تعريف متغير قاعدة البيانات محلياً داخل الدالة لضمان اتصالها الفوري
+    const db = firebase.firestore();
+
     const nameInput = document.getElementById('p-name');
     const priceInput = document.getElementById('p-price');
     const imageInput = document.getElementById('p-image');
@@ -2444,11 +2447,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (!nameInput.value.trim() || !priceInput.value.trim()) {
         alert("يرجى ملء حقل اسم المنتج والسعر على الأقل!");
-        return;
-    }
-
-    if (typeof db === 'undefined') {
-        alert("❌ خطأ: قاعدة بيانات فايربيس (db) غير متصلة في هذه الصفحة!");
         return;
     }
 
