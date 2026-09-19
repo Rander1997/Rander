@@ -2347,25 +2347,40 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
 
-        var storiesData = [
-            { id: 'p1', title: 'حقيبة ظهر', img: 'https://i.imgur.com/QfL2xFh.jpeg' },
-            { id: 'p1_cup', title: 'كوب قهوة', img: 'https://i.imgur.com/NjTaTUH.jpeg' },
-            { id: 'p2', title: 'iPad Air', img: 'https://i.imgur.com/BtDsDLH.jpeg' }
-        ];
+        let storiesData = [];
 
-        function renderStories() {
-            var container = document.getElementById('stories-bar');
-            if (!container) return;
-            
-            container.innerHTML = storiesData.map(function(story) {
-                return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
-                    '<div class="story-ring">' +
-                        '<img class="story-img" src="' + story.img + '" alt="' + story.title + '">' +
-                    '</div>' +
-                    '<span class="story-title">' + story.title + '</span>' +
-                '</div>';
-            }).join('');
-        }
+function loadStoreStories() {
+    db.collection("stories").get().then((snapshot) => {
+        storiesData = [];
+        snapshot.forEach((doc) => {
+            storiesData.push({ id: doc.id, ...doc.data() });
+        });
+        renderStories();
+    }).catch(err => console.log("Error loading stories: ", err));
+}
+
+function renderStories() {
+    var container = document.getElementById('stories-bar');
+    if (!container) return;
+    
+    if (storiesData.length === 0) {
+        container.innerHTML = '<div style="padding:10px; color:#64748b; font-size:12px;">لا توجد ستوريات نشطة حالياً</div>';
+        return;
+    }
+
+    container.innerHTML = storiesData.map(function(story) {
+        return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
+            '<div class="story-ring">' +
+                '<img class="story-img" src="' + story.image + '" alt="' + story.title + '">' +
+            '</div>' +
+            '<span class="story-title">' + story.title + '</span>' +
+        '</div>';
+    }).join('');
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadStoreStories();
+});
 
         function openStory(storyId) {
             var story = storiesData.find(function(s) { return s.id === storyId; });
