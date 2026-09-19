@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#1d4ed8">
     
-    <!-- ربط ملف الـ Manifest الخاص بك -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://i.imgur.com/ZMtVEDi.png">
 
-    <title>تطبيق لوحة تحكم راندر</title>
+    <title>لوحة تحكم راندر الاحترافية</title>
 
-    <!-- ربط مكتبة فايربيس -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
@@ -51,19 +49,19 @@
             background-color: var(--bg-primary);
             color: var(--text-primary);
             padding: 16px;
-            padding-bottom: 40px;
+            padding-bottom: 60px;
         }
 
-        .admin-container { max-width: 800px; margin: 0 auto; }
+        .admin-container { max-width: 850px; margin: 0 auto; }
 
         #login-screen {
             background: var(--bg-card);
-            padding: 24px;
+            padding: 28px;
             border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
             text-align: center;
             max-width: 400px;
-            margin: 60px auto;
+            margin: 80px auto;
             border: 1px solid var(--border-color);
         }
 
@@ -72,7 +70,7 @@
             padding: 20px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             border: 1px solid var(--border-color);
         }
 
@@ -102,68 +100,148 @@
         }
 
         .btn-success { background: #28a745; }
-        .btn-danger { background: #dc3545; width: auto; padding: 6px 12px; font-size: 12px; }
+        .btn-warning { background: #f59e0b; color: white; padding: 6px 10px; font-size: 12px; }
+        .btn-danger { background: #dc3545; padding: 6px 10px; font-size: 12px; }
 
-        .products-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        .products-table th, .products-table td { padding: 10px; border-bottom: 1px solid var(--border-color); text-align: right; }
-        .products-table th { background: var(--bg-primary); }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .items-table th, .items-table td { padding: 10px; border-bottom: 1px solid var(--border-color); text-align: right; vertical-align: middle; }
+        .items-table th { background: var(--bg-primary); }
 
         #dashboard-content { display: none; }
     </style>
 </head>
 <body>
 
+    <!-- شاشة تسجيل الدخول -->
     <div id="login-screen">
-        <h2>🔐 دخول أدمن راندر</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور لفتح تطبيق الإدارة</p>
-        <input type="password" id="admin-password" placeholder="رمز المرور (640397)" class="form-input">
-        <button class="btn" onclick="checkAdminLogin()">فتح لوحة التحكم</button>
+        <h2>🔐 إدارة راندر المتقدمة</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للوصول الكامل</p>
+        <input type="password" id="admin-password" placeholder="hmmm" class="form-input">
+        <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
     </div>
 
+    <!-- لوحة التحكم الرئيسية -->
     <div id="dashboard-content" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>🛠️ تطبيق إدارة راندر</h2>
+            <h2>⚡ لوحة تحكم راندر الاحترافية</h2>
             <button class="btn" style="width: auto; background: #64748b; padding: 8px 12px; font-size: 12px;" onclick="location.reload()">قفل</button>
         </div>
 
-        <div class="card">
-            <h3>➕ إضافة منتج جديد</h3>
-            <form id="add-product-form" onsubmit="event.preventDefault(); addNewProduct();">
-                <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
-                <input type="text" id="p-price" placeholder="السعر (مثلاً: 25000)" class="form-input" required>
-                <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر" class="form-input" required>
-                
-                <select id="p-category" class="form-input">
-                    <option value="school">مستلزمات مدرسية</option>
-                    <option value="ipads">ايبادات</option>
-                    <option value="english">English</option>
-                    <option value="phones">هواتف</option>
-                    <option value="used">أجهزة مستعملة</option>
-                    <option value="watches">ساعات ذكية</option>
-                    <option value="gaming">Gaming</option>
-                    <option value="accessories">إكسسوارات</option>
-                </select>
-
-                <button type="submit" class="btn btn-success">نشر المنتج فوراً للمتجر 🚀</button>
-            </form>
+        <!-- التنقل بين الأقسام -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('products', this)">📦 إدارة المنتجات</button>
+            <button class="tab-btn" onclick="switchTab('stories', this)">📸 إدارة الستوريات (Stories)</button>
         </div>
 
-        <div class="card">
-            <h3>📦 إدارة المنتجات (حذف / تعديل)</h3>
-            <div style="overflow-x: auto;">
-                <table class="products-table">
-                    <thead>
-                        <tr>
-                            <th>صورة</th>
-                            <th>الاسم</th>
-                            <th>السعر</th>
-                            <th>إجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-products-list">
-                        <tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>
-                    </tbody>
-                </table>
+        <!-- قسم المنتجات -->
+        <div id="tab-products" class="tab-content active">
+            <div class="card">
+                <h3 id="form-title">➕ إضافة منتج جديد (المواصفات والرسومات)</h3>
+                <form id="product-form" onsubmit="event.preventDefault(); saveProduct();">
+                    <input type="hidden" id="edit-doc-id">
+                    <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
+                    <input type="text" id="p-price" placeholder="السعر بـ (د.ع)" class="form-input" required>
+                    
+                    <!-- حقل الوصف الجديد -->
+                    <textarea id="p-desc" placeholder="وصف المنتج وتفاصيله الكاملة..." class="form-input" rows="3"></textarea>
+                    
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">1️⃣ الصورة الرئيسية الرسمية (تحمل مرة واحدة):</label>
+                    <input type="url" id="p-main-image" placeholder="رابط الصورة الرئيسية للمنتج" class="form-input" required>
+
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية (اختياري - افصل بينها بفاصلة `,`):</label>
+                    <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
+                    
+                    <select id="p-category" class="form-input">
+                        <option value="school">مستلزمات مدرسية</option>
+                        <option value="ipads">ايبادات</option>
+                        <option value="english">English</option>
+                        <option value="phones">هواتف</option>
+                        <option value="used">أجهزة مستعملة</option>
+                        <option value="watches">ساعات ذكية</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="accessories">إكسسوارات</option>
+                    </select>
+
+                    <button type="submit" id="save-btn" class="btn btn-success">نشر المنتج في المتجر 🚀</button>
+                    <button type="button" id="cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetProductForm()">إلغاء التعديل</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>📦 قائمة المنتجات الحالية</h3>
+                <div style="overflow-x: auto;">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>الصورة</th>
+                                <th>الاسم والسعر والوصف</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-list">
+                            <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم الستوريات (Stories) -->
+        <div id="tab-stories" class="tab-content">
+            <div class="card">
+                <h3>📸 نشر ستوري جديد في المتجر</h3>
+                <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
+                    <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عروض العيد)" class="form-input" required>
+                    <input type="url" id="s-image" placeholder="رابط صورة الستوري المباشر" class="form-input" required>
+                    <input type="text" id="s-link" placeholder="رابط المنتج المرتبط بالستوري (اختياري)" class="form-input">
+                    
+                    <button type="submit" class="btn btn-success">نشر الستوري الآن 🚀</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>🎞️ الستوريات النشطة حالياً</h3>
+                <div style="overflow-x: auto;">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>صورة الستوري</th>
+                                <th>العنوان</th>
+                                <th>إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-stories-list">
+                            <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -174,57 +252,159 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 loadAdminProducts();
+                loadAdminStories();
             } else {
                 alert("❌ رمز المرور خطأ!");
             }
         }
 
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // --- إدارة المنتجات والوصف ---
         function loadAdminProducts() {
             const tbody = document.getElementById('admin-products-list');
-            db.collection("products").get().then((querySnapshot) => {
+            db.collection("products").get().then((snapshot) => {
                 tbody.innerHTML = '';
-                if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد منتجات.</td></tr>';
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد منتجات.</td></tr>';
                     return;
                 }
-                querySnapshot.forEach((doc) => {
+                snapshot.forEach((doc) => {
                     let p = doc.data();
+                    let id = doc.id;
+                    let mainImg = p.images && p.images.length > 0 ? p.images[0] : '';
+                    let extraImgs = p.images && p.images.length > 1 ? p.images.slice(1).join(', ') : '';
+                    let descText = p.description || '';
+                    
                     tbody.innerHTML += `
                         <tr>
-                            <td><img src="${p.images ? p.images[0] : ''}" style="width: 35px; height: 35px; object-fit: contain;"></td>
-                            <td><b>${p.name}</b></td>
-                            <td>${p.price ? p.price.toLocaleString('ar-IQ') : 0} د.ع</td>
-                            <td><button class="btn btn-danger" onclick="deleteProduct('${doc.id}')">حذف</button></td>
+                            <td><img src="${mainImg}" style="width: 40px; height: 40px; object-fit: contain; border-radius:4px;"></td>
+                            <td>
+                                <b>${p.name}</b><br>
+                                <span style="color:var(--accent);">${p.price ? p.price.toLocaleString('ar-IQ') : 0} د.ع</span><br>
+                                <small style="color:var(--text-secondary);">${descText.substring(0, 40)}...</small>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px;">
+                                    <button class="btn btn-warning" onclick="editProduct('${id}', '${p.name.replace(/'/g, "")}', ${p.price}, '${mainImg}', '${extraImgs}', '${(p.description || '').replace(/'/g, "")}', '${p.category || 'school'}')">تعديل</button>
+                                    <button class="btn btn-danger" onclick="deleteDocItem('products', '${id}', loadAdminProducts)">حذف</button>
+                                </div>
+                            </td>
                         </tr>
                     `;
                 });
             });
         }
 
-        function addNewProduct() {
+        function saveProduct() {
+            const docId = document.getElementById('edit-doc-id').value;
             const name = document.getElementById('p-name').value.trim();
             const price = parseInt(document.getElementById('p-price').value.replace(/[^0-9]/g, '')) || 0;
-            const image = document.getElementById('p-image').value.trim();
+            const description = document.getElementById('p-desc').value.trim();
+            const mainImage = document.getElementById('p-main-image').value.trim();
+            const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value;
 
-            if (!name || !price || !image) return alert("املأ الحقول!");
+            if (!name || !price || !mainImage) return alert("املأ الاسم والسعر والصورة الرئيسية على الأقل!");
 
-            db.collection("products").add({
-                name, price, category,
-                images: [image],
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("✨ تم النشر بنجاح!");
-                document.getElementById('add-product-form').reset();
-                loadAdminProducts();
+            let imagesArray = [mainImage];
+            if (extraRaw) {
+                let extras = extraRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
+                imagesArray = imagesArray.concat(extras);
+            }
+
+            const productData = { name, price, description, category, images: imagesArray };
+
+            if (docId) {
+                db.collection("products").doc(docId).update(productData).then(() => {
+                    alert("✏️ تم تحديث المنتج بنجاح!");
+                    resetProductForm();
+                    loadAdminProducts();
+                });
+            } else {
+                productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("products").add(productData).then(() => {
+                    alert("✨ تم إضافة المنتج بنجاح!");
+                    resetProductForm();
+                    loadAdminProducts();
+                });
+            }
+        }
+
+        function editProduct(id, name, price, mainImg, extraImgs, description, category) {
+            document.getElementById('edit-doc-id').value = id;
+            document.getElementById('p-name').value = name;
+            document.getElementById('p-price').value = price;
+            document.getElementById('p-desc').value = description;
+            document.getElementById('p-main-image').value = mainImg;
+            document.getElementById('p-extra-images').value = extraImgs;
+            document.getElementById('p-category').value = category;
+
+            document.getElementById('form-title').innerText = "✏️ تعديل المنتج";
+            document.getElementById('save-btn').innerText = "حفظ التعديلات";
+            document.getElementById('save-btn').style.background = "#f59e0b";
+            document.getElementById('cancel-btn').style.display = "block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function resetProductForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('edit-doc-id').value = "";
+            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (المواصفات والرسومات)";
+            document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
+            document.getElementById('save-btn').style.background = "#28a745";
+            document.getElementById('cancel-btn').style.display = "none";
+        }
+
+        // --- إدارة الستوريات (Stories) ---
+        function loadAdminStories() {
+            const tbody = document.getElementById('admin-stories-list');
+            db.collection("stories").get().then((snapshot) => {
+                tbody.innerHTML = '';
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات نشطة.</td></tr>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    let s = doc.data();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
+                            <td><b>${s.title}</b></td>
+                            <td><button class="btn btn-danger" onclick="deleteDocItem('stories', '${doc.id}', loadAdminStories)">حذف</button></td>
+                        </tr>
+                    `;
+                });
             });
         }
 
-        function deleteProduct(docId) {
-            if (confirm("متأكد من الحذف؟")) {
-                db.collection("products").doc(docId).delete().then(() => {
-                    alert("🗑️ تم الحذف.");
-                    loadAdminProducts();
+        function saveStory() {
+            const title = document.getElementById('s-title').value.trim();
+            const image = document.getElementById('s-image').value.trim();
+            const link = document.getElementById('s-link').value.trim();
+
+            if (!title || !image) return alert("املأ حقول الستوري الأساسية!");
+
+            db.collection("stories").add({
+                title, image, link,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("📸 تم نشر الستوري بنجاح في المتجر!");
+                document.getElementById('story-form').reset();
+                loadAdminStories();
+            });
+        }
+
+        function deleteDocItem(collectionName, docId, callback) {
+            if (confirm("هل أنت متأكد من الحذف؟")) {
+                db.collection(collectionName).doc(docId).delete().then(() => {
+                    alert("🗑️ تم الحذف بنجاح.");
+                    callback();
                 });
             }
         }
