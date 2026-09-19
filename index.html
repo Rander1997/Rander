@@ -1461,11 +1461,11 @@ try {
 function addNewProduct(event) {
     event.preventDefault();
 
-    const name = document.getElementById('p-name').value;
+        const name = document.getElementById('p-name').value;
     const priceInput = document.getElementById('p-price').value;
-    const image = document.getElementById('p-image').value;
+    const image = document.getElementById('url').value; 
     const category = document.getElementById('p-category').value;
-
+    
     const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
     const newKey = 'p_' + Date.now();
 
