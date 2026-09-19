@@ -414,25 +414,25 @@
         }
 
         function saveStory() {
-            const title = document.getElementById('s-title').value.trim();
-            const image = document.getElementById('s-image').value.trim();
-            const link = document.getElementById('s-link').value.trim();
+    const title = document.getElementById('s-title').value.trim();
+    const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
+    const image = document.getElementById('s-image').value.trim();
 
-            if (!title || !image) return alert("املأ عنوان الستوري ورابط الصورة على الأقل!");
+    if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
 
-            db.collection("stories").add({
-                title: title,
-                image: image,
-                link: link,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("📸 تم نشر الستوري بنجاح في المتجر!");
-                document.getElementById('story-form').reset();
-                loadAdminStories();
-            }).catch(error => {
-                alert("❌ خطأ أثناء النشر: " + error.message);
-            });
-        }
+    db.collection("stories").add({
+        title: title,
+        price: price,
+        image: image,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("📸 تم نشر الستوري بنجاح!");
+        document.getElementById('story-form').reset();
+        loadAdminStories();
+    }).catch(error => {
+        alert("❌ خطأ أثناء النشر: " + error.message);
+    });
+}
 
         function deleteDocItem(collectionName, docId, callback) {
             if (confirm("هل أنت متأكد من الحذف؟")) {
