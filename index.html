@@ -2383,39 +2383,55 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
         function openStory(storyId) {
-            var story = storiesData.find(function(s) { return s.id === storyId; });
-            if (!story) return;
+    var story = storiesData.find(function(s) { return s.id === storyId; });
+    if (!story) return;
 
-            var product = productsData[story.productId || story.id];
-            var imgEl = document.getElementById('story-media-img');
-            var videoEl = document.getElementById('story-media-video');
+    // عرض الصورة الطولية (قياس تيك توك/ريلز 9:16)
+    var imgEl = document.getElementById('story-media-img');
+    var videoEl = document.getElementById('story-media-video');
+    
+    if (videoEl) {
+        videoEl.style.display = 'none';
+        videoEl.pause();
+    }
 
-            if (story.video) {
-                imgEl.style.display = 'none';
-                videoEl.style.display = 'block';
-                videoEl.src = story.video;
-                videoEl.play();
-            } else {
-                videoEl.style.display = 'none';
-                videoEl.pause();
-                imgEl.style.display = 'block';
-                imgEl.src = story.img || (product ? product.images[0] : '');
+    if (imgEl) {
+        imgEl.style.display = 'block';
+        imgEl.src = story.image;
+        imgEl.style.objectFit = 'cover';
+        imgEl.style.aspectRatio = '9/16';
+    }
+
+    // عرض عنوان الستوري
+    var nameEl = document.getElementById('story-product-name');
+    if (nameEl) nameEl.innerText = story.title;
+
+    // عرض السعر المستقل الخاص بالستوري
+    var priceEl = document.getElementById('story-product-price');
+    if (priceEl) {
+        priceEl.innerText = (story.price ? Number(story.price).toLocaleString('ar-IQ') : '0') + ' د.ع';
+    }
+
+    // تفعيل زر "شراء الآن" لإضافته للسلة والانتقال إليها فوراً
+    var buyBtn = document.getElementById('story-buy-btn');
+    if (buyBtn) {
+        buyBtn.innerText = "🛒 شراء الآن وإضافة للسلة";
+        buyBtn.onclick = function() {
+            closeStory();
+            // إضافة المنتج المستقل للسلة بالسعر والعنوان المباشر
+            if (typeof addToCart === 'function') {
+                addToCart(null, story.title, story.price);
             }
-
-            if (product) {
-                document.getElementById('story-product-name').innerText = product.name;
-                document.getElementById('story-product-price').innerText = product.price.toLocaleString('ar-IQ') + ' د.ع';
-                
-                var buyBtn = document.getElementById('story-buy-btn');
-                buyBtn.onclick = function() {
-                    closeStory();
-                    if (typeof addToCart === 'function') addToCart(null, product.name, product.price);
-                    if (typeof navGoCart === 'function') navGoCart(null);
-                };
+            if (typeof navGoCart === 'function') {
+                navGoCart(); // الانتقال المباشر لصفحة السلة
             }
+        };
+    }
 
-            document.getElementById('story-modal').style.display = 'flex';
-        }
+    // إظهار نافذة المودال للستوري
+    var modal = document.getElementById('story-modal');
+    if (modal) modal.style.display = 'flex';
+}
 
         function closeStory() {
             var videoEl = document.getElementById('story-media-video');
