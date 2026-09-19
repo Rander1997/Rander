@@ -2,15 +2,21 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم أدمن راندر | Rander Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1d4ed8">
+    <!-- ربط ملف التطبيق ليظهر كبرنامج في الهاتف -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/ZMtVEDi.png">
+
+    <title>لوحة تحكم أدمن راندر</title>
 
     <!-- ربط مكتبة فايربيس -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script>
-      // إعدادات مشروعك في فايربيس
       const firebaseConfig = {
         apiKey: "AIzaSyA53KoefZuP2DkgzHXpHDNlB23DVuK503I",
         authDomain: "rander-43b8f.firebaseapp.com",
@@ -43,41 +49,38 @@
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            padding: 20px;
+            padding: 16px;
+            padding-bottom: 40px;
         }
 
-        .admin-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .admin-container { max-width: 800px; margin: 0 auto; }
 
-        /* نافذة تسجيل الدخول */
         #login-screen {
             background: var(--bg-card);
-            padding: 30px;
+            padding: 24px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             text-align: center;
             max-width: 400px;
-            margin: 80px auto;
+            margin: 60px auto;
             border: 1px solid var(--border-color);
         }
 
         .card {
             background: var(--bg-card);
-            padding: 24px;
+            padding: 20px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border: 1px solid var(--border-color);
         }
 
-        h2, h3 { margin-bottom: 16px; color: var(--accent); }
+        h2, h3 { margin-bottom: 14px; color: var(--accent); font-size: 18px; }
 
         .form-input {
             width: 100%;
             padding: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background: var(--bg-primary);
@@ -100,19 +103,8 @@
         .btn-success { background: #28a745; }
         .btn-danger { background: #dc3545; width: auto; padding: 6px 12px; font-size: 12px; }
 
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .products-table th, .products-table td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-            text-align: right;
-        }
-
+        .products-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        .products-table th, .products-table td { padding: 10px; border-bottom: 1px solid var(--border-color); text-align: right; }
         .products-table th { background: var(--bg-primary); }
 
         #dashboard-content { display: none; }
@@ -120,30 +112,26 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول للوحة التحكم -->
     <div id="login-screen">
-        <h2>🔐 تسجيل دخول الأدمن</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للوصول إلى لوحة التحكم</p>
+        <h2>🔐 دخول أدمن راندر</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور لفتح تطبيق الإدارة</p>
         <input type="password" id="admin-password" placeholder="رمز المرور (640397)" class="form-input">
-        <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
+        <button class="btn" onclick="checkAdminLogin()">فتح لوحة التحكم</button>
     </div>
 
-    <!-- محتوى لوحة التحكم الرئيسي -->
     <div id="dashboard-content" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>🛠️ لوحة تحكم متجر راندر</h2>
-            <button class="btn" style="width: auto; background: #64748b;" onclick="location.reload()">تسجيل الخروج</button>
+            <h2>🛠️ تطبيق إدارة راندر</h2>
+            <button class="btn" style="width: auto; background: #64748b; padding: 8px 12px; font-size: 12px;" onclick="location.reload()">قفل</button>
         </div>
 
-        <!-- قسم إضافة منتج جديد -->
         <div class="card">
-            <h3>➕ إضافة منتج جديد للمتجر</h3>
+            <h3>➕ إضافة منتج جديد</h3>
             <form id="add-product-form" onsubmit="event.preventDefault(); addNewProduct();">
-                <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: حقيبة ظهر مدرسية)" class="form-input" required>
-                <input type="text" id="p-price" placeholder="السعر بالدينار (مثلاً: 25000)" class="form-input" required>
-                <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر (مثل رابط من موقع Imgur)" class="form-input" required>
+                <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
+                <input type="text" id="p-price" placeholder="السعر (مثلاً: 25000)" class="form-input" required>
+                <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر" class="form-input" required>
                 
-                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">القسم:</label>
                 <select id="p-category" class="form-input">
                     <option value="school">مستلزمات مدرسية</option>
                     <option value="ipads">ايبادات</option>
@@ -155,26 +143,24 @@
                     <option value="accessories">إكسسوارات</option>
                 </select>
 
-                <button type="submit" class="btn btn-success">نشر المنتج في المتجر فوراً 🚀</button>
+                <button type="submit" class="btn btn-success">نشر المنتج فوراً للمتجر 🚀</button>
             </form>
         </div>
 
-        <!-- قسم إدارة المنتجات الحالية -->
         <div class="card">
-            <h3>📦 قائمة المنتجات الحالية في قاعدة البيانات</h3>
+            <h3>📦 إدارة المنتجات (حذف / تعديل)</h3>
             <div style="overflow-x: auto;">
                 <table class="products-table">
                     <thead>
                         <tr>
-                            <th>الصورة</th>
-                            <th>اسم المنتج</th>
+                            <th>صورة</th>
+                            <th>الاسم</th>
                             <th>السعر</th>
-                            <th>القسم</th>
-                            <th>الإجراء</th>
+                            <th>إجراء</th>
                         </tr>
                     </thead>
                     <tbody id="admin-products-list">
-                        <!-- يتم جلب المنتجات هنا برمجياً -->
+                        <tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -182,86 +168,62 @@
     </div>
 
     <script>
-        // التحقق من كلمة المرور (الرمز المحدد: 640397)
         function checkAdminLogin() {
-            const pass = document.getElementById('admin-password').value;
-            if (pass === "640397") {
+            if (document.getElementById('admin-password').value === "640397") {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 loadAdminProducts();
             } else {
-                alert("❌ رمز المرور غير صحيح!");
+                alert("❌ رمز المرور خطأ!");
             }
         }
 
-        // جلب وعرض المنتجات في جدول الإدارة
         function loadAdminProducts() {
             const tbody = document.getElementById('admin-products-list');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>';
-
             db.collection("products").get().then((querySnapshot) => {
                 tbody.innerHTML = '';
                 if (querySnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد منتجات مسجلة حالياً.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد منتجات.</td></tr>';
                     return;
                 }
                 querySnapshot.forEach((doc) => {
                     let p = doc.data();
-                    let docId = doc.id;
                     tbody.innerHTML += `
                         <tr>
-                            <td><img src="${p.images ? p.images[0] : ''}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px;"></td>
+                            <td><img src="${p.images ? p.images[0] : ''}" style="width: 35px; height: 35px; object-fit: contain;"></td>
                             <td><b>${p.name}</b></td>
                             <td>${p.price ? p.price.toLocaleString('ar-IQ') : 0} د.ع</td>
-                            <td>${p.category || '-'}</td>
-                            <td><button class="btn btn-danger" onclick="deleteProduct('${docId}')">حذف</button></td>
+                            <td><button class="btn btn-danger" onclick="deleteProduct('${doc.id}')">حذف</button></td>
                         </tr>
                     `;
                 });
-            }).catch((error) => {
-                console.error("Error loading products:", error);
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">حدث خطأ أثناء تحميل المنتجات.</td></tr>';
             });
         }
 
-        // إضافة منتج جديد وإرساله لفايربيس
         function addNewProduct() {
             const name = document.getElementById('p-name').value.trim();
             const price = parseInt(document.getElementById('p-price').value.replace(/[^0-9]/g, '')) || 0;
             const image = document.getElementById('p-image').value.trim();
             const category = document.getElementById('p-category').value;
 
-            if (!name || !price || !image) {
-                alert("الرجاء ملء جميع الحقول المطلوبة!");
-                return;
-            }
+            if (!name || !price || !image) return alert("املأ الحقول!");
 
-            const newProduct = {
-                name: name,
-                price: price,
-                category: category,
-                desc: "تمت الإضافة عبر لوحة تحكم الأدمن",
+            db.collection("products").add({
+                name, price, category,
                 images: [image],
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            db.collection("products").add(newProduct).then(() => {
-                alert("✨ تم نشر المنتج بنجاح في المتجر!");
+            }).then(() => {
+                alert("✨ تم النشر بنجاح!");
                 document.getElementById('add-product-form').reset();
-                loadAdminProducts(); // تحديث القائمة
-            }).catch((error) => {
-                alert("❌ خطأ أثناء الإضافة: " + error.message);
+                loadAdminProducts();
             });
         }
 
-        // حذف منتج من قاعدة البيانات
         function deleteProduct(docId) {
-            if (confirm("هل أنت متأكد من حذف هذا المنتج نهائياً من المتجر؟")) {
+            if (confirm("متأكد من الحذف؟")) {
                 db.collection("products").doc(docId).delete().then(() => {
-                    alert("🗑️ تم حذف المنتج بنجاح.");
+                    alert("🗑️ تم الحذف.");
                     loadAdminProducts();
-                }).catch((error) => {
-                    alert("❌ خطأ أثناء الحذف: " + error.message);
                 });
             }
         }
