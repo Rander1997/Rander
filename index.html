@@ -1399,41 +1399,34 @@ body.dark-mode textarea {
 <!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
 <script>
 
-    // دالة إضافة منتج جديد متوافقة مع قاعدة البيانات الحالية
-function addNewProduct(event) {
+    function addNewProduct(event) {
     event.preventDefault();
 
     const name = document.getElementById('p-name').value;
     const priceInput = document.getElementById('p-price').value;
     const image = document.getElementById('p-image').value;
-    const category = document.getElementById('p-category').value;
+    const category = document.getElementById('p-category').value; // جلب القسم المحدد
 
-    // استخراج الرقم فقط من السعر أو حفظه كقيمة رقمية
     const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
-    
-    // إنشاء مفتاح فريد جديد للمنتج بناءً على الوقت الحالي
     const newKey = 'p_' + Date.now();
 
-    // بناء كائن المنتج بنفس هيكل بيانات متجرك
+    // بناء كائن المنتج مع خاصية القسم (category) ليعمل مع نظام التصفية لديك
     const newProduct = {
         id: newKey,
         name: name,
         price: price,
-        desc: "منتج جديد أضيف عبر لوحة التحكم السريعة في متجر راندر",
+        category: category, // ربط المنتج بالقسم الصحيح
+        desc: "منتج جديد أضيف عبر لوحة التحكم السريعة",
         images: [image]
     };
 
-    // جلب المنتجات المخزنة مسبقاً في localStorage أو دمجها مع القاعدة الحالية
     let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products')) || {};
     savedCustomProducts[newKey] = newProduct;
     
     localStorage.setItem('rander_custom_products', JSON.stringify(savedCustomProducts));
 
-    // تفريغ الحقول وإظهار رسالة النجاح
     document.getElementById('quick-product-form').reset();
-    alert('✨ تم إضافة المنتج بنجاح إلى متجر راندر!');
-
-    // إعادة تحميل الصفحة لتحديث عرض المنتجات الجديدة فوراً
+    alert("مرحباً بك. تم تحديث عرض الصفحة بنجاح.");
     location.reload();
 }
     // دالة سرية لإظهار لوحة التحكم عند الطلب بكلمة مرور
