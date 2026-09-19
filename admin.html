@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://i.imgur.com/ZMtVEDi.png">
 
-    <title>لوحة تحكم راندد</title>
+    <title>لوحة إدارة متجر راندر | Rander Admin</title>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -139,10 +139,10 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
+    <!-- شاشة تسجيل الدخول للأدمن -->
     <div id="login-screen">
-        <h2>🔐 إدارة راندر المتقدمة</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للوصول الكامل</p>
+        <h2>🔐 تطبيق أدمن راندر</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للتحكم الكامل</p>
         <input type="password" id="admin-password" placeholder="رمز المرور (640397)" class="form-input">
         <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
     </div>
@@ -150,8 +150,8 @@
     <!-- لوحة التحكم الرئيسية -->
     <div id="dashboard-content" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>⚡ لوحة تحكم راندر الاحترافية</h2>
-            <button class="btn" style="width: auto; background: #64748b; padding: 8px 12px; font-size: 12px;" onclick="location.reload()">قفل</button>
+            <h2>⚡ لوحة تحكم راندر المستقلة</h2>
+            <button class="btn" style="width: auto; background: #64748b; padding: 8px 12px; font-size: 12px;" onclick="location.reload()">قفل التطبيق</button>
         </div>
 
         <!-- التنقل بين الأقسام -->
@@ -163,18 +163,19 @@
         <!-- قسم المنتجات -->
         <div id="tab-products" class="tab-content active">
             <div class="card">
-                <h3 id="form-title">➕ إضافة منتج جديد (المواصفات والرسومات)</h3>
+                <h3 id="form-title">➕ إضافة منتج جديد (مع الوصف والصور المتعددة)</h3>
                 <form id="product-form" onsubmit="event.preventDefault(); saveProduct();">
                     <input type="hidden" id="edit-doc-id">
                     <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
-                    <input type="text" id="p-price" placeholder="السعر بـ (د.ع)" class="form-input" required>
+                    <input type="text" id="p-price" placeholder="السعر بـ (د.ع) مثلاً: 25000" class="form-input" required>
                     
-                    <textarea id="p-desc" placeholder="وصف المنتج وتفاصيله الكاملة..." class="form-input" rows="3"></textarea>
+                    <!-- حقل الوصف -->
+                    <textarea id="p-desc" placeholder="وصف وتفاصيل المنتج الكاملة..." class="form-input" rows="3"></textarea>
                     
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">1️⃣ الصورة الرئيسية الرسمية (تحمل مرة واحدة):</label>
-                    <input type="url" id="p-main-image" placeholder="رابط الصورة الرئيسية للمنتج" class="form-input" required>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">1️⃣ الصورة الرئيسية الرسمية (تتحمل مرة واحدة):</label>
+                    <input type="url" id="p-main-image" placeholder="رابط الصورة الرئيسية المباشر" class="form-input" required>
 
-                    <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية (اختياري - افصل بينها بفاصلة `,`):</label>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
                     
                     <select id="p-category" class="form-input">
@@ -194,7 +195,7 @@
             </div>
 
             <div class="card">
-                <h3>📦 قائمة المنتجات الحالية</h3>
+                <h3>📦 قائمة منتجات المتجر الحالية</h3>
                 <div style="overflow-x: auto;">
                     <table class="items-table">
                         <thead>
@@ -205,21 +206,21 @@
                             </tr>
                         </thead>
                         <tbody id="admin-products-list">
-                            <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
+                            <tr><td colspan="3" style="text-align:center;">جاري جلب المنتجات...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- قسم الستوريات (Stories) - تم إصلاح زر النشر هنا -->
+        <!-- قسم الستوريات (Stories) -->
         <div id="tab-stories" class="tab-content">
             <div class="card">
                 <h3>📸 نشر ستوري جديد في المتجر</h3>
                 <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
                     <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عروض العيد)" class="form-input" required>
                     <input type="url" id="s-image" placeholder="رابط صورة الستوري المباشر" class="form-input" required>
-                    <input type="text" id="s-link" placeholder="رابط المنتج المرتبط بالستوري (اختياري)" class="form-input">
+                    <input type="text" id="s-link" placeholder="رابط المنتج أو الواتساب المرتبط بالستوري (اختياري)" class="form-input">
                     
                     <button type="submit" class="btn btn-success">نشر الستوري الآن 🚀</button>
                 </form>
@@ -253,7 +254,7 @@
                 loadAdminProducts();
                 loadAdminStories();
             } else {
-                alert("❌ رمز المرور خطأ!");
+                alert("❌ رمز المرور غير صحيح!");
             }
         }
 
@@ -270,15 +271,15 @@
             db.collection("products").get().then((snapshot) => {
                 tbody.innerHTML = '';
                 if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد منتجات.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد منتجات مسجلة.</td></tr>';
                     return;
                 }
                 snapshot.forEach((doc) => {
                     let p = doc.data();
                     let id = doc.id;
-                    let mainImg = p.images && p.images.length > 0 ? p.images[0] : '';
+                    let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
                     let extraImgs = p.images && p.images.length > 1 ? p.images.slice(1).join(', ') : '';
-                    let descText = p.description || '';
+                    let descText = p.description || p.desc || '';
                     
                     tbody.innerHTML += `
                         <tr>
@@ -286,11 +287,11 @@
                             <td>
                                 <b>${p.name}</b><br>
                                 <span style="color:var(--accent);">${p.price ? p.price.toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                                <small style="color:var(--text-secondary);">${descText.substring(0, 40)}...</small>
+                                <small style="color:var(--text-secondary);">${descText.substring(0, 35)}...</small>
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px;">
-                                    <button class="btn btn-warning" onclick="editProduct('${id}', '${p.name.replace(/'/g, "")}', ${p.price}, '${mainImg}', '${extraImgs}', '${(p.description || '').replace(/'/g, "")}', '${p.category || 'school'}')">تعديل</button>
+                                    <button class="btn btn-warning" onclick="editProduct('${id}', '${p.name.replace(/'/g, "")}', ${p.price}, '${mainImg}', '${extraImgs}', '${(descText).replace(/'/g, "")}', '${p.category || 'school'}')">تعديل</button>
                                     <button class="btn btn-danger" onclick="deleteDocItem('products', '${id}', loadAdminProducts)">حذف</button>
                                 </div>
                             </td>
@@ -309,29 +310,38 @@
             const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value;
 
-            if (!name || !price || !mainImage) return alert("املأ الاسم والسعر والصورة الرئيسية على الأقل!");
+            if (!name || !price || !mainImage) return alert("يرجى ملء الاسم والسعر والصورة الرئيسية على الأقل!");
 
+            // دمج الصورة الرئيسية والصور الإضافية في مصفوفة images موحدة
             let imagesArray = [mainImage];
             if (extraRaw) {
                 let extras = extraRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
                 imagesArray = imagesArray.concat(extras);
             }
 
-            const productData = { name, price, description, category, images: imagesArray };
+            const productData = {
+                name: name,
+                price: price,
+                description: description,
+                desc: description, // دعم التوافقية مع الكود القديم والجديد
+                category: category,
+                images: imagesArray,
+                image: mainImage // دعم التوافقية
+            };
 
             if (docId) {
                 db.collection("products").doc(docId).update(productData).then(() => {
                     alert("✏️ تم تحديث المنتج بنجاح!");
                     resetProductForm();
                     loadAdminProducts();
-                });
+                }).catch(err => alert("خطأ: " + err.message));
             } else {
                 productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                 db.collection("products").add(productData).then(() => {
-                    alert("✨ تم إضافة المنتج بنجاح!");
+                    alert("✨ تمت إضافة المنتج ونشره بنجاح في المتجر!");
                     resetProductForm();
                     loadAdminProducts();
-                });
+                }).catch(err => alert("خطأ: " + err.message));
             }
         }
 
@@ -344,7 +354,7 @@
             document.getElementById('p-extra-images').value = extraImgs;
             document.getElementById('p-category').value = category;
 
-            document.getElementById('form-title').innerText = "✏️ تعديل المنتج";
+            document.getElementById('form-title').innerText = "✏️ تعديل المنتج الحالي";
             document.getElementById('save-btn').innerText = "حفظ التعديلات";
             document.getElementById('save-btn').style.background = "#f59e0b";
             document.getElementById('cancel-btn').style.display = "block";
@@ -354,13 +364,13 @@
         function resetProductForm() {
             document.getElementById('product-form').reset();
             document.getElementById('edit-doc-id').value = "";
-            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (المواصفات والرسومات)";
+            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع الوصف والصور المتعددة)";
             document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
             document.getElementById('save-btn').style.background = "#28a745";
             document.getElementById('cancel-btn').style.display = "none";
         }
 
-        // --- إدارة الستوريات (Stories) - الإصلاح هنا ---
+        // --- إدارة الستوريات ---
         function loadAdminStories() {
             const tbody = document.getElementById('admin-stories-list');
             db.collection("stories").get().then((snapshot) => {
@@ -387,7 +397,7 @@
             const image = document.getElementById('s-image').value.trim();
             const link = document.getElementById('s-link').value.trim();
 
-            if (!title || !image) return alert("املأ حقول الستوري الأساسية!");
+            if (!title || !image) return alert("املأ عنوان الستوري ورابط الصورة على الأقل!");
 
             db.collection("stories").add({
                 title: title,
@@ -399,7 +409,7 @@
                 document.getElementById('story-form').reset();
                 loadAdminStories();
             }).catch(error => {
-                alert("❌ حدث خطأ أثناء النشر: " + error.message);
+                alert("❌ خطأ أثناء النشر: " + error.message);
             });
         }
 
@@ -408,7 +418,7 @@
                 db.collection(collectionName).doc(docId).delete().then(() => {
                     alert("🗑️ تم الحذف بنجاح.");
                     callback();
-                });
+                }).catch(err => alert("خطأ: " + err.message));
             }
         }
     </script>
