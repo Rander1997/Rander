@@ -226,25 +226,37 @@
                 </form>
             </div>
 
-            <div class="card">
-                <h3>🎞️ الستوريات النشطة حالياً</h3>
-                <div style="overflow-x: auto;">
-                    <table class="items-table">
-                        <thead>
-                            <tr>
-                                <th>صورة الستوري</th>
-                                <th>العنوان</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-stories-list">
-                            <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div id="tab-stories" class="tab-content">
+    <div class="card">
+        <h3>📸 نشر ستوري جديد (مستقل بسعر وزر شراء)</h3>
+        <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
+            <input type="text" id="s-title" placeholder="عنوان الستوري أو المنتج (مثلاً: عرض الخريف الخاص)" class="form-input" required>
+            <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
+            <input type="url" id="s-image" placeholder="رابط صورة الستوري (قياس طولي/تيك توك 9:16)" class="form-input" required>
+            
+            <button type="submit" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🎞️ الستوريات النشطة حالياً</h3>
+        <div style="overflow-x: auto;">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>الصورة</th>
+                        <th>العنوان والسعر</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-stories-list">
+                    <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+
 
     <script>
         function checkAdminLogin() {
