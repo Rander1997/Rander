@@ -2451,17 +2451,17 @@ function loadCloudProducts() {
             card.setAttribute('data-id', productId);
             card.setAttribute('data-category', product.category || 'all');
 
-            card.innerHTML = `
+                        card.innerHTML = `
                 <span class="badge" style="background:#10b981;">✨ جديد</span>
                 <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
                 <img src="${product.images ? product.images[0] : product.image}" class="product-image" onclick="openProductDetail('${productId}')">
-                <div class="product-title">${product.name}</div>
+                <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
                 <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
                 <div class="control-group">
                     <label>اللون:</label>
                     <select class="product-option"><option value="قياسي">قياسي</option></select>
                 </div>
-                <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة إلى السلة 🛒</button>
+                <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة للسلة 🛒</button>
             `;
 
             productsGrid.prepend(card);
