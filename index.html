@@ -2299,41 +2299,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         if (toggleBtn) toggleBtn.innerText = '☀️';
     }
 });
-
-
-// جلب المنتجات المخزنة مسبقاً أو البدء بقائمة فارغة
-let productsList = JSON.parse(localStorage.getItem('rander_products')) || [];
-
-// دالة إضافة منتج جديد
-function addNewProduct(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('p-name').value;
-    const price = document.getElementById('p-price').value;
-    const image = document.getElementById('p-image').value;
-    const category = document.getElementById('p-category').value;
-
-    const newProduct = {
-        id: Date.now(),
-        name: name,
-        price: price,
-        image: image,
-        category: category
-    };
-
-    productsList.push(newProduct);
-    localStorage.setItem('rander_products', JSON.stringify(productsList));
-
-    document.getElementById('quick-product-form').reset();
-    alert('✨ تم إضافة المنتج بنجاح إلى متجر راندر!');
-    
-    if (typeof renderProducts === 'function') {
-        renderProducts();
-    }
-
-
     
 </script>
+
+
 
 
 </body>
