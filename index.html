@@ -1485,6 +1485,19 @@ function loginAsAdmin() {
             }
         };
 
+// دمج المنتجات المضافة حديثاً من لوحة التحكم السرية مع المنتجات الأصلية
+try {
+    let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products'));
+    if (savedCustomProducts) {
+        for (let key in savedCustomProducts) {
+            productsData[key] = savedCustomProducts[key];
+        }
+    }
+} catch (e) {
+    console.log("No custom products found");
+}
+
+    
         var cartArray = JSON.parse(localStorage.getItem('rander_cart')) || [];
         var favoritesArray = JSON.parse(localStorage.getItem('rander_favs')) || [];
 
