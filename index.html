@@ -1370,8 +1370,66 @@ body.dark-mode textarea {
     </div>
 </div>
 
+    <!-- لوحة التحكم السريعة لإضافة المنتجات -->
+<div id="admin-panel" style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
+    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر (إضافة منتج جديد)</h3>
+    <form id="quick-product-form" onsubmit="addNewProduct(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: آيفون 15 / عطر ديور)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="text" id="p-price" placeholder="السعر (مثلاً: 1,200,000 د.ع)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر (مثل Imgur)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <option value="phones">هواتف وإلكترونيات</option>
+            <option value="school">مستلزمات مدرسية</option>
+            <option value="perfumes">عطور ومكياج</option>
+            <option value="home">أدوات منزلية</option>
+            <option value="general">أخرى (متجر شامل)</option>
+        </select>
+        <button type="submit" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">➕ إضافة المنتج فوراً للمتجر</button>
+    </form>
+</div>
+
+
 <!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
 <script>
+
+    // دالة إضافة منتج جديد متوافقة مع قاعدة البيانات الحالية
+function addNewProduct(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('p-name').value;
+    const priceInput = document.getElementById('p-price').value;
+    const image = document.getElementById('p-image').value;
+    const category = document.getElementById('p-category').value;
+
+    // استخراج الرقم فقط من السعر أو حفظه كقيمة رقمية
+    const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
+    
+    // إنشاء مفتاح فريد جديد للمنتج بناءً على الوقت الحالي
+    const newKey = 'p_' + Date.now();
+
+    // بناء كائن المنتج بنفس هيكل بيانات متجرك
+    const newProduct = {
+        id: newKey,
+        name: name,
+        price: price,
+        desc: "منتج جديد أضيف عبر لوحة التحكم السريعة في متجر راندر",
+        images: [image]
+    };
+
+    // جلب المنتجات المخزنة مسبقاً في localStorage أو دمجها مع القاعدة الحالية
+    let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products')) || {};
+    savedCustomProducts[newKey] = newProduct;
+    
+    localStorage.setItem('rander_custom_products', JSON.stringify(savedCustomProducts));
+
+    // تفريغ الحقول وإظهار رسالة النجاح
+    document.getElementById('quick-product-form').reset();
+    alert('✨ تم إضافة المنتج بنجاح إلى متجر راندر!');
+
+    // إعادة تحميل الصفحة لتحديث عرض المنتجات الجديدة فوراً
+    location.reload();
+}
+
         // قاعدة بيانات كاملة للمنتجات
         var productsData = {
             'p1': {
