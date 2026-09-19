@@ -1399,23 +1399,79 @@ body.dark-mode textarea {
 <!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
 <script>
 
-    function addNewProduct(event) {
+    // 1. قاعدة بيانات المنتجات الأساسية أولاً
+var productsData = {
+    'p1': {
+        id: 'p1', name: 'حقيبة ظهر مدرسية مقاومة للماء', price: 25000,
+        desc: 'حقيبة ظهر فائقة الجودة ذات جيوب متعددة ومقاومة للماء بالكامل، مزودة بمنفذ USB خارجي لشحن الهواتف، ومناسبة للمدرسة والجامعة.',
+        images: ['https://i.imgur.com/QfL2xFh.jpeg' , 'https://i.imgur.com/yzuJQQd.jpeg']
+    },
+    'p1_cup': {
+        id: 'p1_cup', name: 'كوب قهوة بإسمـك  ', price: 5000,
+        desc: 'كوب سيراميك عالي الجودة مع طباعة حرارية ثابتة لا تتأثر بالغسيل.',
+        images: ['https://i.imgur.com/NjTaTUH.jpeg', 'https://i.imgur.com/3bfIjCA.jpeg']
+    },
+    'p2': {
+        id: 'p2', name: 'iPad Air (2024)', price: 780000,
+        desc: 'جهاز ايباد اير أصلية بشاشة Retina فائقة الدقة وأداء سريع جداً مع معالج M2 وشحن سريع ودعم القلم واللوحة الذكية.',
+        images: ['https://i.imgur.com/BtDsDLH.jpeg', 'https://i.imgur.com/yRCMYKV.jpeg']
+    },
+    'p3': {
+        id: 'p3', name: 'iPhone 15 Pro Max', price: 1450000,
+        desc: 'هاتف ايفون 15 بروماكس الجديد كلياً بهيكل متين من التيتانيوم، كاميرا 48 ميجابكسل تقريب 5X، وبطارية تدوم طوال اليوم.',
+        images: ['https://via.placeholder.com/400?text=iPhone+15+1', 'https://via.placeholder.com/400?text=iPhone+15+2']
+    },
+    'p4': {
+        id: 'p4', name: 'iPhone 13 مستعمل (درجة أولى)', price: 620000,
+        desc: 'جهاز ايفون 13 مستعمل بحالة الزيرو، نسبة البطارية 88% بدون أي صيانة أو تغيير أجزاء، مع ضمان فحص أسبوع كامل.',
+        images: ['https://via.placeholder.com/400?text=iPhone+13+Used+1', 'https://via.placeholder.com/400?text=iPhone+13+Used+2']
+    },
+    'p5': {
+        id: 'p5', name: 'ساعة ذكية Ultra 2 ذكية', price: 45000,
+        desc: 'ساعة ذكية شبيهة بآبل الترا تدعم إجراء واستقبال المكالمات، وقياس نبضات القلب والأوكسجين، ومقاومة للماء.',
+        images: ['https://via.placeholder.com/400?text=Smart+Watch+1', 'https://via.placeholder.com/400?text=Smart+Watch+2']
+    },
+    'p6': {
+        id: 'p6', name: 'يد تحكم بلايستيشن PS5', price: 95000,
+        desc: 'يد تحكم DualSense الأصلية لجهاز بلايستيشن 5 مع تقنية الاهتزاز التفاعلي وميكروفون مدمج.',
+        images: ['https://via.placeholder.com/400?text=PS5+Controller+1', 'https://via.placeholder.com/400?text=PS5+Controller+2']
+    },
+    'p7': {
+        id: 'p7', name: 'ساعة ذكية Ultra 2 ذكية', price: 35000,
+        desc: 'ساعة بلوتوث لاسلكية مع خاصية عزل الضوضاء، صوت مجسم النقاء، وبطارية تعمل لمدة 24 ساعة مع علبة الشحن.',
+        images: ['https://via.placeholder.com/400?text=AirPods+1', 'https://via.placeholder.com/400?text=AirPods+2']
+    }
+};
+
+// 2. دمج المنتجات المخزنة مسبقاً في ذاكرة المتصفح فور تحميل الصفحة
+try {
+    let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products'));
+    if (savedCustomProducts) {
+        for (let key in savedCustomProducts) {
+            productsData[key] = savedCustomProducts[key];
+        }
+    }
+} catch (e) {
+    console.log("No custom products found");
+}
+
+// 3. دالة إضافة منتج جديد
+function addNewProduct(event) {
     event.preventDefault();
 
     const name = document.getElementById('p-name').value;
     const priceInput = document.getElementById('p-price').value;
     const image = document.getElementById('p-image').value;
-    const category = document.getElementById('p-category').value; // جلب القسم المحدد
+    const category = document.getElementById('p-category').value;
 
     const price = parseInt(priceInput.replace(/[^0-9]/g, '')) || 0;
     const newKey = 'p_' + Date.now();
 
-    // بناء كائن المنتج مع خاصية القسم (category) ليعمل مع نظام التصفية لديك
     const newProduct = {
         id: newKey,
         name: name,
         price: price,
-        category: category, // ربط المنتج بالقسم الصحيح
+        category: category,
         desc: "منتج جديد أضيف عبر لوحة التحكم السريعة",
         images: [image]
     };
@@ -1426,78 +1482,22 @@ body.dark-mode textarea {
     localStorage.setItem('rander_custom_products', JSON.stringify(savedCustomProducts));
 
     document.getElementById('quick-product-form').reset();
-alert("تمت إضافة المنتج بنجاح!");
-// تأكد من حفظ التغييرات في الذاكرة قبل إعادة التحميل
-setTimeout(function() {
-    location.reload();
-}, 100);
+    alert("تمت إضافة المنتج بنجاح!");
+    
+    setTimeout(function() {
+        location.reload();
+    }, 100);
 }
-    // دالة سرية لإظهار لوحة التحكم عند الطلب بكلمة مرور
+
+// 4. دالة تسجيل دخول الأدمن
 function loginAsAdmin() {
     let password = prompt("Rander 2026:");
-    if (password === "640397") { // يمكنك تغيير كلمة المرور هنا لما تشاء
+    if (password === "640397") {
         document.getElementById('admin-panel').style.display = 'block';
         alert('مرحباً بك يا أدمن! تم فتح لوحة التحكم بنجاح.');
     } else {
         alert('اضغط على زر العودة مرتين للخروج من التطبيق!');
     }
-}
-
-
-        // قاعدة بيانات كاملة للمنتجات
-        var productsData = {
-            'p1': {
-                id: 'p1', name: 'حقيبة ظهر مدرسية مقاومة للماء', price: 25000,
-                desc: 'حقيبة ظهر فائقة الجودة ذات جيوب متعددة ومقاومة للماء بالكامل، مزودة بمنفذ USB خارجي لشحن الهواتف، ومناسبة للمدرسة والجامعة.',
-                images: ['https://i.imgur.com/QfL2xFh.jpeg' , 'https://i.imgur.com/yzuJQQd.jpeg']
-            },
-            'p1_cup': {
-                id: 'p1_cup', name: 'كوب قهوة بإسمـك  ', price: 5000,
-                desc: 'كوب سيراميك عالي الجودة مع طباعة حرارية ثابتة لا تتأثر بالغسيل.',
-                images: ['https://i.imgur.com/NjTaTUH.jpeg', 'https://i.imgur.com/3bfIjCA.jpeg']
-            },
-            'p2': {
-                id: 'p2', name: 'iPad Air (2024)', price: 780000,
-                desc: 'جهاز ايباد اير أصلية بشاشة Retina فائقة الدقة وأداء سريع جداً مع معالج M2 وشحن سريع ودعم القلم واللوحة الذكية.',
-                images: ['https://i.imgur.com/BtDsDLH.jpeg', 'https://i.imgur.com/yRCMYKV.jpeg']
-            },
-            'p3': {
-                id: 'p3', name: 'iPhone 15 Pro Max', price: 1450000,
-                desc: 'هاتف ايفون 15 بروماكس الجديد كلياً بهيكل متين من التيتانيوم، كاميرا 48 ميجابكسل تقريب 5X، وبطارية تدوم طوال اليوم.',
-                images: ['https://via.placeholder.com/400?text=iPhone+15+1', 'https://via.placeholder.com/400?text=iPhone+15+2']
-            },
-            'p4': {
-                id: 'p4', name: 'iPhone 13 مستعمل (درجة أولى)', price: 620000,
-                desc: 'جهاز ايفون 13 مستعمل بحالة الزيرو، نسبة البطارية 88% بدون أي صيانة أو تغيير أجزاء، مع ضمان فحص أسبوع كامل.',
-                images: ['https://via.placeholder.com/400?text=iPhone+13+Used+1', 'https://via.placeholder.com/400?text=iPhone+13+Used+2']
-            },
-            'p5': {
-                id: 'p5', name: 'ساعة ذكية Ultra 2 ذكية', price: 45000,
-                desc: 'ساعة ذكية شبيهة بآبل الترا تدعم إجراء واستقبال المكالمات، وقياس نبضات القلب والأوكسجين، ومقاومة للماء.',
-                images: ['https://via.placeholder.com/400?text=Smart+Watch+1', 'https://via.placeholder.com/400?text=Smart+Watch+2']
-            },
-            'p6': {
-                id: 'p6', name: 'يد تحكم بلايستيشن PS5', price: 95000,
-                desc: 'يد تحكم DualSense الأصلية لجهاز بلايستيشن 5 مع تقنية الاهتزاز التفاعلي وميكروفون مدمج.',
-                images: ['https://via.placeholder.com/400?text=PS5+Controller+1', 'https://via.placeholder.com/400?text=PS5+Controller+2']
-            },
-            'p7': {
-                id: 'p7', name: 'سماعة بلوتوث لاسلكية RANDER', price: 35000,
-                desc: 'سماعة بلوتوث لاسلكية مع خاصية عزل الضوضاء، صوت مجسم النقاء، وبطارية تعمل لمدة 24 ساعة مع علبة الشحن.',
-                images: ['https://via.placeholder.com/400?text=AirPods+1', 'https://via.placeholder.com/400?text=AirPods+2']
-            }
-        };
-
-// دمج المنتجات المضافة حديثاً من لوحة التحكم السرية مع المنتجات الأصلية
-try {
-    let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products'));
-    if (savedCustomProducts) {
-        for (let key in savedCustomProducts) {
-            productsData[key] = savedCustomProducts[key];
-        }
-    }
-} catch (e) {
-    console.log("No custom products found");
 }
 
     
