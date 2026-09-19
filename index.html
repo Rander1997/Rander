@@ -2300,23 +2300,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 });
 
-// <!-- لوحة التحكم السريعة لإضافة المنتجات -->
-<div id="admin-panel" style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
-    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر (إضافة منتج جديد)</h3>
-    <form id="quick-product-form" onsubmit="addNewProduct(event)" style="display: flex; flex-direction: column; gap: 12px;">
-        <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: آيفون 15 / عطر ديور)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        <input type="text" id="p-price" placeholder="السعر (مثلاً: 1,200,000 د.ع)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر (مثل Imgur)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-            <option value="phones">هواتف وإلكترونيات</option>
-            <option value="school">مستلزمات مدرسية</option>
-            <option value="perfumes">عطور ومكياج</option>
-            <option value="home">أدوات منزلية</option>
-            <option value="general">أخرى (متجر شامل)</option>
-        </select>
-        <button type="submit" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">➕ إضافة المنتج فوراً للمتجر</button>
-    </form>
-</div>
 
 // جلب المنتجات المخزنة مسبقاً أو البدء بقائمة فارغة
 let productsList = JSON.parse(localStorage.getItem('rander_products')) || [];
@@ -2352,7 +2335,23 @@ function addNewProduct(event) {
     
 </script>
 
-
+// <!-- لوحة التحكم السريعة لإضافة المنتجات -->
+<div id="admin-panel" style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
+    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر (إضافة منتج جديد)</h3>
+    <form id="quick-product-form" onsubmit="addNewProduct(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: آيفون 15 / عطر ديور)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="text" id="p-price" placeholder="السعر (مثلاً: 1,200,000 د.ع)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر (مثل Imgur)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <option value="phones">هواتف وإلكترونيات</option>
+            <option value="school">مستلزمات مدرسية</option>
+            <option value="perfumes">عطور ومكياج</option>
+            <option value="home">أدوات منزلية</option>
+            <option value="general">أخرى (متجر شامل)</option>
+        </select>
+        <button type="submit" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">➕ إضافة المنتج فوراً للمتجر</button>
+    </form>
+</div>
 
 
 </body>
