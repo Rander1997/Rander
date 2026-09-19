@@ -1370,13 +1370,13 @@ body.dark-mode textarea {
     </div>
 </div>
 
-    <!-- لوحة التحكم السريعة لإضافة المنتجات -->
-<div id="admin-panel" style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
-    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر (إضافة منتج جديد)</h3>
+    <!-- لوحة التحكم السريعة (محمية ومخفية) -->
+<div id="admin-panel" style="display: none; background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
+    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر (خاص بالأدمن)</h3>
     <form id="quick-product-form" onsubmit="addNewProduct(event)" style="display: flex; flex-direction: column; gap: 12px;">
-        <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: آيفون 15 / عطر ديور)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        <input type="text" id="p-price" placeholder="السعر (مثلاً: 1,200,000 د.ع)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر (مثل Imgur)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="text" id="p-name" placeholder="اسم المنتج" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="text" id="p-price" placeholder="السعر (مثلاً: 25000)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
             <option value="phones">هواتف وإلكترونيات</option>
             <option value="school">مستلزمات مدرسية</option>
@@ -1387,6 +1387,7 @@ body.dark-mode textarea {
         <button type="submit" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">➕ إضافة المنتج فوراً للمتجر</button>
     </form>
 </div>
+
 
 
 <!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
