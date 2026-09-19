@@ -1478,14 +1478,27 @@ function addNewProduct(event) {
         images: [image]
     };
 
-    let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products')) || {};
-    savedCustomProducts[newKey] = newProduct;
-    
-    localStorage.setItem('rander_custom_products', JSON.stringify(savedCustomProducts));
+        const newProduct = {
+        id: newKey,
+        name: name,
+        price: price,
+        category: category,
+        desc: "منتج جديد أضيف عبر لوحة التحكم السريعة",
+        images: [image]
+    };
+
+    // استبدال التخزين المحلي بقاعدة بيانات فايربيس
+    db.collection("products").add(newProduct)
+    .then(() => {
+        console.log("تم حفظ المنتج في السحابة بنجاح");
+    })
+    .catch((error) => {
+        console.error("خطأ أثناء حفظ المنتج: ", error);
+    });
 
     document.getElementById('quick-product-form').reset();
-    alert("تمت إضافة المنتج بنجاح!");
-    
+    alert("تم إضافة المنتج بنجاح!");
+
     setTimeout(function() {
         location.reload();
     }, 100);
