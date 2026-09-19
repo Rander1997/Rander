@@ -1372,18 +1372,24 @@ body.dark-mode textarea {
 
     <!-- لوحة التحكم السريعة (محمية ومخفية) -->
 <div id="admin-panel" style="display: none; background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 30px auto; max-width: 600px; border: 2px dashed #007bff; text-align: right; direction: rtl;">
-    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر (خاص بالأدمن)</h3>
+    <h3 style="color: #333; margin-bottom: 15px;">🛠️ لوحة تحكم متجر راندر</h3>
     <form id="quick-product-form" onsubmit="addNewProduct(event)" style="display: flex; flex-direction: column; gap: 12px;">
         <input type="text" id="p-name" placeholder="اسم المنتج" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         <input type="text" id="p-price" placeholder="السعر (مثلاً: 25000)" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
         <input type="url" id="p-image" placeholder="رابط صورة المنتج المباشر" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        
+        <!-- الأقسام المتطابقة مع متجرك 100% -->
         <select id="p-category" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-            <option value="phones">هواتف وإلكترونيات</option>
-            <option value="school">مستلزمات مدرسية</option>
-            <option value="perfumes">عطور ومكياج</option>
-            <option value="home">أدوات منزلية</option>
-            <option value="general">أخرى (متجر شامل)</option>
+            <option value="school">🎒 مستلزمات مدرسية</option>
+            <option value="ipads">📱 ايبادات</option>
+            <option value="english">English</option>
+            <option value="phones">📲 هواتف</option>
+            <option value="used">🔄 أجهزة مستعملة</option>
+            <option value="watches">⌚ ساعات ذكية</option>
+            <option value="gaming">🎮 Gaming</option>
+            <option value="accessories">🎧 إكسسوارات</option>
         </select>
+
         <button type="submit" style="background: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">➕ إضافة المنتج فوراً للمتجر</button>
     </form>
 </div>
@@ -1432,12 +1438,12 @@ function addNewProduct(event) {
 }
     // دالة سرية لإظهار لوحة التحكم عند الطلب بكلمة مرور
 function loginAsAdmin() {
-    let password = prompt("أدخل كلمة مرور الأدمن السرية:");
+    let password = prompt("Rander 2026:");
     if (password === "640397") { // يمكنك تغيير كلمة المرور هنا لما تشاء
         document.getElementById('admin-panel').style.display = 'block';
         alert('مرحباً بك يا أدمن! تم فتح لوحة التحكم بنجاح.');
     } else {
-        alert('كلمة المرور غير صحيحة!');
+        alert('اضغط على زر العودة مرتين للخروج من التطبيق!');
     }
 }
 
