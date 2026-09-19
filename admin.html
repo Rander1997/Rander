@@ -278,7 +278,6 @@
                     let p = doc.data();
                     let id = doc.id;
                     let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
-                    let extraImgs = p.images && p.images.length > 1 ? p.images.slice(1).join(', ') : '';
                     let descText = p.description || p.desc || '';
                     
                     tbody.innerHTML += `
@@ -291,13 +290,38 @@
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px;">
-                                    <button class="btn btn-warning" onclick="editProduct('${id}', '${p.name.replace(/'/g, "")}', ${p.price}, '${mainImg}', '${extraImgs}', '${(descText).replace(/'/g, "")}', '${p.category || 'school'}')">تعديل</button>
+                                    <button class="btn btn-warning" onclick="prepareEditProduct('${id}')">تعديل</button>
                                     <button class="btn btn-danger" onclick="deleteDocItem('products', '${id}', loadAdminProducts)">حذف</button>
                                 </div>
                             </td>
                         </tr>
                     `;
                 });
+            });
+        }
+
+        function prepareEditProduct(id) {
+            db.collection("products").doc(id).get().then((doc) => {
+                if (doc.exists) {
+                    let p = doc.data();
+                    let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
+                    let extraImgs = p.images && p.images.length > 1 ? p.images.slice(1).join(', ') : '';
+                    let descText = p.description || p.desc || '';
+
+                    document.getElementById('edit-doc-id').value = id;
+                    document.getElementById('p-name').value = p.name || '';
+                    document.getElementById('p-price').value = p.price || '';
+                    document.getElementById('p-desc').value = descText;
+                    document.getElementById('p-main-image').value = mainImg;
+                    document.getElementById('p-extra-images').value = extraImgs;
+                    document.getElementById('p-category').value = p.category || 'school';
+
+                    document.getElementById('form-title').innerText = "✏️ تعديل المنتج الحالي";
+                    document.getElementById('save-btn').innerText = "حفظ التعديلات";
+                    document.getElementById('save-btn').style.background = "#f59e0b";
+                    document.getElementById('cancel-btn').style.display = "block";
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }
             });
         }
 
@@ -312,7 +336,6 @@
 
             if (!name || !price || !mainImage) return alert("يرجى ملء الاسم والسعر والصورة الرئيسية على الأقل!");
 
-            // تجميع الصور في مصفوفة images لكي يقرأها المتجر الرئيسي في معرض الصور
             let imagesArray = [mainImage];
             if (extraRaw) {
                 let extras = extraRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
@@ -323,7 +346,7 @@
                 name: name,
                 price: price,
                 description: description,
-                desc: description, // تزويد التوافقية مع الحقلين
+                desc: description,
                 category: category,
                 images: imagesArray,
                 image: mainImage
@@ -334,7 +357,6 @@
                     alert("✏️ تم تحديث المنتج بنجاح!");
                     resetProductForm();
                     loadAdminProducts();
-                    // مسح التخزين المؤقت للمتجر ليحدث نفسه فوراً
                     localStorage.removeItem('rander_cloud_products_cache');
                 }).catch(err => alert("خطأ: " + err.message));
             } else {
@@ -346,22 +368,6 @@
                     localStorage.removeItem('rander_cloud_products_cache');
                 }).catch(err => alert("خطأ: " + err.message));
             }
-        }
-
-        function editProduct(id, name, price, mainImg, extraImgs, description, category) {
-            document.getElementById('edit-doc-id').value = id;
-            document.getElementById('p-name').value = name;
-            document.getElementById('p-price').value = price;
-            document.getElementById('p-desc').value = description;
-            document.getElementById('p-main-image').value = mainImg;
-            document.getElementById('p-extra-images').value = extraImgs;
-            document.getElementById('p-category').value = category;
-
-            document.getElementById('form-title').innerText = "✏️ تعديل المنتج الحالي";
-            document.getElementById('save-btn').innerText = "حفظ التعديلات";
-            document.getElementById('save-btn').style.background = "#f59e0b";
-            document.getElementById('cancel-btn').style.display = "block";
-            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function resetProductForm() {
