@@ -2538,6 +2538,35 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 }
 
+    function renderRecommendations(currentProductId) {
+    let recContainer = document.getElementById('detail-recommendations');
+    if (!recContainer) return;
+    recContainer.innerHTML = '';
+
+    // جلب المنتجات المقترحة وعرضها
+    db.collection("products").limit(4).get().then((snapshot) => {
+        snapshot.forEach((doc) => {
+            let pId = doc.id;
+            if (pId !== currentProductId) {
+                let p = doc.data();
+                let img = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
+                
+                let card = document.createElement('div');
+                card.className = 'rec-card';
+                card.style.cssText = "background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:8px; cursor:pointer; text-align:center;";
+                card.innerHTML = `
+                    <img src="${img}" style="width:100%; height:80px; object-fit:contain; border-radius:6px; margin-bottom:4px;">
+                    <div style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+                    <div style="font-size:11px; color:var(--accent); font-weight:bold;">${Number(p.price).toLocaleString('ar-IQ')} د.ع</div>
+                `;
+                card.onclick = function() {
+                    openProductDetail(pId); // الانتقال للمنتج المقترح فور النقر عليه
+                };
+                recContainer.appendChild(card);
+            }
+        });
+    });
+}
     
 </script>
 
