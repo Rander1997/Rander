@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://i.imgur.com/ZMtVEDi.png">
 
-    <title>لوحة تحكم راندر الاحترافية</title>
+    <title>لوحة تحكم راندد</title>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -143,7 +143,7 @@
     <div id="login-screen">
         <h2>🔐 إدارة راندر المتقدمة</h2>
         <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للوصول الكامل</p>
-        <input type="password" id="admin-password" placeholder="hmmm" class="form-input">
+        <input type="password" id="admin-password" placeholder="رمز المرور (640397)" class="form-input">
         <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
     </div>
 
@@ -169,7 +169,6 @@
                     <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
                     <input type="text" id="p-price" placeholder="السعر بـ (د.ع)" class="form-input" required>
                     
-                    <!-- حقل الوصف الجديد -->
                     <textarea id="p-desc" placeholder="وصف المنتج وتفاصيله الكاملة..." class="form-input" rows="3"></textarea>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">1️⃣ الصورة الرئيسية الرسمية (تحمل مرة واحدة):</label>
@@ -213,7 +212,7 @@
             </div>
         </div>
 
-        <!-- قسم الستوريات (Stories) -->
+        <!-- قسم الستوريات (Stories) - تم إصلاح زر النشر هنا -->
         <div id="tab-stories" class="tab-content">
             <div class="card">
                 <h3>📸 نشر ستوري جديد في المتجر</h3>
@@ -265,7 +264,7 @@
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        // --- إدارة المنتجات والوصف ---
+        // --- إدارة المنتجات ---
         function loadAdminProducts() {
             const tbody = document.getElementById('admin-products-list');
             db.collection("products").get().then((snapshot) => {
@@ -361,7 +360,7 @@
             document.getElementById('cancel-btn').style.display = "none";
         }
 
-        // --- إدارة الستوريات (Stories) ---
+        // --- إدارة الستوريات (Stories) - الإصلاح هنا ---
         function loadAdminStories() {
             const tbody = document.getElementById('admin-stories-list');
             db.collection("stories").get().then((snapshot) => {
@@ -391,12 +390,16 @@
             if (!title || !image) return alert("املأ حقول الستوري الأساسية!");
 
             db.collection("stories").add({
-                title, image, link,
+                title: title,
+                image: image,
+                link: link,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("📸 تم نشر الستوري بنجاح في المتجر!");
                 document.getElementById('story-form').reset();
                 loadAdminStories();
+            }).catch(error => {
+                alert("❌ حدث خطأ أثناء النشر: " + error.message);
             });
         }
 
