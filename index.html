@@ -2392,7 +2392,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 });
 
-    // دالة لعرض المنتجات المضافة عبر الأدمن داخل شبكة المنتجات تلقائياً
 // دالة لجلب وعرض المنتجات من سحابة فايربيس لكل الأجهزة فوراً
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
@@ -2433,6 +2432,46 @@ function loadCloudProducts() {
 document.addEventListener("DOMContentLoaded", function() {
     loadCloudProducts();
 });
+
+    function addProductToFirebase() {
+    // 1. استبدل هذه الـ IDs بأسماء الـ id الموجودة لديك في حقول الإدخال في نموذج لوحة التحكم (الصورة)
+    let nameInput = document.getElementById('product-name');   // حقل اسم المنتج
+    let priceInput = document.getElementById('product-price'); // حقل السعر
+    let imageInput = document.getElementById('product-image'); // حقل رابط الصورة
+    let categorySelect = document.getElementById('product-category'); // حقل القسم (إن وجد)
+
+    // التحقق من أن الحقول غير فارغة
+    if (!nameInput || !priceInput || !nameInput.value.trim() || !priceInput.value.trim()) {
+        alert("يرجى ملء حقل اسم المنتج والسعر على الأقل!");
+        return;
+    }
+
+    let productName = nameInput.value.trim();
+    let productPrice = parseFloat(priceInput.value) || 0;
+    let productImage = imageInput && imageInput.value.trim() ? imageInput.value.trim() : 'https://i.imgur.com/ZMtVEDi.png';
+    let productCategory = categorySelect ? categorySelect.value : 'all';
+
+    // 2. إرسال البيانات مباشرة إلى قاعدة بيانات فايربيس (Firestore)
+    db.collection("products").add({
+        name: productName,
+        price: productPrice,
+        image: productImage,
+        category: productCategory,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        alert("✨ تم إضافة المنتج وإرساله إلى المتجر بنجاح!");
+        
+        // تفريغ الحقول بعد الإضافة الناجحة
+        nameInput.value = '';
+        priceInput.value = '';
+        if (imageInput) imageInput.value = '';
+    })
+    .catch((error) => {
+        console.error("خطأ في إضافة المنتج: ", error);
+        alert("حدث خطأ أثناء الإضافة، تحقق من الاتصال وقواعد الأمان (Firestore Rules).");
+    });
+}
 
     
 </script>
