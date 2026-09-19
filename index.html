@@ -1430,6 +1430,17 @@ function addNewProduct(event) {
     // إعادة تحميل الصفحة لتحديث عرض المنتجات الجديدة فوراً
     location.reload();
 }
+    // دالة سرية لإظهار لوحة التحكم عند الطلب بكلمة مرور
+function loginAsAdmin() {
+    let password = prompt("أدخل كلمة مرور الأدمن السرية:");
+    if (password === "640397") { // يمكنك تغيير كلمة المرور هنا لما تشاء
+        document.getElementById('admin-panel').style.display = 'block';
+        alert('مرحباً بك يا أدمن! تم فتح لوحة التحكم بنجاح.');
+    } else {
+        alert('كلمة المرور غير صحيحة!');
+    }
+}
+
 
         // قاعدة بيانات كاملة للمنتجات
         var productsData = {
@@ -2363,6 +2374,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
+<button onclick="loginAsAdmin()" style="background: transparent; border: none; color: #ccc; font-size: 10px; margin: 20px auto; display: block; cursor: pointer;">دخول الأدمن</button>
 
 </body>
 </html>
