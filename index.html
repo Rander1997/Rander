@@ -2384,6 +2384,53 @@ window.addEventListener('DOMContentLoaded', (event) => {
         if (toggleBtn) toggleBtn.innerText = '☀️';
     }
 });
+
+    // دالة لعرض المنتجات المضافة عبر الأدمن داخل شبكة المنتجات تلقائياً
+function renderCustomProducts() {
+    try {
+        let savedCustomProducts = JSON.parse(localStorage.getItem('rander_custom_products'));
+        if (!savedCustomProducts) return;
+
+        let productsGrid = document.getElementById('main-products-grid');
+        if (!productsGrid) return;
+
+        for (let key in savedCustomProducts) {
+            let product = savedCustomProducts[key];
+            
+            // التأكد من عدم تكرار عرض المنتج إذا كان موجوداً مسبقاً في الصفحة
+            if (document.querySelector(`[data-id="${product.id}"]`)) continue;
+
+            let card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-id', product.id);
+            card.setAttribute('data-category', product.category || 'all');
+
+            card.innerHTML = `
+                <span class="badge" style="background:#10b981;">✨ جديد</span>
+                <button class="fav-btn" onclick="toggleFavorite('${product.id}', this)">🤍</button>
+                <img src="${product.images[0]}" class="product-image" onclick="openProductDetail('${product.id}')">
+                <div class="product-title">${product.name}</div>
+                <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
+                <div class="control-group">
+                    <label>اللون:</label>
+                    <select class="product-option"><option value="قياسي">قياسي</option></select>
+                </div>
+                <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة إلى السلة 🛒</button>
+            `;
+
+            // إضافة المنتج الجديد في بداية الشبكة أو نهايتها
+            productsGrid.prepend(card);
+        }
+    } catch (e) {
+        console.error("خطأ في عرض المنتجات المخصصة:", e);
+    }
+}
+
+// استدعاء الدالة فور تحميل الصفحة بالكامل
+document.addEventListener("DOMContentLoaded", function() {
+    renderCustomProducts();
+});
+
     
 </script>
 
