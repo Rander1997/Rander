@@ -2438,34 +2438,59 @@ function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
-    db.collection("products").onSnapshot((querySnapshot) => {
+    // 1. العرض الفوري من الذاكرة المحلية إن وجدت لمنع أي وميض أو تأخير
+    let cachedProducts = localStorage.getItem('rander_cloud_products_cache');
+    if (cachedProducts) {
+        try {
+            let list = JSON.parse(cachedProducts);
+            renderProductsList(list, productsGrid);
+        } catch(e) {}
+    }
+
+    // 2. الجلب من فايربيس في الخلفية وتحديث العرض والذاكرة المؤقتة بصمت
+    db.collection("products").get().then((querySnapshot) => {
+        let firebaseProducts = [];
         querySnapshot.forEach((doc) => {
-            let product = doc.data();
-            let productId = doc.id;
-
-            // منع تكرار عرض المنتج إذا كان موجوداً على الشاشة
-            if (document.querySelector(`[data-id="${productId}"]`)) return;
-
-            let card = document.createElement('div');
-            card.className = 'product-card';
-            card.setAttribute('data-id', productId);
-            card.setAttribute('data-category', product.category || 'all');
-
-                        card.innerHTML = `
-                <span class="badge" style="background:#10b981;">✨ جديد</span>
-                <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-                <img src="${product.images ? product.images[0] : product.image}" class="product-image" onclick="openProductDetail('${productId}')">
-                <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
-                <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="قياسي">قياسي</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة للسلة 🛒</button>
-            `;
-
-            productsGrid.prepend(card);
+            firebaseProducts.push({ id: doc.id, ...doc.data() });
         });
+
+        if (firebaseProducts.length > 0) {
+            localStorage.setItem('rander_cloud_products_cache', JSON.stringify(firebaseProducts));
+            renderProductsList(firebaseProducts, productsGrid);
+        }
+    }).catch(err => console.log("Offline mode active"));
+}
+
+// دالة مساعدة لتنظيف وترتيب عرض المنتجات بدون تكرار
+function renderProductsList(productsArray, gridElement) {
+    // الاحتفاظ بالمنتجات الثابتة أو تنظيف القديمة حسب رغبتك، هنا سنضمن عدم التكرار
+    productsArray.forEach(product => {
+        let productId = product.id;
+        
+        // إذا كان المنتج موجوداً مسبقاً على الشاشة، لا نعيد رسمه لمنع الوميض
+        if (document.querySelector(`[data-id="${productId}"]`)) return;
+
+        let card = document.createElement('div');
+        card.className = 'product-card';
+        card.setAttribute('data-id', productId);
+        card.setAttribute('data-category', product.category || 'all');
+
+        let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
+
+        card.innerHTML = `
+            <span class="badge" style="background:#10b981;">✨ جديد</span>
+            <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
+            <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
+            <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
+            <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
+            <div class="control-group">
+                <label>اللون:</label>
+                <select class="product-option"><option value="قياسي">قياسي</option></select>
+            </div>
+            <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة للسلة 🛒</button>
+        `;
+
+        gridElement.prepend(card);
     });
 }
 
