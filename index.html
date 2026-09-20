@@ -1166,17 +1166,11 @@ body.dark-mode textarea {
     </div>
 
     <!-- الأقسام -->
+        <!-- الأقسام الديناميكية من فايربيس -->
     <div class="categories-section" id="categories-bar">
-        <div class="categories-container">
-            <button class="category-chip active" onclick="filterCategory('all', this)">✨ الكل</button>
-            <button class="category-chip" onclick="filterCategory('school', this)">🎒 مستلزمات مدرسية</button>
-            <button class="category-chip" onclick="filterCategory('ipads', this)">📱 ايبادات</button>
-            <button class="category-chip" onclick="filterCategory('english', this)">English</button>
-            <button class="category-chip" onclick="filterCategory('phones', this)">📲 هواتف</button>
-            <button class="category-chip" onclick="filterCategory('used', this)">🔄 أجهزة مستعملة</button>
-            <button class="category-chip" onclick="filterCategory('watches', this)">⌚ ساعات ذكية</button>
-            <button class="category-chip" onclick="filterCategory('gaming', this)">🎮 Gaming</button>
-            <button class="category-chip" onclick="filterCategory('accessories', this)">🎧 إكسسوارات</button>
+        <div class="categories-container" id="store-categories-container">
+            <button class="category-chip active" onclick="filterCategory('all', this)">الكل</button>
+            <!-- سيتم جلب الأقسام المضافة من لوحة التحكم هنا تلقائياً -->
         </div>
     </div>
 
@@ -2599,6 +2593,41 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 }
+
+    // مصفوفة تخزين الأقسام
+let categoriesData = [];
+
+// جلب الأقسام من فايربيس وعرضها في المتجر
+function loadStoreCategories() {
+    db.collection("categories").get().then((snapshot) => {
+        categoriesData = [];
+        snapshot.forEach((doc) => {
+            categoriesData.push({ id: doc.id, ...doc.data() });
+        });
+        renderStoreCategories();
+    }).catch(err => console.log("Error loading categories: ", err));
+}
+
+function renderStoreCategories() {
+    var container = document.getElementById('store-categories-container');
+    if (!container) return;
+
+    // زر "الكل" الثابت في البداية مع استدعاء دالة الفلترة الخاصة بمتجرك
+    let html = `<button class="category-chip active" onclick="filterCategory('all', this)">الكل</button>`;
+
+    // حلقة تكرارية لجميع الأقسام (سواء رئيسية أو فرعية) لتظهر كأزرار أفقية متجاورة بسلاسة
+    categoriesData.forEach(cat => {
+        html += `<button class="category-chip" onclick="filterCategory('${cat.id}', this)">${cat.name}</button>`;
+    });
+
+    container.innerHTML = html;
+}
+
+
+// تشغيل دالة جلب الأقسام تلقائياً عند تحميل صفحة المتجر
+document.addEventListener("DOMContentLoaded", function() {
+    loadStoreCategories();
+});
     
 </script>
 
