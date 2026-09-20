@@ -2600,23 +2600,24 @@ if (product.variants && product.variants.length > 0) {
         let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
         let groupItems = group.items || group.options || [];
 
+        // التنسيق المتقابل: القائمة في اليسار والعنوان في اليمين تماماً مثل الصورة المطلوبة
         variantsHtml += `
-            <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; text-align: right;">
-                <span style="font-size: 11px; font-weight: bold; color: #334155;">اختر ${groupTitle}:</span>
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; background-color: #ffffff; color: #0f172a; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer;">
-                    <option value="" disabled selected>اختر ${groupTitle}</option>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px;">
+                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="flex: 1; max-width: 120px; padding: 6px 10px; border-radius: 8px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 11px; cursor: pointer; text-align: right;">
+                    <option value="" disabled selected>${groupTitle}</option>
         `;
 
         if (Array.isArray(groupItems)) {
             groupItems.forEach(item => {
                 let itemName = item.name || item.value || item;
                 let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
-                variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName} (${itemPrice.toLocaleString('ar-IQ')} د.ع)</option>`;
+                variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
             });
         }
 
         variantsHtml += `
                 </select>
+                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left;">اختر ${groupTitle}:</span>
             </div>
         `;
     });
@@ -2630,12 +2631,14 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <div class="control-group" style="margin: 8px 0; display: flex; flex-direction: column;">
+    <!-- الحاكمة المتقابلة تماماً لصورة العرض -->
+    <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
         ${variantsHtml}
     </div>
     
     <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
+
 
 
 
