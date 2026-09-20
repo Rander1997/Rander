@@ -2603,54 +2603,17 @@ function renderProductsList(productsArray, gridElement) {
         let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 
         card.innerHTML = `
-    <div class="product-card" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px; padding: 16px; backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
-        <div class="badge" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(5, 150, 105, 0.85)); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-            <span style="font-size: 10px;">⬡</span> جديد
-        </div>
-        
-        <button class="fav-btn btn" onclick="toggleFavorite('${productId}', this)" style="float: left; background: transparent; border: none; cursor: pointer;">
-            <span style="font-size: 16px; color: #38bdf8;">⟡</span>
-        </button>
-        
-        <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin: 12px 0; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.2);">
-        
-        <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor: pointer; font-weight: 600; color: #f8fafc; font-size: 15px; margin-bottom: 8px;">${product.name}</div>
-        
-        <div class="product-price" style="color: #38bdf8; font-weight: bold; font-size: 16px; margin-bottom: 12px;">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
-        
-        <!-- 1. حقل اللون (يظهر عند توفره فقط) -->
-        ${product.color ? `
-        <div class="control-group" style="margin-bottom: 8px;">
-            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 2px;">اللون:</label>
-            <div style="background: rgba(15, 23, 42, 0.9); color: #f8fafc; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${product.color}</div>
-        </div>` : ''}
-
-        <!-- 2. حقل سعة التخزين (يظهر عند توفره فقط) -->
-        ${product.storage ? `
-        <div class="control-group" style="margin-bottom: 8px;">
-            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 2px;">السعة:</label>
-            <div style="background: rgba(15, 23, 42, 0.9); color: #f8fafc; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${product.storage}</div>
-        </div>` : ''}
-
-        <!-- 3. حقل الحجم / القياس (مفيد للملابس والأحذية) -->
-        ${product.size ? `
-        <div class="control-group" style="margin-bottom: 8px;">
-            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 2px;">الحجم:</label>
-            <div style="background: rgba(15, 23, 42, 0.9); color: #f8fafc; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${product.size}</div>
-        </div>` : ''}
-
-        <!-- 4. حقل النوع أو الطراز (مفيد للإكسسوارات والعطور) -->
-        ${product.model ? `
-        <div class="control-group" style="margin-bottom: 12px;">
-            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 2px;">النوع:</label>
-            <div style="background: rgba(15, 23, 42, 0.9); color: #f8fafc; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${product.model}</div>
-        </div>` : ''}
-        
-        <button class="buy-button btn" onclick="addToCartWithFlyEffect(event, '${productId}')" style="width: 100%; background: linear-gradient(135deg, rgba(56, 189, 248, 0.8), rgba(147, 51, 234, 0.8)); color: #fff; border: 1px solid rgba(56, 189, 248, 0.5); padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span style="font-size: 14px;">◈</span> إضافة للسلة
-        </button>
-    </div>
-`;
+            <span class="badge" style="background:#10b981;">✨ جديد</span>
+            <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
+            <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
+            <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
+            <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
+            <div class="control-group">
+                <label>اللون:</label>
+                <select class="product-option"><option value="قياسي">قياسي</option></select>
+            </div>
+            <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة للسلة 🛒</button>
+        `;
 
         gridElement.prepend(card);
     });
