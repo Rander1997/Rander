@@ -2595,27 +2595,38 @@ document.addEventListener("DOMContentLoaded", function() {
 }
 
     // مصفوفة تخزين الأقسام
-let categoriesData = [];
+function loadStoreCategories() {
+    db.collection("categories").get().then((snapshot) => {
+        categoriesData = [];
+        snapshot.forEach((doc) => {
+            categoriesData.push({ id: doc.id, ...doc.data() });
+        });
+        renderStoreCategories();
+    }).catch(err => console.log("Error loading categories: ", err));
+}
 
-// جلب الأقسام من فايربيس وعرضها في المتجر
 function renderStoreCategories() {
     var container = document.getElementById('store-categories-container');
     if (!container) return;
 
-    // 1. زر "الكل" الثابت في البداية
+    // زر "الكل" الثابت في البداية مع استدعاء دالة الفلترة الخاصة بمتجرك
     let html = `<button class="category-chip active" onclick="filterCategory('all', this)">الكل</button>`;
 
-    // 2. تصفية الأقسام لجلب الأقسام الرئيسية فقط (التي لا تمتلك parentId أو أن حقل الـ parentId فيها فارغ)
+    // 🌟 تصفية الأقسام لعرض الأقسام الرئيسية فقط (التي لا تمتلك parentId أو أن حقل الـ parentId فيها فارغ)
     let mainCategories = categoriesData.filter(cat => !cat.parentId || cat.parentId === "");
 
-    // 3. عرض الأقسام الرئيسية فقط في الشريط الأفقي العلوي
+    // حلقة تكرارية للأقسام الرئيسية فقط لتظهر كأزرار أفقية متجاورة بسلاسة وتمنع ظهور الأقسام الفرعية بشكل عشوائي
     mainCategories.forEach(cat => {
-        // يمكنك التحقق إذا كان هذا القسم الرئيسي يحتوي على أقسام فرعية لتتمكن من إظهارها لاحقاً
         html += `<button class="category-chip" onclick="filterCategory('${cat.id}', this)">${cat.name}</button>`;
     });
 
     container.innerHTML = html;
 }
+
+// تشغيل دالة جلب الأقسام تلقائياً عند تحميل صفحة المتجر
+document.addEventListener("DOMContentLoaded", function() {
+    loadStoreCategories();
+});
     
 </script>
 
