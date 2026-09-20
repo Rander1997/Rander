@@ -168,7 +168,7 @@
                 <form id="product-form" onsubmit="event.preventDefault(); saveProduct();">
                     <input type="hidden" id="edit-doc-id">
                     <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
-                    <input type="text" id="p-price" placeholder="السعر بـ (د.ع) مثلاً: 25000" class="form-input" required>
+                    <input type="text" id="p-price" placeholder="السعر الأساسي بـ (د.ع) مثلاً: 25000" class="form-input" required>
                     
                     <!-- حقل الوصف -->
                     <textarea id="p-desc" placeholder="وصف وتفاصيل المنتج الكاملة..." class="form-input" rows="3"></textarea>
@@ -179,8 +179,17 @@
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
 
-    <!-- حقل اللون الاختياري -->
-    <input type="text" id="p-color" placeholder="لون المنتج (اختياري) مثل: أسود / تيتانيوم" class="form-input">
+                    <!-- حقل اللون الاختياري -->
+                    <input type="text" id="p-color" placeholder="لون المنتج (اختياري) مثل: أسود / تيتانيوم" class="form-input">
+
+                    <!-- قسم الخيارات والأسعار المتغيرة (السعة، الحجم، إلخ) -->
+                    <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px;">⚡ خيارات السعة / الحجم بسعار مختلفة (اختياري)</label>
+                        <div id="variants-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                            <!-- صفوف الخيارات تضاف هنا ديناميكياً -->
+                        </div>
+                        <button type="button" onclick="addVariantRow()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة خيار جديد (سعة/حجم بسعر مختلف)</button>
+                    </div>
                     
                     <select id="p-category" class="form-input">
                         <option value="school">مستلزمات مدرسية</option>
@@ -299,6 +308,19 @@
             }
         }
 
+        // --- إدارة المتغيرات (السعة/الحجم بأسعار مختلفة) في لوحة التحكم ---
+        function addVariantRow(name = '', price = '') {
+            const container = document.getElementById('variants-container');
+            const row = document.createElement('div');
+            row.style.cssText = "display: flex; gap: 8px; align-items: center; margin-bottom: 6px;";
+            row.innerHTML = `
+                <input type="text" placeholder="اسم الخيار (مثل: 256GB أو L)" value="${name}" class="form-input variant-name" style="flex: 2; margin: 0;">
+                <input type="number" placeholder="السعر (د.ع)" value="${price}" class="form-input variant-price" style="flex: 1; margin: 0;">
+                <button type="button" onclick="this.parentElement.remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
         // --- إدارة المنتجات ---
         function loadAdminProducts() {
             const tbody = document.getElementById('admin-products-list');
@@ -348,7 +370,17 @@
                     document.getElementById('p-desc').value = descText;
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
+                    document.getElementById('p-color').value = p.color || '';
                     document.getElementById('p-category').value = p.category || 'school';
+
+                    // تعبئة المتغيرات (الخيارات والأسعار) إن وجدت
+                    const container = document.getElementById('variants-container');
+                    container.innerHTML = '';
+                    if (p.variants && Array.isArray(p.variants)) {
+                        p.variants.forEach(v => {
+                            addVariantRow(v.name, v.price);
+                        });
+                    }
 
                     document.getElementById('form-title').innerText = "✏️ تعديل المنتج الحالي";
                     document.getElementById('save-btn').innerText = "حفظ التعديلات";
@@ -367,50 +399,61 @@
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value;
+            const colorValue = document.getElementById('p-color').value.trim();
 
             if (!name || !price || !mainImage) return alert("يرجى ملء الاسم والسعر والصورة الرئيسية على الأقل!");
 
-                let imagesArray = [mainImg];
-    if (extraRaw) {
-        let extras = extraRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
-        imagesArray = imagesArray.concat(extras);
-    }
+            let imagesArray = [mainImage];
+            if (extraRaw) {
+                let extras = extraRaw.split(',').map(img => img.trim()).filter(img => img.length > 0);
+                imagesArray = imagesArray.concat(extras);
+            }
 
-    // التقاط قيمة حقل اللون الذي أضفناه للنموذج
-    const colorInput = document.getElementById('p-color');
+            // جمع الخيارات والمتغيرات (السعة/الحجم مع أسعارها)
+            const variantRows = document.querySelectorAll('#variants-container > div');
+            const variants = [];
+            variantRows.forEach(row => {
+                const vName = row.querySelector('.variant-name').value.trim();
+                const vPrice = parseInt(row.querySelector('.variant-price').value.replace(/[^0-9]/g, '')) || price;
+                if (vName) {
+                    variants.push({ name: vName, price: vPrice });
+                }
+            });
 
-    const productData = {
-        name: name,
-        price: price,
-        description: description,
-        desc: desc,
-        category: category,
-        images: imagesArray,
-        image: mainImg,
-        color: colorInput ? colorInput.value.trim() : '' // حفظ اللون هنا (سيتم تجاهله تلقائياً إذا ترك فارغاً)
-    };
+            const productData = {
+                name: name,
+                price: price,
+                description: description,
+                desc: description,
+                category: category,
+                images: imagesArray,
+                image: mainImage,
+                color: colorValue,
+                variants: variants
+            };
 
-    if (docId) {
-        db.collection("products").doc(docId).update(productData).then(() => {
-            alert("تم تعديل المنتج بنجاح 🛠️");
-            resetProductForm();
-            loadAdminProducts();
-            localStorage.removeItem('rander_cloud_products_cache');
-        }).catch(err => alert("خطأ: " + err.message));
-    } else {
-        productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        db.collection("products").add(productData).then(() => {
-            alert("تم إضافة المنتج ونشره بنجاح في المتجر 🚀");
-            resetProductForm();
-            loadAdminProducts();
-            localStorage.removeItem('rander_cloud_products_cache');
-        }).catch(err => alert("خطأ: " + err.message));
-    }
-}
+            if (docId) {
+                db.collection("products").doc(docId).update(productData).then(() => {
+                    alert("تم تعديل المنتج بنجاح 🛠️");
+                    resetProductForm();
+                    loadAdminProducts();
+                    localStorage.removeItem('rander_cloud_products_cache');
+                }).catch(err => alert("خطأ: " + err.message));
+            } else {
+                productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("products").add(productData).then(() => {
+                    alert("تم إضافة المنتج ونشره بنجاح في المتجر 🚀");
+                    resetProductForm();
+                    loadAdminProducts();
+                    localStorage.removeItem('rander_cloud_products_cache');
+                }).catch(err => alert("خطأ: " + err.message));
+            }
+        }
 
         function resetProductForm() {
             document.getElementById('product-form').reset();
             document.getElementById('edit-doc-id').value = "";
+            document.getElementById('variants-container').innerHTML = "";
             document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع الوصف والصور المتعددة)";
             document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
             document.getElementById('save-btn').style.background = "#28a745";
