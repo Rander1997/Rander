@@ -2811,30 +2811,21 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
 
     // مصفوفة تخزين الأقسام
 function loadStoreCategories() {
-    // 1. التحقق من وجود الأقسام مخزنة مسبقاً في الذاكرة المحلية لتسريع العرض
-    const cachedCategories = localStorage.getItem('rander_cached_categories');
-    if (cachedCategories) {
-        try {
-            categoriesData = JSON.parse(cachedCategories);
-            renderStoreCategories(); // عرضها فوراً بدون انتظار الإنترنت
-            return;
-        } catch (e) {
-            console.log("Error parsing cached categories", e);
-        }
-    }
-
-    // 2. إذا لم تكن مخزنة، جلبها من فايربيس مرة واحدة وحفظها محلياً
-    db.collection("categories").get().then((snapshot) => {
+    // استخدام onSnapshot لجلب الأقسام والأقسام الفرعية وتحديثها لحظياً (إضافة، تعديل، حذف)
+    db.collection("categories").onSnapshot((snapshot) => {
         categoriesData = [];
         snapshot.forEach((doc) => {
             categoriesData.push({ id: doc.id, ...doc.data() });
         });
-        
-        // حفظها في ذاكرة المتصفح للاستخدام الفوري في الزيارات القادمة
+
+        // تحديث الكاش المحلي بأحدث الأقسام والأقسام الفرعية فوراً
         localStorage.setItem('rander_cached_categories', JSON.stringify(categoriesData));
         
+        // إعادة رسم وعرض الأقسام في المتجر
         renderStoreCategories();
-    }).catch(err => console.log("Error loading categories: ", err));
+    }, (error) => {
+        console.log("Error loading categories: ", error);
+    });
 }
 
 function renderStoreCategories() {
