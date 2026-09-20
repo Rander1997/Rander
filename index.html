@@ -2434,28 +2434,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
         let storiesData = [];
 
 function loadStoreStories() {
-    // التحقق من وجود القصص مخزنة مسبقاً لتسريع العرض
-    const cachedStories = localStorage.getItem('rander_cached_stories');
-    if (cachedStories) {
-        try {
-            storiesData = JSON.parse(cachedStories);
-            renderStories();
-            return;
-        } catch (e) {
-            console.log("Error parsing cached stories", e);
-        }
-    }
-
-    // إذا لم تكن مخزنة، جلبها من فايربيس مرة واحدة وحفظها محلياً
-    db.collection("stories").get().then((snapshot) => {
+    // استخدام onSnapshot للاستماع الفوري للتغييرات (إضافة، تعديل، حذف)
+    db.collection("stories").onSnapshot((snapshot) => {
         storiesData = [];
         snapshot.forEach((doc) => {
             storiesData.push({ id: doc.id, ...doc.data() });
         });
-        
+
+        // تحديث الكاش المحلي بأحدث البيانات فوراً
         localStorage.setItem('rander_cached_stories', JSON.stringify(storiesData));
+        
+        // إعادة رسم الستوريات في واجهة المتجر لحظياً
         renderStories();
-    }).catch(err => console.log("Error loading stories: ", err));
+    }, (error) => {
+        console.log("Error loading stories: ", error);
+    });
 }
 
 function renderStories() {
