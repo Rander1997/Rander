@@ -2592,29 +2592,20 @@ card.setAttribute('data-category', product.category || 'all');
 
 let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 let basePrice = Number(product.price);
+let baseSize = product.size || product.storage || product.capacity || 'القياسي';
 
-// استخراج قيمة الحجم أو السعة الأساسية للمنتج (إن وجدت في بيانات المنتج الرئيسية، وإذا لم توجد نضع تسمية افتراضية)
-let baseSize = product.size || product.storage || product.capacity || product.variantName || 'الرئيسي (الأساسي)'; 
-
-// بناء قائمة المواصفات النظيفة (الأسماء والقيم فقط بدون أسعار داخل القائمة)
-let optionsList = `<option value="${baseSize}" data-price="${basePrice}">${baseSize}</option>`;
-
+// بناء خيارات الذاكرة/الحجم (الأساسي + البدائل)
+let sizeOptions = `<option value="${baseSize}" data-price="${basePrice}" data-type="الحجم/الذاكرة">${baseSize}</option>`;
 if (product.variants && product.variants.length > 0) {
-    optionsList += product.variants.map(v => {
-        let variantLabel = v.name || v.title || v.color || v.size || v.storage || 'خيار';
-        let variantPrice = v.price !== undefined ? Number(v.price) : basePrice;
-        // نعرض اسم المواصفات فقط داخل القائمة ونحفظ السعر في data-price ليتغير السعر الرئيسي عند الاختيار
-        return `<option value="${variantLabel}" data-price="${variantPrice}">${variantLabel}</option>`;
-    }).join('');
+    product.variants.forEach(v => {
+        // يمكنك تصنيف الخيارات أو وضعها معاً، هنا نضيف كل المتغيرات المضافة
+        let vLabel = v.name || v.title || v.size || v.storage || '';
+        let vPrice = v.price !== undefined ? Number(v.price) : basePrice;
+        if(vLabel) {
+            sizeOptions += `<option value="${vLabel}" data-price="${vPrice}" data-type="خيار">${vLabel}</option>`;
+        }
+    });
 }
-
-let variantsHTML = `
-    <div class="control-group">
-        <select class="product-option product-variant-select" onchange="updateCardPrice(this, '${productId}', ${basePrice})">
-            ${optionsList}
-        </select>
-    </div>
-`;
 
 card.innerHTML = `
     <span class="badge" style="background:#10b981;">✨ جديد</span>
@@ -2622,13 +2613,29 @@ card.innerHTML = `
     <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
     <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
     
-    <!-- السعر الرئيسي الذي يتغير تلقائياً حسب الخيار المختار في القائمة -->
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- قائمة المواصفات النظيفة (بدون أسعار، أسماء فقط مع إمكانية العودة للمنتج الأساسي) -->
-    ${variantsHTML}
+    <!-- قائمة اختيار الحجم / الذاكرة -->
+    <div class="control-group" style="margin-bottom: 6px;">
+        <label style="font-size: 11px; color: var(--text-secondary); display: block; text-align: right;">اختر السعة / الحجم:</label>
+        <select class="product-option variant-select-size" data-product-id="${productId}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})">
+            ${sizeOptions}
+        </select>
+    </div>
+
+    <!-- قائمة اختيار اللون (إذا أردت فصلها أو إضافتها) -->
+    <div class="control-group">
+        <label style="font-size: 11px; color: var(--text-secondary); display: block; text-align: right;">اختر اللون:</label>
+        <select class="product-option variant-select-color" data-product-id="${productId}">
+            <option value="اللون الافتراضي">الافتراضي</option>
+            <option value="أسود">أسود</option>
+            <option value="أبيض">أبيض</option>
+            <option value="فضي">فضي</option>
+            <option vlaue="ذهبي">ذهبي</option>
+        </select>
+    </div>
     
-    <button class="buy-button" onclick="addToCartWithSelectedVariant(event, '${productId}')">إضافة للسلة 🛒</button>
+    <button class="buy-button" onclick="addToCartWithOptions(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
 
 gridElement.prepend(card);
@@ -2648,6 +2655,43 @@ function updateCardPrice(selectElement, productId, basePrice) {
         priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
     }
 }    
+
+    // تحديث السعر بناءً على الخيار المختار
+function updateMultiVariantPrice(selectElement, productId, basePrice) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const price = selectedOption.getAttribute('data-price') || basePrice;
+    const priceElement = document.getElementById(`price-${productId}`);
+    if (priceElement) {
+        priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
+    }
+}
+
+// دالة إضافة المنتج مع الخيارات المتعددة (اللون + السعة) إلى السلة
+function addToCartWithOptions(btnElement, productId, productName, basePrice) {
+    const card = btnElement.closest('.product-card');
+    const sizeSelect = card.querySelector('.variant-select-size');
+    const colorSelect = card.querySelector('.variant-select-color');
+
+    const selectedSize = sizeSelect ? sizeSelect.value : 'قياسي';
+    const selectedColor = colorSelect ? colorSelect.value : 'افتراضي';
+    
+    // جلب السعر الحالي الظاهر على الكارت بعد التحديث
+    const selectedOption = sizeSelect ? sizeSelect.options[sizeSelect.selectedIndex] : null;
+    const finalPrice = selectedOption ? Number(selectedOption.getAttribute('data-price')) : basePrice;
+
+    // دمج الخيارات في اسم المنتج أو كخصائص منفصلة ليتم إرسالها للسلة والواتساب
+    const customName = `${productName} (السعة: ${selectedSize} - اللون: ${selectedColor})`;
+
+    // استدعاء دالة إضافة للسلة لديك (مع الاسم المخصص والسعر النهائي)
+    if (typeof addToCart === 'function') {
+        // تمرير البيانات لدالة السلة الأصلية المعتمدة لديك
+        // ملاحظة: تأكد أن دالة addToCart لديك تقبل الاسم الجديد والسعر
+        addToCart(btnElement, customName, finalPrice);
+    } else {
+        alert("تمت الإضافة: " + customName);
+    }
+}
+
     function executeQuickAdd() {
     // تعريف متغير قاعدة البيانات محلياً داخل الدالة لضمان اتصالها الفوري
     const db = firebase.firestore();
@@ -2767,6 +2811,7 @@ function renderStoreCategories() {
 document.addEventListener("DOMContentLoaded", function() {
     loadStoreCategories();
 });
+
 
 
     
