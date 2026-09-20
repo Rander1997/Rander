@@ -1355,11 +1355,21 @@ body.dark-mode textarea {
 
     <!-- شريط الملاحة السفلي -->
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="navGoHome(this)"><span>🏠</span>الرئيسية</button>
-        <button class="nav-item" onclick="navGoCategories(this)"><span>📦</span>الأقسام</button>
-        <button class="nav-item" onclick="showFavorites(this)"><span>❤️</span>المفضلة</button>
-        <button class="nav-item" onclick="navToggleSearch(this)"><span>🔍</span>البحث</button>
-        <button class="nav-item" onclick="navGoCart(this)"><span>🛒</span>السلة</button>
+        <button class="nav-item active btn" onclick="navGoHome(this)">
+    <span style="font-size: 12px; color: #38bdf8;">⬡</span> الرئيسية
+</button>
+<button class="nav-item btn" onclick="navGoCategories(this)">
+    <span style="font-size: 12px; color: #38bdf8;">◈</span> الأقسام
+</button>
+<button class="nav-item btn" onclick="showFavorites(this)">
+    <span style="font-size: 12px; color: #38bdf8;">⟡</span> المفضلة
+</button>
+<button class="nav-item btn" onclick="navToggleSearch(this)">
+    <span style="font-size: 12px; color: #38bdf8;">⟨⌕⟩</span> البحث
+</button>
+<button class="nav-item btn" onclick="navGoCart(this)">
+    <span style="font-size: 12px; color: #38bdf8;">☲</span> السلة
+</button>
     </nav>
 
     <!-- نافذة الدفع الإلكتروني المنبثقة (زين كاش / SuperQi) -->
@@ -2702,6 +2712,101 @@ function renderStoreCategories() {
 document.addEventListener("DOMContentLoaded", function() {
     loadStoreCategories();
 });
+
+    function addToCartWithFlyEffect(event, productElement) {
+    // 1. العثور على زر الإضافة أو العنصر الذي تم النقر عليه
+    const button = event.target.closest('button') || event.target;
+    const card = button.closest('.product-card') || button.closest('.product-item') || button.parentElement;
+    
+    // 2. البحث عن صورة المنتج أو العنصر المراد طيرانه
+    let flyingImg = card ? card.querySelector('img') : null;
+    
+    // إذا وجدت الصورة، نقوم بعمل نسخة تطير منها، وإلا سنصنع عنصراً ضوئياً مستقبلياً طافياً
+    let flyer;
+    const cartIcon = document.getElementById('cart-counter') || document.querySelector('.cart-btn');
+    
+    if (flyingImg && cartIcon) {
+        const imgRect = flyingImg.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+        
+        flyer = flyingImg.cloneNode(true);
+        flyer.style.position = 'fixed';
+        flyer.style.zIndex = '9999';
+        flyer.style.left = imgRect.left + 'px';
+        flyer.style.top = imgRect.top + 'px';
+        flyer.style.width = imgRect.width + 'px';
+        flyer.style.height = imgRect.height + 'px';
+        flyer.style.borderRadius = '12px';
+        flyer.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        flyer.style.pointerEvents = 'none';
+        flyer.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.8)';
+        
+        document.body.appendChild(flyer);
+        
+        // حساب مسافة الطيران والتوجه نحو أيقونة السلة
+        setTimeout(() => {
+            flyer.style.left = (cartRect.left + cartRect.width / 2 - 15) + 'px';
+            flyer.style.top = (cartRect.top + cartRect.height / 2 - 15) + 'px';
+            flyer.style.width = '30px';
+            flyer.style.height = '30px';
+            flyer.style.opacity = '0.5';
+            flyer.style.transform = 'scale(0.2) rotate(360deg)';
+        }, 10);
+        
+        // إزالة العنصر بعد انتهاء الحركة وإحداث اهتزاز خفيف للسلة
+        setTimeout(() => {
+            flyer.remove();
+            if (cartIcon) {
+                cartIcon.style.transform = 'scale(1.2)';
+                setTimeout(() => cartIcon.style.transform = 'scale(1)', 200);
+            }
+        }, 800);
+    }
+
+    // 3. إظهار إشعار عصري هولوجرافي خفيف (بدون إيموجي)
+    showFuturisticToast("◈ تمت إضافة العنصر إلى السلة بنجاح");
+}
+
+// دالة لإظهار إشعار زجاجي عائم في الشاشة
+function showFuturisticToast(message) {
+    const existingToast = document.getElementById('cyber-toast');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'cyber-toast';
+    toast.innerText = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(15, 23, 42, 0.9);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.5);
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+        z-index: 10000;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    }, 10);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(() => toast.remove(), 400);
+    }, 2500);
+}
     
 </script>
 
