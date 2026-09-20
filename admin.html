@@ -158,6 +158,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('products', this)">📦 إدارة المنتجات</button>
             <button class="tab-btn" onclick="switchTab('stories', this)">📸 إدارة الستوريات (Stories)</button>
+            <button class="tab-btn" onclick="switchTab('categories', this)">📂 إدارة الأقسام الهرمية</button>
         </div>
 
         <!-- قسم المنتجات -->
@@ -245,6 +246,31 @@
     </div>
 </div>
 
+        
+<!-- قسم إدارة الأقسام المتداخلة -->
+<div id="tab-categories" class="tab-content">
+    <div class="card">
+        <h3>📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
+        <form id="category-form" onsubmit="event.preventDefault(); saveCategory();">
+            <input type="text" id="cat-name" placeholder="اسم القسم (مثلاً: أجهزة منزلية، المطبخ...)" class="form-input" required>
+            
+            <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">اختر القسم الأب (اتركه فارغاً إذا كان قسماً رئيسياً):</label>
+            <select id="cat-parent" class="form-input">
+                <option value="">-- قسم رئيسي (بدون أب) --</option>
+                <!-- سيتم تعبئتها ديناميكياً -->
+            </select>
+
+            <button type="submit" class="btn btn-success">إضافة القسم 🚀</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🌳 شجرة الأقسام الحالية</h3>
+        <div id="admin-categories-tree" style="font-size: 14px; line-height: 1.8;">
+            جاري تحميل الأقسام...
+        </div>
+    </div>
+</div>
 
 
     <script>
@@ -434,6 +460,79 @@
                 }).catch(err => alert("خطأ: " + err.message));
             }
         }
+
+// تحميل وتحديث قائمة الأقسام في لوحة الأدمن
+function loadAdminCategories() {
+    db.collection("categories").get().then((snapshot) => {
+        let categories = [];
+        snapshot.forEach((doc) => {
+            categories.push({ id: doc.id, ...doc.data() });
+        });
+
+        // 1. تعبئة قائمة اختيار القسم الأب في النموذج
+        let parentSelect = document.getElementById('cat-parent');
+        parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
+        categories.forEach(cat => {
+            parentSelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+        });
+
+        // 2. عرض الشجرة الهرمية للأقسام
+        let treeContainer = document.getElementById('admin-categories-tree');
+        if (categories.length === 0) {
+            treeContainer.innerHTML = 'لا توجد أقسام مسجلة حالياً.';
+            return;
+        }
+
+        // بناء الشجرة ديناميكياً لأي عدد من المستويات اللانهائية
+        function buildTree(parentId = "") {
+            let filtered = categories.filter(c => (c.parentId || "") === parentId);
+            if (filtered.length === 0) return "";
+            
+            let html = "<ul style='list-style-type: disc; margin-right: 20px;'>";
+            filtered.forEach(cat => {
+                html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">
+                    <span>📁 <b>${cat.name}</b></span>
+                    <button class="btn btn-danger" style="width: auto; padding: 2px 8px; font-size: 11px;" onclick="deleteCategory('${cat.id}')">حذف</button>
+                </li>`;
+                // استدعاء دالة بناء الفروع الفرعية إلى مالا نهاية (Nested recursion)
+                html += buildTree(cat.id);
+            });
+            html += "</ul>";
+            return html;
+        }
+
+        treeContainer.innerHTML = buildTree("");
+    });
+}
+
+// حفظ القسم الجديد في فايربيس
+function saveCategory() {
+    const name = document.getElementById('cat-name').value.trim();
+    const parentId = document.getElementById('cat-parent').value;
+
+    if (!name) return alert("يرجى إدخال اسم القسم!");
+
+    db.collection("categories").add({
+        name: name,
+        parentId: parentId || "", // إذا كان فارغاً فهوا قسم رئيسي
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("📁 تم إضافة القسم بنجاح!");
+        document.getElementById('category-form').reset();
+        loadAdminCategories();
+    }).catch(err => alert("❌ خطأ: " + err.message));
+}
+
+// حذف قسم
+function deleteCategory(catId) {
+    if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
+        db.collection("categories").doc(catId).delete().then(() => {
+            alert("🗑️ تم حذف القسم.");
+            loadAdminCategories();
+        }).catch(err => alert("❌ خطأ: " + err.message));
+    }
+}
+        
     </script>
 </body>
 </html>
