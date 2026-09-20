@@ -2491,20 +2491,28 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // تفعيل زر "شراء الآن" لإضافته للسلة والانتقال إليها فوراً
-    var buyBtn = document.getElementById('story-buy-btn');
-    if (buyBtn) {
-        buyBtn.innerText = "🛒 شراء الآن";
-        buyBtn.onclick = function() {
-            closeStory();
-            // إضافة المنتج المستقل للسلة بالسعر والعنوان المباشر
-            if (typeof addToCart === 'function') {
-                addToCart(null, story.title, story.price);
-            }
-            if (typeof navGoCart === 'function') {
-                navGoCart(); // الانتقال المباشر لصفحة السلة
-            }
-        };
-    }
+            // لتفعيل زر "شراء الآن" لإضافته للسلة مع تأثير الطيران المستقبلي
+        var buyBtn = document.getElementById('story-buy-btn');
+        if (buyBtn) {
+            buyBtn.innerText = "◈ شراء الآن";
+            buyBtn.onclick = function(event) {
+                // إغلاق الستوري أولاً
+                closeStory();
+                
+                // استدعاء دالة الطيران والإضافة للسلة
+                if (typeof addToCartWithFlyEffect === 'function') {
+                    // ننشئ حدث وهمي وعنصر مؤقت لتنفيذ تأثير الطيران بسلاسة من مكان الستوري
+                    addToCartWithFlyEffect(event, story.id || 'story-item');
+                } else if (typeof addToCart === 'function') {
+                    addToCart(null, story.title, story.price);
+                }
+                
+                // الانتقال المباشر لصفحة السلة أو إظهار إشعار زجاجي
+                if (typeof showFuturisticToast === 'function') {
+                    showFuturisticToast("◈ تمت إضافة منتج الستوري إلى السلة بنجاح");
+                }
+            };
+        }
 
     // إظهار نافذة المودال للستوري
     var modal = document.getElementById('story-modal');
