@@ -1844,10 +1844,15 @@ function displayProductModal(product) {
     document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
     if (btnElement) btnElement.classList.add('active');
 
-    // 1. تصفية المنتجات
+        // تصفية المنتجات مع تنظيف المسافات ومطابقة الأقسام الفرعية أو الرئيسية
     let hasProducts = false;
-    document.querySelectorAll('.product-card').forEach(function(card) {
-        let matches = (categoryName === 'all' || card.getAttribute('data-category') === categoryName);
+    const selectedCat = categoryName ? categoryName.trim() : '';
+
+    document.querySelectorAll('.product-card').forEach(card => {
+        let productCat = card.getAttribute('data-category');
+        productCat = productCat ? productCat.trim() : '';
+
+        let matches = (selectedCat === 'all' || productCat === selectedCat);
         card.style.display = matches ? 'flex' : 'none';
         if (matches) hasProducts = true;
     });
