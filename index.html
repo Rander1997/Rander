@@ -2594,7 +2594,11 @@ let mainImg = product.images && product.images.length > 0 ? product.images[0] : 
 let basePrice = Number(product.price);
 let baseSize = product.size || product.storage || product.capacity || 'القياسي';
 
-let optionsHtml = `<option value="${baseSize}" data-price="${basePrice}">القياسي (${baseSize})</option>`;
+// الخيار الافتراضي الأول في القائمة يحمل عبارة "اختر المواصفات" مع السعر الأساسي
+let optionsHtml = `<option value="" disabled selected data-price="${basePrice}">اختر المواصفات</option>`;
+
+// إضافة الخيار القياسي ضمن الخيارات أو دمجها حسب رغبتك
+optionsHtml += `<option value="${baseSize}" data-price="${basePrice}">القياسي (${baseSize})</option>`;
 
 if (product.variants && product.variants.length > 0) {
     product.variants.forEach(group => {
@@ -2622,8 +2626,7 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <div class="control-group" style="margin: 8px 0; text-align: right;">
-        <label style="font-size: 11px; font-weight: bold; color: var(--text-secondary, #666); display: block; margin-bottom: 3px;">اختر المواصفات</label>
+    <div class="control-group" style="margin: 8px 0;">
         <select multiple class="product-option single-unified-select" data-product-id="${productId}" onchange="updateUnifiedPrice(this, '${productId}', ${basePrice})" style="width: 100%; height: 85px; padding: 4px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit; font-size: 12px;">
             ${optionsHtml}
         </select>
@@ -2631,6 +2634,7 @@ card.innerHTML = `
     
     <button class="buy-button" onclick="addUnifiedToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
+
 
 
 gridElement.prepend(card);
