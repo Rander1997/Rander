@@ -2595,23 +2595,22 @@ let basePrice = Number(product.price);
 
 let variantsHtml = '';
 
-// النظام هنا مرن بالكامل ويقرأ أسماء الأقسام كما حددتها أنت تماماً في لوحة التحكم
 if (product.variants && product.variants.length > 0) {
     product.variants.forEach((group, index) => {
-        // جلب اسم القسم الذي حددته أنت في لوحة التحكم (سواء كان اللون، الحجم، أو أي اسم آخر)
-        let groupTitle = group.categoryName || group.section || group.title || `خيار ${index + 1}`;
-        let groupItems = group.items || group.options || [group];
+        let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
+        let groupItems = group.items || group.options || [];
 
         variantsHtml += `
-            <div style="flex: 1; min-width: 45%;">
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" style="width: 100%; padding: 5px 6px; border-radius: 5px; border: 1px solid #ddd; background-color: #fff; font-family: inherit; font-size: 11px; cursor: pointer;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px;">
+                <span style="font-size: 11px; font-weight: bold; color: var(--text-secondary, #94a3b8); white-space: nowrap;">اختر ${groupTitle}:</span>
+                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice('${productId}', ${basePrice})" style="flex: 1; max-width: 140px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-color, #334155); background-color: var(--bg-card, #1e293b); color: inherit; font-family: inherit; font-size: 11px; cursor: pointer;">
                     <option value="" disabled selected>${groupTitle}</option>
         `;
 
         if (Array.isArray(groupItems)) {
             groupItems.forEach(item => {
                 let itemName = item.name || item.value || item;
-                let itemPrice = item.price !== undefined ? Number(item.price) : basePrice;
+                let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
                 variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
             });
         }
@@ -2631,8 +2630,8 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- القوائم المنسدلة الأفقية بأسماء الأقسام المستمدة مباشرة من لوحة التحكم -->
-    <div class="control-group" style="margin: 6px 0; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+    <!-- قوائم الخيارات المرتبة عمودياً وبجانبها المسميات المطلوبة تماماً مثل الصورة -->
+    <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
         ${variantsHtml}
     </div>
     
