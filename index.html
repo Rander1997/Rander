@@ -1839,31 +1839,36 @@ function displayProductModal(product) {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
-    // تحديد الزر النشط بغض النظر أكان في الشريط الرئيسي أو الفرعي
-    // نبحث عن جميع الأزرار في الشريطين ونزيل الكلاس النشط منها، ثم نضيفه للزر المضغوط
+    // تحديد الزر النشط في الشريطين
     document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
     if (btnElement) btnElement.classList.add('active');
 
-            let hasProducts = false;
     const selectedCat = categoryName ? categoryName.trim().toLowerCase() : '';
 
+    // جلب اسم القسم الحقيقي إذا تم تمرير الـ ID الخاص به
+    let categoryObj = categoriesData.find(c => c.id && c.id.toLowerCase() === selectedCat);
+    let targetCategoryName = categoryObj ? categoryObj.name.trim().toLowerCase() : selectedCat;
+
+    let hasProducts = false;
+
+    // المرور على بطاقات المنتجات وإظهار/إخفاء ما يناسب القسم
     document.querySelectorAll('.product-card').forEach(card => {
         let productCat = card.getAttribute('data-category');
         productCat = productCat ? productCat.trim().toLowerCase() : '';
 
-        // المطابقة الشاملة (سواء الكل، أو تطابق تام للقسم الفرعي)
-        let matches = (selectedCat === 'all' || selectedCat === 'الكل' || productCat === selectedCat);
+        // مطابقة القسم سواء بالـ id أو الاسم النصي أو اختيار "الكل"
+        let matches = (selectedCat === 'all' || selectedCat === 'الكل' || productCat === selectedCat || productCat === targetCategoryName);
         
         card.style.display = matches ? 'flex' : 'none';
         if (matches) hasProducts = true;
     });
 
-    // إظهار رسالة "لا توجد منتجات" إذا لم يجد منتجات، مع إبقاء الأقسام ظاهرة
-    if (!hasProducts && categoryName !== 'all') {
+    // إظهار رسالة "لا توجد منتجات" إذا لم يجد نتائج
+    if (!hasProducts && selectedCat !== 'all' && selectedCat !== 'الكل') {
         if (noResults) noResults.style.display = 'block';
     }
 
-    // 2. إدارة وتحديث شريط الأقسام الفرعية (نبقي الشريط ظاهراً إذا كان القسم رئيساً أو تحتا فروع)
+    // إدارة وتحديث شريط الأقسام الفرعية (بنفس منطقك الأصلي تماماً)
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
@@ -1872,23 +1877,17 @@ function displayProductModal(product) {
         return;
     }
 
-    // هل القسم الذي ضغطنا عليه يمتلك أقساماً فرعية؟
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryName);
 
     if (subCategories.length > 0) {
-        // إذا كان قسماً رئيسياً له فروع، نعرض فروعه
         subContainer.style.display = 'flex';
-        
         let subHtml = `<button class="category-chip" onclick="filterCategory('${categoryName}', this)">الكل في هذا القسم</button>`;
         subCategories.forEach(sub => {
-            // نتحقق إذا كان هذا القسم الفرعي هو المفعل حالياً
             let isActive = (sub.id === categoryName) ? 'active' : '';
             subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
         });
         subContainer.innerHTML = subHtml;
     } else {
-        // 🌟 الخطوة الذكية: إذا كان القسم فرعياً (مثل "هواتف") وليس له أبناء تحته،
-        // نبحث عن أبيه لكي نثبت الشريط الفرعي ولا تختفي الأقسام المجاورة!
         let currentCat = categoriesData.find(c => c.id === categoryName);
         if (currentCat && currentCat.parentId) {
             let parentId = currentCat.parentId;
