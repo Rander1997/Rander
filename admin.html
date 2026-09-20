@@ -164,7 +164,7 @@
         <!-- قسم المنتجات -->
         <div id="tab-products" class="tab-content active">
             <div class="card">
-                <h3 id="form-title">➕ إضافة منتج جديد (مع المواصفات والخيارات المتكاملة)</h3>
+                <h3 id="form-title">➕ إضافة منتج جديد (مع المواصفات والأسعار المخصصة)</h3>
                 <form id="product-form" onsubmit="event.preventDefault(); saveProduct();">
                     <input type="hidden" id="edit-doc-id">
                     
@@ -183,15 +183,20 @@
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
 
-                    <!-- قسم الخيارات والمواصفات الإضافية المتغيرة (ألوان، سعات، أحجام تخصصها بنفسك) -->
+                    <!-- قسم الحقول والخيارات المخصصة (السعة، اللون، أو أي ميزة أخرى مع أسعارها) -->
                     <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
-                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ الخيارات والمواصفات المتغيرة (مثل: اللون، السعة، المقاس)</label>
-                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">أضف اسم القسم (مثال: اللون) ثم الخيارات التابعة له مع أسعارها.</p>
+                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ خيارات المنتج (السعة، اللون، أو أي حقل آخر مع سعره)</label>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">حدد الحقول وقيمها وأسعارها المخصصة لكي تتغير تلقائياً عند اختيار الزبون.</p>
                         
                         <div id="variants-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
                             <!-- صفوف المجموعات والخيارات تضاف ديناميكياً -->
                         </div>
-                        <button type="button" onclick="addVariantGroup()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة مجموعة خيارات جديدة (مثل: اللون أو الحجم)</button>
+                        
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" onclick="addVariantGroup('السعة / الحجم')" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل السعة/الحجم</button>
+                            <button type="button" onclick="addVariantGroup('اللون')" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل اللون</button>
+                            <button type="button" onclick="addVariantGroup('')" style="background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid #10b981; padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل مخصص آخر</button>
+                        </div>
                     </div>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف (يتم جلبه تلقائياً من الأقسام المضافة):</label>
@@ -331,7 +336,7 @@
             });
         }
 
-        // --- إدارة المتغيرات والمواصفات الديناميكية (اللون، الحجم، وغيرها) ---
+        // --- إدارة المتغيرات والمواصفات المخصصة (السعة، اللون، وغيرها مع الأسعار) ---
         function addVariantGroup(groupTitle = '', items = []) {
             const container = document.getElementById('variants-container');
             const groupId = 'group_' + Date.now() + Math.random().toString(36).substr(2, 5);
@@ -342,14 +347,13 @@
             
             groupDiv.innerHTML = `
                 <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
-                    <input type="text" placeholder="اسم القسم (مثال: اللون أو الحجم)" value="${groupTitle}" class="form-input variant-group-title" style="flex: 2; margin: 0; font-weight: bold; color: var(--accent);" required>
-                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">حذف المجموعة ✕</button>
+                    <input type="text" placeholder="اسم الحقل (مثال: السعة / الحجم، أو اللون)" value="${groupTitle}" class="form-input variant-group-title" style="flex: 2; margin: 0; font-weight: bold; color: var(--accent);" required>
+                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold;">حذف الحقل ✕</button>
                 </div>
-                <div class="variant-items-list" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; padding-right: 10px;"></div>
-                <button type="button" onclick="addVariantItem('${groupId}')" style="background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ إضافة خيار جديد لهذه المجموعة</button>
+                <div class="variant-items-list" id="${groupId}" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; padding-right: 10px;"></div>
+                <button type="button" onclick="addVariantItem('${groupId}')" style="background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ إضافة قيمة وسعر جديد لهذا الحقل</button>
             `;
             
-            groupDiv.querySelector('.variant-items-list').id = groupId;
             container.appendChild(groupDiv);
 
             if (items && items.length > 0) {
@@ -368,8 +372,8 @@
             const itemRow = document.createElement('div');
             itemRow.style.cssText = "display: flex; gap: 6px; align-items: center;";
             itemRow.innerHTML = `
-                <input type="text" placeholder="اسم الخيار (مثل: أسود أو 256GB)" value="${itemName}" class="form-input v-item-name" style="flex: 2; margin: 0;">
-                <input type="number" placeholder="السعر (د.ع)" value="${itemPrice}" class="form-input v-item-price" style="flex: 1; margin: 0;">
+                <input type="text" placeholder="قيمة الخيار (مثل: 256GB أو أحمر)" value="${itemName}" class="form-input v-item-name" style="flex: 2; margin: 0;">
+                <input type="number" placeholder="السعر الجديد (د.ع)" value="${itemPrice}" class="form-input v-item-price" style="flex: 1; margin: 0;">
                 <button type="button" onclick="this.parentElement.remove()" style="background: none; color: #ef4444; border: none; font-weight: bold; cursor: pointer; padding: 4px 8px;">✕</button>
             `;
             itemsContainer.appendChild(itemRow);
@@ -425,7 +429,7 @@
                     document.getElementById('p-extra-images').value = extraImgs;
                     document.getElementById('p-category').value = p.category || '';
 
-                    // تعبئة مجموعات الخيارات والمواصفات
+                    // تعبئة مجموعات الحقول والخيارات
                     const container = document.getElementById('variants-container');
                     container.innerHTML = '';
                     if (p.variants && Array.isArray(p.variants)) {
@@ -460,7 +464,7 @@
                 imagesArray = imagesArray.concat(extras);
             }
 
-            // جمع مجموعات الخيارات والمواصفات المخصصة
+            // جمع مجموعات الحقول والأسعار المخصصة
             const groupBoxes = document.querySelectorAll('.variant-group-box');
             const variants = [];
             groupBoxes.forEach(box => {
@@ -516,7 +520,7 @@
             document.getElementById('product-form').reset();
             document.getElementById('edit-doc-id').value = "";
             document.getElementById('variants-container').innerHTML = "";
-            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع المواصفات والخيارات المتكاملة)";
+            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع المواصفات والأسعار المخصصة)";
             document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
             document.getElementById('save-btn').style.background = "#28a745";
             document.getElementById('cancel-btn').style.display = "none";
@@ -626,7 +630,6 @@
                     treeContainer.innerHTML = buildAdminTree("");
                 }
 
-                // تحديث قائمة الأقسام للمنتجات أيضاً فورياً
                 loadAdminCategoriesData();
             }).catch(err => {
                 console.error("Error loading categories: ", err);
