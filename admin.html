@@ -545,102 +545,103 @@
         }
 
         // --- إدارة الستوريات ---
-        function loadAdminStories() {
-            db.collection("stories").get().then((snapshot) => {
-                allStoriesCache = [];
-                snapshot.forEach((doc) => {
-                    allStoriesCache.push({ id: doc.id, ...doc.data() });
-                });
-                renderStoriesTable(allStoriesCache);
-            });
+        // --- إدارة الستوريات (محدثة لتتطابق مع آلية التحديث الفوري) ---
+function loadAdminStories() {
+    db.collection("stories").get().then((snapshot) => {
+        allStoriesCache = [];
+        snapshot.forEach((doc) => {
+            allStoriesCache.push({ id: doc.id, ...doc.data() });
+        });
+        renderStoriesTable(allStoriesCache);
+    });
+}
+
+function renderStoriesTable(stories) {
+    const tbody = document.getElementById('admin-stories-list');
+    tbody.innerHTML = '';
+    if (stories.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات مطابقة.</td></tr>';
+        return;
+    }
+    stories.forEach((s) => {
+        tbody.innerHTML += `
+            <tr>
+                <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
+                <td>
+                    <b>${s.title}</b><br>
+                    <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-warning" onclick="prepareEditStory('${s.id}')">تعديل</button>
+                        <button class="btn btn-danger" onclick="deleteDocItem('stories', '${s.id}', loadAdminStories)">حذف</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function filterAdminStories() {
+    const query = document.getElementById('search-stories').value.trim().toLowerCase();
+    const filtered = allStoriesCache.filter(s => s.title && s.title.toLowerCase().includes(query));
+    renderStoriesTable(filtered);
+}
+
+function prepareEditStory(id) {
+    db.collection("stories").doc(id).get().then((doc) => {
+        if (doc.exists) {
+            let s = doc.data();
+            document.getElementById('edit-story-id').value = id;
+            document.getElementById('s-title').value = s.title || '';
+            document.getElementById('s-price').value = s.price || '';
+            document.getElementById('s-image').value = s.image || '';
+
+            document.getElementById('story-form-title').innerText = "✏️ تعديل الستوري";
+            document.getElementById('story-save-btn').innerText = "حفظ التعديلات";
+            document.getElementById('story-save-btn').style.background = "#f59e0b";
+            document.getElementById('story-cancel-btn').style.display = "block";
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
+    });
+}
 
-        function renderStoriesTable(stories) {
-            const tbody = document.getElementById('admin-stories-list');
-            tbody.innerHTML = '';
-            if (stories.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات مطابقة.</td></tr>';
-                return;
-            }
-            stories.forEach((s) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
-                        <td>
-                            <b>${s.title}</b><br>
-                            <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span>
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 6px;">
-                                <button class="btn btn-warning" onclick="prepareEditStory('${s.id}')">تعديل</button>
-                                <button class="btn btn-danger" onclick="deleteDocItem('stories', '${s.id}', loadAdminStories)">حذف</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
+function saveStory() {
+    const docId = document.getElementById('edit-story-id').value;
+    const title = document.getElementById('s-title').value.trim();
+    const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
+    const image = document.getElementById('s-image').value.trim();
 
-        function filterAdminStories() {
-            const query = document.getElementById('search-stories').value.trim().toLowerCase();
-            const filtered = allStoriesCache.filter(s => s.title && s.title.toLowerCase().includes(query));
-            renderStoriesTable(filtered);
-        }
+    if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
 
-        function prepareEditStory(id) {
-            db.collection("stories").doc(id).get().then((doc) => {
-                if (doc.exists) {
-                    let s = doc.data();
-                    document.getElementById('edit-story-id').value = id;
-                    document.getElementById('s-title').value = s.title || '';
-                    document.getElementById('s-price').value = s.price || '';
-                    document.getElementById('s-image').value = s.image || '';
+    const storyData = { title: title, price: price, image: image };
 
-                    document.getElementById('story-form-title').innerText = "✏️ تعديل الستوري";
-                    document.getElementById('story-save-btn').innerText = "حفظ التعديلات";
-                    document.getElementById('story-save-btn').style.background = "#f59e0b";
-                    document.getElementById('story-cancel-btn').style.display = "block";
-                    window.scrollTo({top: 0, behavior: 'smooth'});
-                }
-            });
-        }
+    if (docId) {
+        db.collection("stories").doc(docId).update(storyData).then(() => {
+            alert("تم تعديل الستوري بنجاح 🛠️");
+            resetStoryForm();
+            loadAdminStories();
+        }).catch(err => alert("خطأ: " + err.message));
+    } else {
+        storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        db.collection("stories").add(storyData).then(() => {
+            alert("📸 تم نشر الستوري بنجاح!");
+            resetStoryForm();
+            loadAdminStories();
+        }).catch(error => {
+            alert("❌ خطأ أثناء النشر: " + error.message);
+        });
+    }
+}
 
-        function saveStory() {
-            const docId = document.getElementById('edit-story-id').value;
-            const title = document.getElementById('s-title').value.trim();
-            const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
-            const image = document.getElementById('s-image').value.trim();
-
-            if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
-
-            const storyData = { title: title, price: price, image: image };
-
-            if (docId) {
-                db.collection("stories").doc(docId).update(storyData).then(() => {
-                    alert("تم تعديل الستوري بنجاح 🛠️");
-                    resetStoryForm();
-                    loadAdminStories();
-                }).catch(err => alert("خطأ: " + err.message));
-            } else {
-                storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                db.collection("stories").add(storyData).then(() => {
-                    alert("📸 تم نشر الستوري بنجاح!");
-                    resetStoryForm();
-                    loadAdminStories();
-                }).catch(error => {
-                    alert("❌ خطأ أثناء النشر: " + error.message);
-                });
-            }
-        }
-
-        function resetStoryForm() {
-            document.getElementById('story-form').reset();
-            document.getElementById('edit-story-id').value = "";
-            document.getElementById('story-form-title').innerText = "📸 نشر ستوري جديد (مستقل بسعر وزر شراء)";
-            document.getElementById('story-save-btn').innerText = "نشر الستوري في المتجر 🚀";
-            document.getElementById('story-save-btn').style.background = "#28a745";
-            document.getElementById('story-cancel-btn').style.display = "none";
-        }
+function resetStoryForm() {
+    document.getElementById('story-form').reset();
+    document.getElementById('edit-story-id').value = "";
+    document.getElementById('story-form-title').innerText = "📸 نشر ستوري جديد (مستقل بسعر وزر شراء)";
+    document.getElementById('story-save-btn').innerText = "نشر الستوري في المتجر 🚀";
+    document.getElementById('story-save-btn').style.background = "#28a745";
+    document.getElementById('story-cancel-btn').style.display = "none";
+}
 
         function deleteDocItem(collectionName, docId, callback) {
             if (confirm("هل أنت متأكد من الحذف؟")) {
