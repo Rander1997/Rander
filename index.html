@@ -1845,19 +1845,32 @@ function displayProductModal(product) {
 
     const selectedCat = categoryName ? categoryName.trim().toLowerCase() : '';
 
-    // جلب اسم القسم الحقيقي إذا تم تمرير الـ ID الخاص به
+    // جلب معلومات القسم الحالي
     let categoryObj = categoriesData.find(c => c.id && c.id.toLowerCase() === selectedCat);
     let targetCategoryName = categoryObj ? categoryObj.name.trim().toLowerCase() : selectedCat;
 
+    // 🌟 الخطوة الذكية: معرفة ما إذا كان هذا القسم "رئيسياً" ولديه أقسام فرعية
+    // لجلب المنتجات الخاصة به وبكل فروعه دفعة واحدة عند النقر عليه
+    let subCategories = categoriesData.filter(cat => cat.parentId === categoryName);
+    let validCategoryNames = [targetCategoryName, selectedCat];
+    
+    if (subCategories.length > 0) {
+        // إذا كان قسماً رئيسياً، نضيف أسماء وأيقونات جميع أقسامه الفرعية لـ قائمة البحث
+        subCategories.forEach(sub => {
+            validCategoryNames.push(sub.id.toLowerCase());
+            if (sub.name) validCategoryNames.push(sub.name.trim().toLowerCase());
+        });
+    }
+
     let hasProducts = false;
 
-    // المرور على بطاقات المنتجات وإظهار/إخفاء ما يناسب القسم
+    // المرور على بطاقات المنتجات وإظهار/إخفاء ما يناسب القسم أو فروعه
     document.querySelectorAll('.product-card').forEach(card => {
         let productCat = card.getAttribute('data-category');
         productCat = productCat ? productCat.trim().toLowerCase() : '';
 
-        // مطابقة القسم سواء بالـ id أو الاسم النصي أو اختيار "الكل"
-        let matches = (selectedCat === 'all' || selectedCat === 'الكل' || productCat === selectedCat || productCat === targetCategoryName);
+        // هل المنتج يقع ضمن القسم المختار أو أي فرع من فروعه؟
+        let matches = (selectedCat === 'all' || selectedCat === 'الكل' || validCategoryNames.includes(productCat));
         
         card.style.display = matches ? 'flex' : 'none';
         if (matches) hasProducts = true;
@@ -1868,7 +1881,7 @@ function displayProductModal(product) {
         if (noResults) noResults.style.display = 'block';
     }
 
-    // إدارة وتحديث شريط الأقسام الفرعية (بنفس منطقك الأصلي تماماً)
+    // إدارة وتحديث شريط الأقسام الفرعية
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
@@ -1877,17 +1890,15 @@ function displayProductModal(product) {
         return;
     }
 
-    let subCategories = categoriesData.filter(cat => cat.parentId === categoryName);
-
     if (subCategories.length > 0) {
         subContainer.style.display = 'flex';
-        let subHtml = `<button class="category-chip" onclick="filterCategory('${categoryName}', this)">الكل في هذا القسم</button>`;
+        let subHtml = `<button class="category-chip active" onclick="filterCategory('${categoryName}', this)">الكل في هذا القسم</button>`;
         subCategories.forEach(sub => {
-            let isActive = (sub.id === categoryName) ? 'active' : '';
-            subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
+            subHtml += `<button class="category-chip" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
         });
         subContainer.innerHTML = subHtml;
     } else {
+        // إذا كان المستخدم داخل قسم فرعي، نبقي الشريط الفرعي ظاهراً مع إخوة هذا القسم
         let currentCat = categoriesData.find(c => c.id === categoryName);
         if (currentCat && currentCat.parentId) {
             let parentId = currentCat.parentId;
