@@ -183,14 +183,11 @@
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
 
-                    <!-- قسم الخيارات والمواصفات الإضافية المتغيرة -->
                     <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
                         <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ الخيارات والمواصفات المتغيرة (مثل: اللون، السعة، المقاس)</label>
                         <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">أضف اسم القسم (مثال: اللون) ثم الخيارات التابعة له مع أسعارها.</p>
                         
-                        <div id="variants-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
-                            <!-- صفوف المجموعات والخيارات تضاف ديناميكياً -->
-                        </div>
+                        <div id="variants-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;"></div>
                         <button type="button" onclick="addVariantGroup()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة مجموعة خيارات جديدة (مثل: اللون أو الحجم)</button>
                     </div>
                     
@@ -206,6 +203,7 @@
 
             <div class="card">
                 <h3>📦 قائمة منتجات المتجر الحالية</h3>
+                <input type="text" id="search-products" placeholder="🔍 بحث سريع في المنتجات (بالاسم أو التصنيف)..." class="form-input" oninput="filterAdminProducts()">
                 <div style="overflow-x: auto;">
                     <table class="items-table">
                         <thead>
@@ -226,18 +224,21 @@
         <!-- قسم الستوريات (Stories) -->
         <div id="tab-stories" class="tab-content">
             <div class="card">
-                <h3>📸 نشر ستوري جديد (مستقل بسعر وزر شراء)</h3>
+                <h3 id="story-form-title">📸 نشر ستوري جديد (مستقل بسعر وزر شراء)</h3>
                 <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
+                    <input type="hidden" id="edit-story-id">
                     <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عرض خاص)" class="form-input" required>
                     <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
                     <input type="url" id="s-image" placeholder="رابط صورة الستوري الطولية (تيك توك 9:16)" class="form-input" required>
                     
-                    <button type="submit" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
+                    <button type="submit" id="story-save-btn" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
+                    <button type="button" id="story-cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetStoryForm()">إلغاء التعديل</button>
                 </form>
             </div>
 
             <div class="card">
                 <h3>🎞️ الستوريات النشطة حالياً</h3>
+                <input type="text" id="search-stories" placeholder="🔍 بحث سريع في الستوريات (بالعنوان)..." class="form-input" oninput="filterAdminStories()">
                 <div style="overflow-x: auto;">
                     <table class="items-table">
                         <thead>
@@ -258,8 +259,9 @@
         <!-- قسم إدارة الأقسام المتداخلة -->
         <div id="tab-categories" class="tab-content">
             <div class="card">
-                <h3>📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
+                <h3 id="cat-form-title">📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
                 <form id="category-form" onsubmit="event.preventDefault(); saveCategory();">
+                    <input type="hidden" id="edit-cat-id">
                     <input type="text" id="cat-name" placeholder="اسم القسم (مثلاً: أجهزة منزلية، المطبخ...)" class="form-input" required>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">اختر القسم الأب (اتركه فارغاً إذا كان قسماً رئيسياً):</label>
@@ -267,12 +269,14 @@
                         <option value="">-- قسم رئيسي (بدون أب) --</option>
                     </select>
 
-                    <button type="submit" class="btn btn-success">إضافة القسم 🚀</button>
+                    <button type="submit" id="cat-save-btn" class="btn btn-success">إضافة القسم 🚀</button>
+                    <button type="button" id="cat-cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetCategoryForm()">إلغاء التعديل</button>
                 </form>
             </div>
 
             <div class="card">
                 <h3>🌳 شجرة الأقسام الحالية</h3>
+                <input type="text" id="search-categories" placeholder="🔍 بحث سريع في الأقسام..." class="form-input" oninput="filterAdminCategories()">
                 <div id="admin-categories-tree" style="font-size: 14px; line-height: 1.8;">
                     جاري تحميل الأقسام...
                 </div>
@@ -281,6 +285,10 @@
     </div>
 
     <script>
+        let allProductsCache = [];
+        let allStoriesCache = [];
+        let allCategoriesCache = [];
+
         function checkAdminLogin() {
             if (document.getElementById('admin-password').value === "640397") {
                 document.getElementById('login-screen').style.display = 'none';
@@ -315,6 +323,7 @@
                 snapshot.forEach((doc) => {
                     categories.push({ id: doc.id, ...doc.data() });
                 });
+                allCategoriesCache = categories;
 
                 const productCategorySelect = document.getElementById('p-category');
                 if (productCategorySelect) {
@@ -376,36 +385,52 @@
 
         // --- إدارة المنتجات ---
         function loadAdminProducts() {
-            const tbody = document.getElementById('admin-products-list');
             db.collection("products").get().then((snapshot) => {
-                tbody.innerHTML = '';
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد منتجات مسجلة.</td></tr>';
-                    return;
-                }
+                allProductsCache = [];
                 snapshot.forEach((doc) => {
-                    let p = doc.data();
-                    let id = doc.id;
-                    let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
-                    
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><img src="${mainImg}" style="width: 40px; height: 40px; object-fit: contain; border-radius:4px;"></td>
-                            <td>
-                                <b>${p.name}</b><br>
-                                <span style="color:var(--accent);">${p.price ? Number(p.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                                <small style="color:var(--text-secondary);">التصنيف: ${p.category || 'عام'}</small>
-                            </td>
-                            <td>
-                                <div style="display: flex; gap: 6px;">
-                                    <button class="btn btn-warning" onclick="prepareEditProduct('${id}')">تعديل</button>
-                                    <button class="btn btn-danger" onclick="deleteDocItem('products', '${id}', loadAdminProducts)">حذف</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                    allProductsCache.push({ id: doc.id, ...doc.data() });
                 });
+                renderProductsTable(allProductsCache);
             });
+        }
+
+        function renderProductsTable(products) {
+            const tbody = document.getElementById('admin-products-list');
+            tbody.innerHTML = '';
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد منتجات مطابقة.</td></tr>';
+                return;
+            }
+            products.forEach((p) => {
+                let id = p.id;
+                let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="${mainImg}" style="width: 40px; height: 40px; object-fit: contain; border-radius:4px;"></td>
+                        <td>
+                            <b>${p.name}</b><br>
+                            <span style="color:var(--accent);">${p.price ? Number(p.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
+                            <small style="color:var(--text-secondary);">التصنيف: ${p.category || 'عام'}</small>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-warning" onclick="prepareEditProduct('${id}')">تعديل</button>
+                                <button class="btn btn-danger" onclick="deleteDocItem('products', '${id}', loadAdminProducts)">حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterAdminProducts() {
+            const query = document.getElementById('search-products').value.trim().toLowerCase();
+            const filtered = allProductsCache.filter(p => 
+                (p.name && p.name.toLowerCase().includes(query)) || 
+                (p.category && p.category.toLowerCase().includes(query))
+            );
+            renderProductsTable(filtered);
         }
 
         function prepareEditProduct(id) {
@@ -448,7 +473,7 @@
             const description = document.getElementById('p-desc').value.trim();
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
-            const category = document.getElementById('p-category').value.trim(); // تنظيف التصنيف تلقائياً لضمان الربط السليم
+            const category = document.getElementById('p-category').value.trim();
 
             if (!name || !price || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، التصنيف، والصورة الرئيسية على الأقل!");
 
@@ -521,45 +546,100 @@
 
         // --- إدارة الستوريات ---
         function loadAdminStories() {
-            const tbody = document.getElementById('admin-stories-list');
             db.collection("stories").get().then((snapshot) => {
-                tbody.innerHTML = '';
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات نشطة.</td></tr>';
-                    return;
-                }
+                allStoriesCache = [];
                 snapshot.forEach((doc) => {
-                    let s = doc.data();
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
-                            <td><b>${s.title}</b></td>
-                            <td><button class="btn btn-danger" onclick="deleteDocItem('stories', '${doc.id}', loadAdminStories)">حذف</button></td>
-                        </tr>
-                    `;
+                    allStoriesCache.push({ id: doc.id, ...doc.data() });
                 });
+                renderStoriesTable(allStoriesCache);
+            });
+        }
+
+        function renderStoriesTable(stories) {
+            const tbody = document.getElementById('admin-stories-list');
+            tbody.innerHTML = '';
+            if (stories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات مطابقة.</td></tr>';
+                return;
+            }
+            stories.forEach((s) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
+                        <td>
+                            <b>${s.title}</b><br>
+                            <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-warning" onclick="prepareEditStory('${s.id}')">تعديل</button>
+                                <button class="btn btn-danger" onclick="deleteDocItem('stories', '${s.id}', loadAdminStories)">حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterAdminStories() {
+            const query = document.getElementById('search-stories').value.trim().toLowerCase();
+            const filtered = allStoriesCache.filter(s => s.title && s.title.toLowerCase().includes(query));
+            renderStoriesTable(filtered);
+        }
+
+        function prepareEditStory(id) {
+            db.collection("stories").doc(id).get().then((doc) => {
+                if (doc.exists) {
+                    let s = doc.data();
+                    document.getElementById('edit-story-id').value = id;
+                    document.getElementById('s-title').value = s.title || '';
+                    document.getElementById('s-price').value = s.price || '';
+                    document.getElementById('s-image').value = s.image || '';
+
+                    document.getElementById('story-form-title').innerText = "✏️ تعديل الستوري";
+                    document.getElementById('story-save-btn').innerText = "حفظ التعديلات";
+                    document.getElementById('story-save-btn').style.background = "#f59e0b";
+                    document.getElementById('story-cancel-btn').style.display = "block";
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }
             });
         }
 
         function saveStory() {
+            const docId = document.getElementById('edit-story-id').value;
             const title = document.getElementById('s-title').value.trim();
             const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
             const image = document.getElementById('s-image').value.trim();
 
             if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
 
-            db.collection("stories").add({
-                title: title,
-                price: price,
-                image: image,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("📸 تم نشر الستوري بنجاح!");
-                document.getElementById('story-form').reset();
-                loadAdminStories();
-            }).catch(error => {
-                alert("❌ خطأ أثناء النشر: " + error.message);
-            });
+            const storyData = { title: title, price: price, image: image };
+
+            if (docId) {
+                db.collection("stories").doc(docId).update(storyData).then(() => {
+                    alert("تم تعديل الستوري بنجاح 🛠️");
+                    resetStoryForm();
+                    loadAdminStories();
+                }).catch(err => alert("خطأ: " + err.message));
+            } else {
+                storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("stories").add(storyData).then(() => {
+                    alert("📸 تم نشر الستوري بنجاح!");
+                    resetStoryForm();
+                    loadAdminStories();
+                }).catch(error => {
+                    alert("❌ خطأ أثناء النشر: " + error.message);
+                });
+            }
+        }
+
+        function resetStoryForm() {
+            document.getElementById('story-form').reset();
+            document.getElementById('edit-story-id').value = "";
+            document.getElementById('story-form-title').innerText = "📸 نشر ستوري جديد (مستقل بسعر وزر شراء)";
+            document.getElementById('story-save-btn').innerText = "نشر الستوري في المتجر 🚀";
+            document.getElementById('story-save-btn').style.background = "#28a745";
+            document.getElementById('story-cancel-btn').style.display = "none";
         }
 
         function deleteDocItem(collectionName, docId, callback) {
@@ -574,76 +654,130 @@
             }
         }
 
-        // --- إدارة الأقسام الهرمية المتداخلة ---
+        // --- إدارة الأقسام الهرمية المتداخلة وتعديلها والبحث فيها ---
         function loadAdminCategories() {
             db.collection("categories").get().then((snapshot) => {
                 let categories = [];
                 snapshot.forEach((doc) => {
                     categories.push({ id: doc.id, ...doc.data() });
                 });
+                allCategoriesCache = categories;
 
-                let parentSelect = document.getElementById('cat-parent');
-                if (parentSelect) {
-                    parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
-
-                    function renderOptions(parentId = "", prefix = "") {
-                        let filtered = categories.filter(c => (c.parentId || "") === parentId);
-                        filtered.forEach(cat => {
-                            parentSelect.innerHTML += `<option value="${cat.id}">${prefix} 📁 ${cat.name}</option>`;
-                            renderOptions(cat.id, prefix + " — ");
-                        });
-                    }
-
-                    renderOptions("");
-                }
-
-                let treeContainer = document.getElementById('admin-categories-tree');
-                if (treeContainer) {
-                    if (categories.length === 0) {
-                        treeContainer.innerHTML = 'لا توجد أقسام مسجلة حالياً.';
-                        return;
-                    }
-
-                    function buildAdminTree(parentId = "") {
-                        let filtered = categories.filter(c => (c.parentId || "") === parentId);
-                        if (filtered.length === 0) return "";
-                        
-                        let html = "<ul style='list-style-type: none; padding-right: 15px; margin: 5px 0;'>";
-                        filtered.forEach(cat => {
-                            html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                <span>📁 <b>${cat.name}</b></span>
-                                <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteCategory('${cat.id}')">حذف</button>
-                            </li>`;
-                            html += buildAdminTree(cat.id);
-                        });
-                        html += "</ul>";
-                        return html;
-                    }
-
-                    treeContainer.innerHTML = buildAdminTree("");
-                }
-
+                updateCategoryParentSelect();
+                renderCategoriesTree(categories);
                 loadAdminCategoriesData();
             }).catch(err => {
                 console.error("Error loading categories: ", err);
             });
         }
 
+        function updateCategoryParentSelect(excludeId = "") {
+            let parentSelect = document.getElementById('cat-parent');
+            if (parentSelect) {
+                parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
+
+                function renderOptions(parentId = "", prefix = "") {
+                    let filtered = allCategoriesCache.filter(c => (c.parentId || "") === parentId && c.id !== excludeId);
+                    filtered.forEach(cat => {
+                        parentSelect.innerHTML += `<option value="${cat.id}">${prefix} 📁 ${cat.name}</option>`;
+                        renderOptions(cat.id, prefix + " — ");
+                    });
+                }
+
+                renderOptions("");
+            }
+        }
+
+        function renderCategoriesTree(categories) {
+            let treeContainer = document.getElementById('admin-categories-tree');
+            if (!treeContainer) return;
+
+            if (categories.length === 0) {
+                treeContainer.innerHTML = 'لا توجد أقسام مطابقة.';
+                return;
+            }
+
+            function buildAdminTree(parentId = "") {
+                let filtered = categories.filter(c => (c.parentId || "") === parentId);
+                if (filtered.length === 0) return "";
+                
+                let html = "<ul style='list-style-type: none; padding-right: 15px; margin: 5px 0;'>";
+                filtered.forEach(cat => {
+                    html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <span>📁 <b>${cat.name}</b></span>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn btn-warning" style="width: auto; padding: 4px 10px; font-size: 12px;" onclick="prepareEditCategory('${cat.id}')">تعديل</button>
+                            <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteCategory('${cat.id}')">حذف</button>
+                        </div>
+                    </li>`;
+                    html += buildAdminTree(cat.id);
+                });
+                html += "</ul>";
+                return html;
+            }
+
+            treeContainer.innerHTML = buildAdminTree("");
+        }
+
+        function filterAdminCategories() {
+            const query = document.getElementById('search-categories').value.trim().toLowerCase();
+            const filtered = allCategoriesCache.filter(c => c.name && c.name.toLowerCase().includes(query));
+            renderCategoriesTree(filtered);
+        }
+
+        function prepareEditCategory(id) {
+            db.collection("categories").doc(id).get().then((doc) => {
+                if (doc.exists) {
+                    let cat = doc.data();
+                    document.getElementById('edit-cat-id').value = id;
+                    document.getElementById('cat-name').value = cat.name || '';
+                    
+                    updateCategoryParentSelect(id);
+                    document.getElementById('cat-parent').value = cat.parentId || '';
+
+                    document.getElementById('cat-form-title').innerText = "✏️ تعديل القسم";
+                    document.getElementById('cat-save-btn').innerText = "حفظ التعديلات";
+                    document.getElementById('cat-save-btn').style.background = "#f59e0b";
+                    document.getElementById('cat-cancel-btn').style.display = "block";
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }
+            });
+        }
+
         function saveCategory() {
+            const docId = document.getElementById('edit-cat-id').value;
             const name = document.getElementById('cat-name').value.trim();
             const parentId = document.getElementById('cat-parent').value;
 
             if (!name) return alert("يرجى إدخال اسم القسم!");
 
-            db.collection("categories").add({
-                name: name,
-                parentId: parentId || "", 
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("📁 تم إضافة القسم بنجاح!");
-                document.getElementById('category-form').reset();
-                loadAdminCategories();
-            }).catch(err => alert("❌ خطأ: " + err.message));
+            const catData = { name: name, parentId: parentId || "" };
+
+            if (docId) {
+                if (docId === parentId) return alert("❌ لا يمكن جعل القسم أب لنفسه!");
+                db.collection("categories").doc(docId).update(catData).then(() => {
+                    alert("📁 تم تعديل القسم بنجاح!");
+                    resetCategoryForm();
+                    loadAdminCategories();
+                }).catch(err => alert("❌ خطأ: " + err.message));
+            } else {
+                catData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("categories").add(catData).then(() => {
+                    alert("📁 تم إضافة القسم بنجاح!");
+                    resetCategoryForm();
+                    loadAdminCategories();
+                }).catch(err => alert("❌ خطأ: " + err.message));
+            }
+        }
+
+        function resetCategoryForm() {
+            document.getElementById('category-form').reset();
+            document.getElementById('edit-cat-id').value = "";
+            document.getElementById('cat-form-title').innerText = "📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)";
+            document.getElementById('cat-save-btn').innerText = "إضافة القسم 🚀";
+            document.getElementById('cat-save-btn').style.background = "#28a745";
+            document.getElementById('cat-cancel-btn').style.display = "none";
+            updateCategoryParentSelect();
         }
 
         function deleteCategory(catId) {
