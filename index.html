@@ -2695,11 +2695,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // مصفوفة تخزين الأقسام
 function loadStoreCategories() {
+    // 1. التحقق من وجود الأقسام مخزنة مسبقاً في الذاكرة المحلية لتسريع العرض
+    const cachedCategories = localStorage.getItem('rander_cached_categories');
+    if (cachedCategories) {
+        try {
+            categoriesData = JSON.parse(cachedCategories);
+            renderStoreCategories(); // عرضها فوراً بدون انتظار الإنترنت
+            return;
+        } catch (e) {
+            console.log("Error parsing cached categories", e);
+        }
+    }
+
+    // 2. إذا لم تكن مخزنة، جلبها من فايربيس مرة واحدة وحفظها محلياً
     db.collection("categories").get().then((snapshot) => {
         categoriesData = [];
         snapshot.forEach((doc) => {
             categoriesData.push({ id: doc.id, ...doc.data() });
         });
+        
+        // حفظها في ذاكرة المتصفح للاستخدام الفوري في الزيارات القادمة
+        localStorage.setItem('rander_cached_categories', JSON.stringify(categoriesData));
+        
         renderStoreCategories();
     }).catch(err => console.log("Error loading categories: ", err));
 }
