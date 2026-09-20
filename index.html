@@ -1844,15 +1844,16 @@ function displayProductModal(product) {
     document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
     if (btnElement) btnElement.classList.add('active');
 
-        // تصفية المنتجات مع تنظيف المسافات ومطابقة الأقسام الفرعية أو الرئيسية
-    let hasProducts = false;
-    const selectedCat = categoryName ? categoryName.trim() : '';
+            let hasProducts = false;
+    const selectedCat = categoryName ? categoryName.trim().toLowerCase() : '';
 
     document.querySelectorAll('.product-card').forEach(card => {
         let productCat = card.getAttribute('data-category');
-        productCat = productCat ? productCat.trim() : '';
+        productCat = productCat ? productCat.trim().toLowerCase() : '';
 
-        let matches = (selectedCat === 'all' || productCat === selectedCat);
+        // المطابقة الشاملة (سواء الكل، أو تطابق تام للقسم الفرعي)
+        let matches = (selectedCat === 'all' || selectedCat === 'الكل' || productCat === selectedCat);
+        
         card.style.display = matches ? 'flex' : 'none';
         if (matches) hasProducts = true;
     });
