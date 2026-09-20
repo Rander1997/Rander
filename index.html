@@ -2594,29 +2594,28 @@ let mainImg = product.images && product.images.length > 0 ? product.images[0] : 
 let basePrice = Number(product.price);
 let baseSize = product.size || product.storage || product.capacity || 'القياسي';
 
-// بناء قائمة منسدلة واحدة مدمجة ومرتبة بذكاء
-let optionsHtml = `<option value="الافتراضي" data-price="${basePrice}">الخيار الأساسي (${baseSize})</option>`;
+// عبارة أولية واضحة وبسيطة من كلمتين بدلاً من "الخيار الأساسي"
+let optionsHtml = `<option value="القياسي" data-price="${basePrice}">المواصفات القياسية (${baseSize})</option>`;
 
-// إضافة البدائل المتاحة (سعة، أحجام، أو خيارات أخرى)
+// جلب الخيارات والأقسام (مثل الألوان، السعات، أو أي قسم أضفته من لوحة التحكم) بشكل ديناميكي
 if (product.variants && product.variants.length > 0) {
-    product.variants.forEach(v => {
-        let vLabel = v.name || v.title || v.size || v.storage || '';
-        let vPrice = v.price !== undefined ? Number(v.price) : basePrice;
-        if(vLabel) {
-            optionsHtml += `<option value="${vLabel}" data-price="${vPrice}">${vLabel}</option>`;
+    product.variants.forEach(group => {
+        // إذا كانت الخيارات مقسمة لأقسام في لوحة التحكم (مثل قسم الألوان، قسم السعة...)
+        let groupTitle = group.categoryName || group.section || group.title || 'خيارات أخرى';
+        let groupItems = group.items || group.options || [group]; // دعم لمختلف بني البيانات في لوحة التحكم
+
+        optionsHtml += `<optgroup label="--- ${groupTitle} ---">`;
+        
+        if (Array.isArray(groupItems)) {
+            groupItems.forEach(item => {
+                let itemName = item.name || item.value || item;
+                let itemPrice = item.price !== undefined ? Number(item.price) : basePrice;
+                optionsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
+            });
         }
+        optionsHtml += `</optgroup>`;
     });
 }
-
-// ألوان ثابتة ومثالية تضاف للقائمة بشكل مرتب
-optionsHtml += `
-    <optgroup label="--- الألوان المتاحة ---">
-        <option value="لون: أسود">أسود</option>
-        <option value="لون: أبيض">أبيض</option>
-        <option value="لون: فضي">فضي</option>
-        <option value="لون: ذهبي">ذهبي</option>
-    </optgroup>
-`;
 
 card.innerHTML = `
     <span class="badge" style="background:#10b981;">✨ جديد</span>
@@ -2626,7 +2625,7 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- قائمة منسدلة واحدة ومثالية تحافظ على نظافة التصميم -->
+    <!-- القائمة المنسدلة المنظمة والمستمدة من لوحة التحكم -->
     <div class="control-group" style="margin: 8px 0;">
         <select class="product-option single-unified-select" data-product-id="${productId}" onchange="updateUnifiedPrice(this, '${productId}', ${basePrice})" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit; font-size: 12px;">
             ${optionsHtml}
@@ -2666,15 +2665,26 @@ function updateUnifiedPrice(selectElement, productId, basePrice) {
 }
 
 // دالة الإضافة للسلة من القائمة المنسدلة الواحدة
+// تحديث السعر بناءً على العنصر المختار من القائمة
+function updateUnifiedPrice(selectElement, productId, basePrice) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const price = selectedOption.getAttribute('data-price');
+    const priceElement = document.getElementById(`price-${productId}`);
+    
+    if (price && priceElement) {
+        priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
+    }
+}
+
+// إضافة المنتج للسلة مع الخيار المحدد من القائمة
 function addUnifiedToCart(btnElement, productId, productName, basePrice) {
     const card = btnElement.closest('.product-card');
     const select = card.querySelector('.single-unified-select');
     
     const selectedOption = select ? select.options[select.selectedIndex] : null;
-    const selectedText = selectedOption ? selectedOption.value : 'الافتراضي';
+    const selectedText = selectedOption ? selectedOption.value : 'المواصفات القياسية';
     const finalPrice = selectedOption && selectedOption.getAttribute('data-price') ? Number(selectedOption.getAttribute('data-price')) : basePrice;
 
-    // اسم المنتج مضاف إليه الاختيار (مثال: آي باد برو - 256GB أو لون: أسود)
     const customName = `${productName} (${selectedText})`;
 
     if (typeof addToCart === 'function') {
