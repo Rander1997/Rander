@@ -2594,12 +2594,13 @@ let mainImg = product.images && product.images.length > 0 ? product.images[0] : 
 let basePrice = Number(product.price);
 let baseSize = product.size || product.storage || product.capacity || 'القياسي';
 
-// الخيار الافتراضي الأول في القائمة يحمل عبارة "اختر المواصفات" مع السعر الأساسي
+// الخيار الأول الافتراضي والمعطل لكي لا يتم اختيار أي شيء تلقائياً
 let optionsHtml = `<option value="" disabled selected data-price="${basePrice}">اختر المواصفات</option>`;
 
-// إضافة الخيار القياسي ضمن الخيارات أو دمجها حسب رغبتك
+// الخيار القياسي الأساسي للمنتج
 optionsHtml += `<option value="${baseSize}" data-price="${basePrice}">القياسي (${baseSize})</option>`;
 
+// جلب الأقسام والخيارات المدخلة من لوحة التحكم بشكل ديناميكي ومضبوط
 if (product.variants && product.variants.length > 0) {
     product.variants.forEach(group => {
         let groupTitle = group.categoryName || group.section || group.title || 'خيارات أخرى';
@@ -2626,8 +2627,9 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
+    <!-- القائمة المنسدلة الرفيعة والأنيقة بدون أي مربعات كبيرة أو زوائد -->
     <div class="control-group" style="margin: 8px 0;">
-        <select multiple class="product-option single-unified-select" data-product-id="${productId}" onchange="updateUnifiedPrice(this, '${productId}', ${basePrice})" style="width: 100%; height: 85px; padding: 4px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit; font-size: 12px;">
+        <select class="product-option single-unified-select" data-product-id="${productId}" onchange="updateUnifiedPrice(this, '${productId}', ${basePrice})" style="width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid #ddd; background-color: #fff; font-family: inherit; font-size: 13px; cursor: pointer;">
             ${optionsHtml}
         </select>
     </div>
@@ -2657,45 +2659,30 @@ function updateCardPrice(selectElement, productId, basePrice) {
 
 
 // تحديث السعر بناءً على الخيارات المتعددة المحددة (يجمع فارق الأسعار أو يأخذ السعر الأعلى)
+// تحديث السعر بناءً على الاختيار الصحيح
 function updateUnifiedPrice(selectElement, productId, basePrice) {
-    const selectedOptions = Array.from(selectElement.selectedOptions);
-    let totalPrice = basePrice;
-    
-    selectedOptions.forEach(opt => {
-        const p = Number(opt.getAttribute('data-price'));
-        if (!isNaN(p) && p > totalPrice) {
-            totalPrice = p; // أو يمكنك جمع الفارق إذا رغبت، هنا يعتمد السعر الأعلى للخيارات المضافة
-        }
-    });
-
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const price = selectedOption.getAttribute('data-price');
     const priceElement = document.getElementById(`price-${productId}`);
-    if (priceElement) {
-        priceElement.innerText = Number(totalPrice).toLocaleString('ar-IQ') + ' د.ع';
+    
+    if (price && priceElement) {
+        priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
     }
 }
 
-// دالة إضافة المنتج للسلة مع جمع كل الخيارات المحددة بدون أقواس
+// دالة الإضافة للسلة بذكاء وبدون أي اختيارات وهمية أو أقواس
 function addUnifiedToCart(btnElement, productId, productName, basePrice) {
     const card = btnElement.closest('.product-card');
     const select = card.querySelector('.single-unified-select');
     
-    const selectedOptions = select ? Array.from(select.selectedOptions) : [];
-    let finalPrice = basePrice;
-    let selectedTexts = [];
+    const selectedOption = select ? select.options[select.selectedIndex] : null;
+    
+    // إذا لم يختار الزبون شيئاً وبقيت على "اختر المواصفات"، نعتبره اختار المنتج الأساسي فقط
+    const selectedValue = (selectedOption && selectedOption.value !== "") ? selectedOption.value : "";
+    const finalPrice = (selectedOption && selectedOption.getAttribute('data-price')) ? Number(selectedOption.getAttribute('data-price')) : basePrice;
 
-    selectedOptions.forEach(opt => {
-        if(opt.value) {
-            selectedTexts.push(opt.value);
-            const p = Number(opt.getAttribute('data-price'));
-            if (!isNaN(p) && p > finalPrice) {
-                finalPrice = p;
-            }
-        }
-    });
-
-    // دمج اسم المنتج مع الخيارات المتعددة ب شرطة مرتبة وبدون أقواس
-    const optionsString = selectedTexts.length > 0 ? selectedTexts.join(' - ') : '';
-    const customName = optionsString ? `${productName} - ${optionsString}` : productName;
+    // إذا اختار الزبون خياراً، ندمجه مع الاسم بشكل نظيف بدون أقواس، وإذا لم يختار نكتفي باسم المنتج الأساسي
+    const customName = (selectedValue && selectedValue !== "القياسي" && !selectedValue.includes(baseSize)) ? `${productName} - ${selectedValue}` : productName;
 
     if (typeof addToCart === 'function') {
         addToCart(btnElement, customName, finalPrice);
@@ -2703,6 +2690,7 @@ function addUnifiedToCart(btnElement, productId, productName, basePrice) {
         alert("تمت الإضافة: " + customName);
     }
 }
+
 
     function executeQuickAdd() {
     // تعريف متغير قاعدة البيانات محلياً داخل الدالة لضمان اتصالها الفوري
