@@ -1030,7 +1030,7 @@ body.dark-mode textarea {
 <body>
 
     <div id="toast-msg" class="toast-notification">🛒 تم الإضافة إلى السلة!</div>
-    <button id="scroll-top" class="scroll-top-btn" onclick="scrollToTop()">⬆️</button>
+    <button id="scroll-top" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
 
     <header>
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -1048,24 +1048,21 @@ body.dark-mode textarea {
             
             <!-- زر مشاركة التطبيق -->
             <div style="position: relative; display: inline-block;">
-                <button class="cart-btn" onclick="shareApp()" title="مشاركة التطبيق" style="display: flex; align-items: center; justify-content: center;">🔗</button>
+                <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق">⬡ مشاركة</button>
                 <span style="position: absolute; width: 100%; left: 0; bottom: -18px; font-size: 10px; color: inherit; text-align: center; pointer-events: none;">مشاركة</span>
             </div>
 
             <!-- زر تثبيت التطبيق PWA -->
-            <button id="install-pwa-btn" class="install-pwa-btn" onclick="triggerAppInstall()" style="display: none;">تثبيت 📲</button>
-
-            <!-- زر السلة المحدث ليعمل بضغطة واحدة -->
-            <button class="cart-btn" id="cart-counter" onclick="
-                var modal = document.getElementById('cart-modal') || document.getElementById('cartModal') || document.getElementById('cart-sidebar');
-                if(modal) {
-                    modal.style.display = 'block';
-                    modal.classList.add('active', 'open');
-                }
-                if(typeof renderCartModal === 'function') {
-                    renderCartModal();
-                }
-            ">🛒</button>
+            <button class="cart-btn btn" id="cart-counter" onclick="
+    var modal = document.getElementById('cart-modal') || document.getElementById('cartModal') || document.getElementById('cart-sidebar');
+    if(modal) {
+        modal.style.display = 'block';
+        modal.classList.add('active', 'open');
+    }
+    if(typeof renderCartModal === 'function') {
+        renderCartModal();
+    }
+">⬢ السلة</button>
             
         </div>
     </div>
@@ -1091,7 +1088,7 @@ body.dark-mode textarea {
     <div id="install-banner" class="install-banner">
         <span class="install-banner-text">📲 ثبت تطبيق RANDER لتجربة تسوق أسرع!</span>
         <div class="install-banner-btns">
-            <button class="install-confirm-btn" onclick="triggerAppInstall()">تثبيت الآن</button>
+            <button class="install-confirm-btn btn" onclick="triggerAppInstall()">◈ تثبيت الآن</button>
             <button class="install-close-btn" onclick="closeInstallBanner()">✕</button>
         </div>
     </div>
@@ -1109,7 +1106,7 @@ body.dark-mode textarea {
                 <strong id="story-product-name" style="font-size: 13px; display: block; color: #111;">اسم المنتج</strong>
                 <span id="story-product-price" style="color: #1d4ed8; font-weight: bold; font-size: 12px;">0 د.ع</span>
             </div>
-            <button id="story-buy-btn" style="background: #1d4ed8; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer;">شراء الآن 🛒</button>
+            <button id="story-buy-btn" class="btn" style="background: linear-gradient(135deg, rgba(29, 78, 216, 0.9), rgba(56, 189, 248, 0.9)); color: #fff; border: 1px solid rgba(56, 189, 248, 0.5); padding: 10px 18px; border-radius: 12px; font-weight: 600; cursor: pointer; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(29, 78, 216, 0.4);">⬡ شراء الآن</button>
         </div>
     </div>
 </div>
@@ -1196,19 +1193,19 @@ body.dark-mode textarea {
     <!-- أزرار الدفع الثلاثة -->
     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
     <!-- زر الدفع عند الاستلام -->
-    <button onclick="sendOrder('COD')" style="background-color: #25d366; color: white; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-    <span style="font-size: 16px;"</span> تأكيد الطلب والدفع عند الاستلام
+    <button onclick="sendOrder('COD')" class="btn" style="background: linear-gradient(135deg, rgba(37, 211, 102, 0.85), rgba(16, 185, 129, 0.85)) !important; color: #fff; padding: 12px 20px; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);">
+    <span style="font-size: 16px;">◈</span> تأكيد الطلب والدفع عند الاستلام
 </button>
 
     <!-- زر زين كاش -->
-    <button onclick="sendOrder('ZainCash')" style="background-color: #6b21a8; color: white; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span style="font-size: 16px;"></span> الدفع عبر زين كاش (ZainCash)
-    </button>
+    <button onclick="sendOrder('ZainCash')" class="btn" style="background: linear-gradient(135deg, rgba(107, 33, 168, 0.85), rgba(147, 51, 234, 0.85)) !important; color: #fff; padding: 12px 20px; border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(107, 33, 168, 0.4);">
+    <span style="font-size: 16px;">⬡</span> الدفع عبر زين كاش (ZainCash)
+</button>
 
     <!-- زر SuperQi -->
-    <button onclick="sendOrder('SuperQi')" style="background-color: #0f172a; color: #facc15; border: 1px solid #facc15; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span style="font-size: 16px; color: #facc15;"></span> الدفع عبر SuperQi
-    </button>
+    <button onclick="sendOrder('SuperQi')" class="btn" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9)) !important; color: #facc15; border: 1px solid rgba(250, 204, 21, 0.5); padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(250, 204, 21, 0.15);">
+    <span style="font-size: 16px; color: #facc15;">⬡</span> الدفع عبر SuperQi
+</button>
 ‏</div>
 ‏</div>
 ‏</div>
@@ -1225,7 +1222,9 @@ body.dark-mode textarea {
     <div class="search-container" id="search-box">
         <div class="search-wrapper">
             <input type="text" id="search-input" class="search-input" placeholder="🔍 اكتب اسم المنتج للبحث..." oninput="searchProducts()">
-            <button class="voice-btn" onclick="startVoiceSearch()" title="بحث صوتي">🎙️</button>
+            <button class="voice-btn btn" onclick="startVoiceSearch()" title="بحث صوتي">
+    <span style="font-size: 14px; color: #38bdf8;">⟡</span>
+</button>
         </div>
     </div>
 
@@ -1233,7 +1232,9 @@ body.dark-mode textarea {
         <!-- الأقسام الديناميكية من فايربيس -->
     <div class="categories-section" id="categories-bar">
     <div class="categories-container" id="store-categories-container">
-        <button class="category-chip active" onclick="filterCategory('all', this)">الكل</button>
+        <button class="category-chip active btn" onclick="filterCategory('all', this)">
+    <span style="font-size: 10px; opacity: 0.8; margin-left: 4px;">⬡</span> الكل
+</button>
         <!-- سيتم جلب الأقسام المضافة من لوحة التحكم هنا تلقائياً -->
     </div>
     
@@ -1252,110 +1253,7 @@ body.dark-mode textarea {
 
         <div class="products-grid" id="main-products-grid">
             
-            <div class="product-card" data-id="p1" data-category="school">
-                <span class="badge">🔥 الأكثر مبيعاً</span>
-                <button class="fav-btn" onclick="toggleFavorite('p1', this)">🤍</button>
-                <img src="https://i.imgur.com/yzuJQQd.jpeg" class="product-image" loading="eager" fetchpriority="high" onclick="openProductDetail('p1')">
-
-                <div class="product-title">حقيبة ظهر مدرسية مقاومة للماء</div>
-                <div class="product-price">25,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="أسود">أسود</option><option value="كحلي">كحلي</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'حقيبة ظهر مدرسية', 25000)">إضافة إلى السلة 🛒</button>
-            </div>
             
-            <div class="product-card" data-id="p1_cup" data-category="english">
-                <span class="badge">🔥 الأكثر مبيعاً</span>
-                <button class="fav-btn" onclick="toggleFavorite('p1_cup', this)">🤍</button>
-                <img src="https://i.imgur.com/3bfIjCA.jpeg" class="product-image" onclick="openProductDetail('p1_cup')">
-                <div class="product-title">كوب قهوة بإسمك</div>
-                <div class="product-price">5,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="أسود">أسود</option><option value="أبيض">أبيض</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'كوب قهوة بإسمك', 5000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-            <div class="product-card" data-id="p2" data-category="ipads">
-                <span class="badge">💥 خصم</span>
-                <button class="fav-btn" onclick="toggleFavorite('p2', this)">🤍</button>
-                <img src="https://i.imgur.com/yRCMYKV.jpeg" class="product-image" loading="eager" fetchpriority="high" onclick="openProductDetail('p2')">
-                <div class="product-title">iPad Air (2024)</div>
-                <div class="product-price">780,000 د.ع</div>
-                <div class="control-group">
-                    <label>السعة:</label>
-                    <select class="product-option"><option value="128GB">128GB</option><option value="256GB">256GB</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'iPad Air 2024', 780000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-            <div class="product-card" data-id="p3" data-category="phones">
-                <span class="badge">✨ جديد</span>
-                <button class="fav-btn" onclick="toggleFavorite('p3', this)">🤍</button>
-                <img src="https://via.placeholder.com/250?text=iPhone+15" class="product-image" onclick="openProductDetail('p3')">
-                <div class="product-title">iPhone 15 Pro Max</div>
-                <div class="product-price">1,450,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="تيتانيوم طبيعي">تيتانيوم طبيعي</option><option value="تيتانيوم أسود">تيتانيوم أسود</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'iPhone 15 Pro Max', 1450000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-            <div class="product-card" data-id="p4" data-category="used">
-                <span class="badge" style="background:#8b5cf6;">♻️ نظيف جداً</span>
-                <button class="fav-btn" onclick="toggleFavorite('p4', this)">🤍</button>
-                <img src="https://via.placeholder.com/250?text=iPhone+13+Used" class="product-image" onclick="openProductDetail('p4')">
-                <div class="product-title">iPhone 13 مستعمل (درجة أولى)</div>
-                <div class="product-price">620,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="أزرق">أزرق</option><option value="وردي">وردي</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'iPhone 13 مستعمل', 620000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-            <div class="product-card" data-id="p5" data-category="watches">
-                <button class="fav-btn" onclick="toggleFavorite('p5', this)">🤍</button>
-                <img src="https://via.placeholder.com/250?text=Smart+Watch" class="product-image" onclick="openProductDetail('p5')">
-                <div class="product-title">ساعة ذكية Ultra 2 ذكية</div>
-                <div class="product-price">45,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="برتقالي">برتقالي</option><option value="أسود">أسود</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'ساعة ذكية Ultra 2', 45000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-            <div class="product-card" data-id="p6" data-category="gaming">
-                <span class="badge" style="background:#10b981;">🎮 القيمنق</span>
-                <button class="fav-btn" onclick="toggleFavorite('p6', this)">🤍</button>
-                <img src="https://via.placeholder.com/250?text=PS5+Controller" class="product-image" onclick="openProductDetail('p6')">
-                <div class="product-title">يد تحكم بلايستيشن PS5</div>
-                <div class="product-price">95,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="أبيض">أبيض</option><option value="أسود">أسود</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'يد تحكم PS5', 95000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-            <div class="product-card" data-id="p7" data-category="accessories">
-                <button class="fav-btn" onclick="toggleFavorite('p7', this)">🤍</button>
-                <img src="https://via.placeholder.com/250?text=AirPods" class="product-image" onclick="openProductDetail('p7')">
-                <div class="product-title">سماعة بلوتوث لاسلكية RANDER</div>
-                <div class="product-price">35,000 د.ع</div>
-                <div class="control-group">
-                    <label>اللون:</label>
-                    <select class="product-option"><option value="أبيض">أبيض</option><option value="أسود">أسود</option></select>
-                </div>
-                <button class="buy-button" onclick="addToCart(this, 'سماعة بلوتوث RANDER', 35000)">إضافة إلى السلة 🛒</button>
-            </div>
-
-        </div>
     </main>
 
     <!-- نافذة تفاصيل المنتج المحدثة بالكامل مع معرض صور والمنتجات المقترحة -->
