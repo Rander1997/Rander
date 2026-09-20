@@ -216,62 +216,60 @@
 
         <!-- قسم الستوريات (Stories) -->
         <div id="tab-stories" class="tab-content">
-    <div class="card">
-        <h3>📸 نشر ستوري جديد (مستقل بسعر وزر شراء)</h3>
-        <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
-            <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عرض خاص)" class="form-input" required>
-            <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
-            <input type="url" id="s-image" placeholder="رابط صورة الستوري الطولية (تيك توك 9:16)" class="form-input" required>
-            
-            <button type="submit" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
-        </form>
-    </div>
+            <div class="card">
+                <h3>📸 نشر ستوري جديد (مستقل بسعر وزر شراء)</h3>
+                <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
+                    <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عرض خاص)" class="form-input" required>
+                    <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
+                    <input type="url" id="s-image" placeholder="رابط صورة الستوري الطولية (تيك توك 9:16)" class="form-input" required>
+                    
+                    <button type="submit" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
+                </form>
+            </div>
 
-    <div class="card">
-        <h3>🎞️ الستوريات النشطة حالياً</h3>
-        <div style="overflow-x: auto;">
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th>الصورة</th>
-                        <th>العنوان والسعر</th>
-                        <th>إجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-stories-list">
-                    <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
-                </tbody>
-            </table>
+            <div class="card">
+                <h3>🎞️ الستوريات النشطة حالياً</h3>
+                <div style="overflow-x: auto;">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>الصورة</th>
+                                <th>العنوان والسعر</th>
+                                <th>إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-stories-list">
+                            <tr><td colspan="3" style="text-align:center;">جاري الجلب...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-
         
-<!-- قسم إدارة الأقسام المتداخلة -->
-<div id="tab-categories" class="tab-content">
-    <div class="card">
-        <h3>📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
-        <form id="category-form" onsubmit="event.preventDefault(); saveCategory();">
-            <input type="text" id="cat-name" placeholder="اسم القسم (مثلاً: أجهزة منزلية، المطبخ...)" class="form-input" required>
-            
-            <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">اختر القسم الأب (اتركه فارغاً إذا كان قسماً رئيسياً):</label>
-            <select id="cat-parent" class="form-input">
-                <option value="">-- قسم رئيسي (بدون أب) --</option>
-                <!-- سيتم تعبئتها ديناميكياً -->
-            </select>
+        <!-- قسم إدارة الأقسام المتداخلة -->
+        <div id="tab-categories" class="tab-content">
+            <div class="card">
+                <h3>📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
+                <form id="category-form" onsubmit="event.preventDefault(); saveCategory();">
+                    <input type="text" id="cat-name" placeholder="اسم القسم (مثلاً: أجهزة منزلية، المطبخ...)" class="form-input" required>
+                    
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">اختر القسم الأب (اتركه فارغاً إذا كان قسماً رئيسياً):</label>
+                    <select id="cat-parent" class="form-input">
+                        <option value="">-- قسم رئيسي (بدون أب) --</option>
+                    </select>
 
-            <button type="submit" class="btn btn-success">إضافة القسم 🚀</button>
-        </form>
-    </div>
+                    <button type="submit" class="btn btn-success">إضافة القسم 🚀</button>
+                </form>
+            </div>
 
-    <div class="card">
-        <h3>🌳 شجرة الأقسام الحالية</h3>
-        <div id="admin-categories-tree" style="font-size: 14px; line-height: 1.8;">
-            جاري تحميل الأقسام...
+            <div class="card">
+                <h3>🌳 شجرة الأقسام الحالية</h3>
+                <div id="admin-categories-tree" style="font-size: 14px; line-height: 1.8;">
+                    جاري تحميل الأقسام...
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
 
     <script>
         function checkAdminLogin() {
@@ -280,6 +278,7 @@
                 document.getElementById('dashboard-content').style.display = 'block';
                 loadAdminProducts();
                 loadAdminStories();
+                loadAdminCategories(); // تحميل الأقسام فور تسجيل الدخول
             } else {
                 alert("❌ رمز المرور غير صحيح!");
             }
@@ -290,6 +289,11 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
+
+            // جلب الأقسام تلقائياً وفورياً عند فتح التبويب الخاص بها
+            if (tabName === 'categories') {
+                loadAdminCategories();
+            }
         }
 
         // --- إدارة المنتجات ---
@@ -429,25 +433,25 @@
         }
 
         function saveStory() {
-    const title = document.getElementById('s-title').value.trim();
-    const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
-    const image = document.getElementById('s-image').value.trim();
+            const title = document.getElementById('s-title').value.trim();
+            const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
+            const image = document.getElementById('s-image').value.trim();
 
-    if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
+            if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
 
-    db.collection("stories").add({
-        title: title,
-        price: price,
-        image: image,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        alert("📸 تم نشر الستوري بنجاح!");
-        document.getElementById('story-form').reset();
-        loadAdminStories();
-    }).catch(error => {
-        alert("❌ خطأ أثناء النشر: " + error.message);
-    });
-}
+            db.collection("stories").add({
+                title: title,
+                price: price,
+                image: image,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("📸 تم نشر الستوري بنجاح!");
+                document.getElementById('story-form').reset();
+                loadAdminStories();
+            }).catch(error => {
+                alert("❌ خطأ أثناء النشر: " + error.message);
+            });
+        }
 
         function deleteDocItem(collectionName, docId, callback) {
             if (confirm("هل أنت متأكد من الحذف؟")) {
@@ -461,88 +465,86 @@
             }
         }
 
-// تحميل وتحديث قائمة الأقسام في لوحة الأدمن
-function loadAdminCategories() {
-    db.collection("categories").get().then((snapshot) => {
-        let categories = [];
-        snapshot.forEach((doc) => {
-            categories.push({ id: doc.id, ...doc.data() });
-        });
+        // --- إدارة الأقسام الهرمية المتداخلة ---
+        function loadAdminCategories() {
+            db.collection("categories").get().then((snapshot) => {
+                let categories = [];
+                snapshot.forEach((doc) => {
+                    categories.push({ id: doc.id, ...doc.data() });
+                });
 
-        // 1. تعبئة قائمة اختيار القسم الأب بشكل هرمي دقيق
-        let parentSelect = document.getElementById('cat-parent');
-        parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
+                // 1. تعبئة قائمة اختيار القسم الأب بشكل هرمي دقيق
+                let parentSelect = document.getElementById('cat-parent');
+                if (parentSelect) {
+                    parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
 
-        // دالة مساعدة لترتيب وعرض الأقسام بصيغة متداخلة في القائمة المنسدلة
-        function renderOptions(parentId = "", prefix = "") {
-            let filtered = categories.filter(c => (c.parentId || "") === parentId);
-            filtered.forEach(cat => {
-                parentSelect.innerHTML += `<option value="${cat.id}">${prefix} 📁 ${cat.name}</option>`;
-                // استدعاء الأقسام التابعة لهذا القسم لتظهر تحته مباشرة وبشكل متداخل
-                renderOptions(cat.id, prefix + " — ");
+                    function renderOptions(parentId = "", prefix = "") {
+                        let filtered = categories.filter(c => (c.parentId || "") === parentId);
+                        filtered.forEach(cat => {
+                            parentSelect.innerHTML += `<option value="${cat.id}">${prefix} 📁 ${cat.name}</option>`;
+                            renderOptions(cat.id, prefix + " — ");
+                        });
+                    }
+
+                    renderOptions("");
+                }
+
+                // 2. عرض شجرة الأقسام بالكامل في لوحة التحكم للحذف والإدارة
+                let treeContainer = document.getElementById('admin-categories-tree');
+                if (treeContainer) {
+                    if (categories.length === 0) {
+                        treeContainer.innerHTML = 'لا توجد أقسام مسجلة حالياً.';
+                        return;
+                    }
+
+                    function buildAdminTree(parentId = "") {
+                        let filtered = categories.filter(c => (c.parentId || "") === parentId);
+                        if (filtered.length === 0) return "";
+                        
+                        let html = "<ul style='list-style-type: none; padding-right: 15px; margin: 5px 0;'>";
+                        filtered.forEach(cat => {
+                            html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                <span>📁 <b>${cat.name}</b></span>
+                                <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteCategory('${cat.id}')">حذف</button>
+                            </li>`;
+                            html += buildAdminTree(cat.id);
+                        });
+                        html += "</ul>";
+                        return html;
+                    }
+
+                    treeContainer.innerHTML = buildAdminTree("");
+                }
+            }).catch(err => {
+                console.error("Error loading categories: ", err);
             });
         }
 
-        renderOptions("");
+        function saveCategory() {
+            const name = document.getElementById('cat-name').value.trim();
+            const parentId = document.getElementById('cat-parent').value;
 
-        // 2. عرض شجرة الأقسام بالكامل في لوحة التحكم للحذف والإدارة
-        let treeContainer = document.getElementById('admin-categories-tree');
-        if (categories.length === 0) {
-            treeContainer.innerHTML = 'لا توجد أقسام مسجلة حالياً.';
-            return;
+            if (!name) return alert("يرجى إدخال اسم القسم!");
+
+            db.collection("categories").add({
+                name: name,
+                parentId: parentId || "", 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("📁 تم إضافة القسم بنجاح!");
+                document.getElementById('category-form').reset();
+                loadAdminCategories();
+            }).catch(err => alert("❌ خطأ: " + err.message));
         }
 
-        function buildAdminTree(parentId = "") {
-            let filtered = categories.filter(c => (c.parentId || "") === parentId);
-            if (filtered.length === 0) return "";
-            
-            let html = "<ul style='list-style-type: none; padding-right: 15px; margin: 5px 0;'>";
-            filtered.forEach(cat => {
-                html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <span>📁 <b>${cat.name}</b></span>
-                    <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteCategory('${cat.id}')">حذف</button>
-                </li>`;
-                // عرض الأقسام الفرعية المتداخلة إلى مالا نهاية
-                html += buildAdminTree(cat.id);
-            });
-            html += "</ul>";
-            return html;
+        function deleteCategory(catId) {
+            if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
+                db.collection("categories").doc(catId).delete().then(() => {
+                    alert("🗑️ تم حذف القسم.");
+                    loadAdminCategories();
+                }).catch(err => alert("❌ خطأ: " + err.message));
+            }
         }
-
-        treeContainer.innerHTML = buildAdminTree("");
-    }).catch(err => {
-        console.error("Error loading categories: ", err);
-    });
-}
-
-// حفظ القسم الجديد في فايربيس (يبقى كما هو)
-function saveCategory() {
-    const name = document.getElementById('cat-name').value.trim();
-    const parentId = document.getElementById('cat-parent').value;
-
-    if (!name) return alert("يرجى إدخال اسم القسم!");
-
-    db.collection("categories").add({
-        name: name,
-        parentId: parentId || "", 
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        alert("📁 تم إضافة القسم بنجاح!");
-        document.getElementById('category-form').reset();
-        loadAdminCategories();
-    }).catch(err => alert("❌ خطأ: " + err.message));
-}
-
-// حذف قسم (يبقى كما هو)
-function deleteCategory(catId) {
-    if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
-        db.collection("categories").doc(catId).delete().then(() => {
-            alert("🗑️ تم حذف القسم.");
-            loadAdminCategories();
-        }).catch(err => alert("❌ خطأ: " + err.message));
-    }
-}
-        
     </script>
 </body>
 </html>
