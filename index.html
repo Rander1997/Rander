@@ -2593,18 +2593,28 @@ card.setAttribute('data-category', product.category || 'all');
 let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 let basePrice = Number(product.price);
 
-// بناء قائمة الخيارات بشكل احترافي (الاسم فقط بدون عرض السعر بجانبه)
-let variantsHTML = '';
+// استخراج قيمة الحجم أو السعة الأساسية للمنتج (إن وجدت في بيانات المنتج الرئيسية، وإذا لم توجد نضع تسمية افتراضية)
+let baseSize = product.size || product.storage || product.capacity || product.variantName || 'الرئيسي (الأساسي)'; 
+
+// بناء قائمة المواصفات النظيفة (الأسماء والقيم فقط بدون أسعار داخل القائمة)
+let optionsList = `<option value="${baseSize}" data-price="${basePrice}">${baseSize}</option>`;
+
 if (product.variants && product.variants.length > 0) {
-    variantsHTML = `
-        <div class="control-group">
-            <select class="product-option product-variant-select" onchange="updateCardPrice(this, '${productId}', ${basePrice})">
-                <option value="الأساسي" data-price="${basePrice}">اختر المواصفات...</option>
-                ${product.variants.map(v => `<option value="${v.name}" data-price="${v.price}">${v.name}</option>`).join('')}
-            </select>
-        </div>
-    `;
+    optionsList += product.variants.map(v => {
+        let variantLabel = v.name || v.title || v.color || v.size || v.storage || 'خيار';
+        let variantPrice = v.price !== undefined ? Number(v.price) : basePrice;
+        // نعرض اسم المواصفات فقط داخل القائمة ونحفظ السعر في data-price ليتغير السعر الرئيسي عند الاختيار
+        return `<option value="${variantLabel}" data-price="${variantPrice}">${variantLabel}</option>`;
+    }).join('');
 }
+
+let variantsHTML = `
+    <div class="control-group">
+        <select class="product-option product-variant-select" onchange="updateCardPrice(this, '${productId}', ${basePrice})">
+            ${optionsList}
+        </select>
+    </div>
+`;
 
 card.innerHTML = `
     <span class="badge" style="background:#10b981;">✨ جديد</span>
@@ -2612,10 +2622,10 @@ card.innerHTML = `
     <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
     <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
     
-    <!-- السعر الأساسي الذي يتغير فوراً عند اختيار العتيق للخاصية -->
+    <!-- السعر الرئيسي الذي يتغير تلقائياً حسب الخيار المختار في القائمة -->
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- قائمة الخيارات النظيفة (بدون أسعار داخلها) -->
+    <!-- قائمة المواصفات النظيفة (بدون أسعار، أسماء فقط مع إمكانية العودة للمنتج الأساسي) -->
     ${variantsHTML}
     
     <button class="buy-button" onclick="addToCartWithSelectedVariant(event, '${productId}')">إضافة للسلة 🛒</button>
