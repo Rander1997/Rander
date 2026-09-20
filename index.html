@@ -2851,6 +2851,22 @@ document.addEventListener("DOMContentLoaded", function() {
     loadStoreCategories();
 });
 
+// كود إضافي لإزالة القسم "منزلية" قسراً من أي قائمة أو زر عرض في التطبيق
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(() => {
+        // البحث عن أي أزرار أو عناصر تحتوي على اسم القسم وحذفها
+        const elements = document.querySelectorAll('*');
+        elements.forEach(el => {
+            if (el.innerText && (el.innerText.trim() === 'منزلية' || el.innerText.trim() === 'قسم منزلية')) {
+                // إذا كان زراً أو عنصراً في قائمة الأقسام، نقوم بإخفائه أو حذفه
+                let itemContainer = el.closest('button') || el.closest('.category-item') || el;
+                if (itemContainer) {
+                    itemContainer.style.display = 'none';
+                }
+            }
+        });
+    }, 1000);
+});
 
 
     
