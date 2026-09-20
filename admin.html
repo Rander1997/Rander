@@ -183,10 +183,10 @@
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
 
-                    <!-- قسم الحقول والخيارات المخصصة (السعة، اللون، أو أي ميزة أخرى مع أسعارها) -->
+                    <!-- قسم الحقول والخيارات المخصصة (السعة، اللون، وأي حقل آخر مع سعره) -->
                     <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
                         <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ خيارات المنتج (السعة، اللون، أو أي حقل آخر مع سعره)</label>
-                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">حدد الحقول وقيمها وأسعارها المخصصة لكي تتغير تلقائياً عند اختيار الزبون.</p>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">حدد الحقول وقيمها وأسعارها المخصصة لكي تتغير تلقائياً عند اختيار الزبون في التطبيق.</p>
                         
                         <div id="variants-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
                             <!-- صفوف المجموعات والخيارات تضاف ديناميكياً -->
@@ -260,7 +260,7 @@
             </div>
         </div>
         
-        <!-- قسم إدارة الأقسام المتداخلة -->
+        <!-- قسم إدارة الأقسام الهرمية المتداخلة -->
         <div id="tab-categories" class="tab-content">
             <div class="card">
                 <h3>📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
@@ -336,7 +336,7 @@
             });
         }
 
-        // --- إدارة المتغيرات والمواصفات المخصصة (السعة، اللون، وغيرها مع الأسعار) ---
+        // --- إدارة المتغيرات والمواصفات المخصصة المتوافقة مع التطبيق (categoryName, items) ---
         function addVariantGroup(groupTitle = '', items = []) {
             const container = document.getElementById('variants-container');
             const groupId = 'group_' + Date.now() + Math.random().toString(36).substr(2, 5);
@@ -348,7 +348,7 @@
             groupDiv.innerHTML = `
                 <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
                     <input type="text" placeholder="اسم الحقل (مثال: السعة / الحجم، أو اللون)" value="${groupTitle}" class="form-input variant-group-title" style="flex: 2; margin: 0; font-weight: bold; color: var(--accent);" required>
-                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold;">حذف الحقل ✕</button>
+                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">حذف الحقل ✕</button>
                 </div>
                 <div class="variant-items-list" id="${groupId}" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; padding-right: 10px;"></div>
                 <button type="button" onclick="addVariantItem('${groupId}')" style="background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ إضافة قيمة وسعر جديد لهذا الحقل</button>
@@ -429,12 +429,14 @@
                     document.getElementById('p-extra-images').value = extraImgs;
                     document.getElementById('p-category').value = p.category || '';
 
-                    // تعبئة مجموعات الحقول والخيارات
+                    // تعبئة مجموعات الحقول والخيارات بالشكل المتطابق تماماً مع هيكل التطبيق
                     const container = document.getElementById('variants-container');
                     container.innerHTML = '';
                     if (p.variants && Array.isArray(p.variants)) {
                         p.variants.forEach(group => {
-                            addVariantGroup(group.categoryName || group.title || 'خيارات', group.items || group.options || []);
+                            let gTitle = group.categoryName || group.title || 'خيارات';
+                            let gItems = group.items || group.options || [];
+                            addVariantGroup(gTitle, gItems);
                         });
                     }
 
@@ -464,7 +466,7 @@
                 imagesArray = imagesArray.concat(extras);
             }
 
-            // جمع مجموعات الحقول والأسعار المخصصة
+            // جمع الخيارات والحقول بالهيكل المطلوب (categoryName و items) لتتطابق مع كود التطبيق بدقة
             const groupBoxes = document.querySelectorAll('.variant-group-box');
             const variants = [];
             groupBoxes.forEach(box => {
