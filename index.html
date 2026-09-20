@@ -2852,27 +2852,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-// كود مخصص لحذف وإخفاء قسم "المنزلية" المتكرر من الواجهة نهائياً
-document.addEventListener("DOMContentLoaded", function() {
-    const removeExactCategory = () => {
-        const elements = document.querySelectorAll('button, div, span, a, li');
-        elements.forEach(el => {
-            // التحقق المطابق تماماً لاسم "المنزلية"
-            if (el.childNodes.length === 1 && el.innerText && el.innerText.trim() === 'المنزلية') {
-                let target = el.closest('button') || el.closest('.category-item') || el.closest('.filter-btn') || el;
-                if (target && target !== document.body) {
-                    target.remove(); // إزالة العنصر من الشاشة تماماً
-                }
-            }
-        });
-    };
-
-    // التشغيل المتكرر لضمان اختفائه حتى لو تم جلب البيانات بتأخير من قاعدة البيانات
-    removeExactCategory();
-    setTimeout(removeExactCategory, 500);
-    setTimeout(removeExactCategory, 1500);
-    setTimeout(removeExactCategory, 3000);
-});
 
 
 
