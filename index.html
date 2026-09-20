@@ -1822,44 +1822,63 @@ function displayProductModal(product) {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
+    // تحديد الزر النشط بغض النظر أكان في الشريط الرئيسي أو الفرعي
+    // نبحث عن جميع الأزرار في الشريطين ونزيل الكلاس النشط منها، ثم نضيفه للزر المضغوط
     document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
     if (btnElement) btnElement.classList.add('active');
 
-    // 1. تصفية المنتجات حسب القسم (الرئيسي أو الفرعي)
+    // 1. تصفية المنتجات
+    let hasProducts = false;
     document.querySelectorAll('.product-card').forEach(function(card) {
-        card.style.display = (categoryName === 'all' || card.getAttribute('data-category') === categoryName) ? 'flex' : 'none';
+        let matches = (categoryName === 'all' || card.getAttribute('data-category') === categoryName);
+        card.style.display = matches ? 'flex' : 'none';
+        if (matches) hasProducts = true;
     });
 
-    // 2. إدارة وتحديث شريط الأقسام الفرعية
+    // إظهار رسالة "لا توجد منتجات" إذا لم يجد منتجات، مع إبقاء الأقسام ظاهرة
+    if (!hasProducts && categoryName !== 'all') {
+        if (noResults) noResults.style.display = 'block';
+    }
+
+    // 2. إدارة وتحديث شريط الأقسام الفرعية (نبقي الشريط ظاهراً إذا كان القسم رئيساً أو تحتا فروع)
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
-    subContainer.innerHTML = ''; // إفراغ الشريط الفرعي مبدئياً
-
     if (categoryName === 'all') {
-        // إذا ضغط المستخدم على "الكل"، نقوم بإخفاء شريط الأقسام الفرعية
         subContainer.style.display = 'none';
         return;
     }
 
-    // البحث عن الأقسام الفرعية التابعة لهذا القسم
+    // هل القسم الذي ضغطنا عليه يمتلك أقساماً فرعية؟
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryName);
 
     if (subCategories.length > 0) {
-        subContainer.style.display = 'flex'; // إظهار الشريط الفرعي لوجود أقسام تابعة
+        // إذا كان قسماً رئيسياً له فروع، نعرض فروعه
+        subContainer.style.display = 'flex';
         
-        // زر لتصفية القسم الرئيسي نفسه مع فروعه‌
-        let subHtml = `<button class="category-chip active" onclick="filterCategory('${categoryName}', this)" style="font-size: 12px; padding: 6px 12px;">الكل في ${btnElement ? btnElement.innerText : ''}</button>`;
-        
-        // إضافة الأقسام الفرعية للشريط
+        let subHtml = `<button class="category-chip" onclick="filterCategory('${categoryName}', this)">الكل في هذا القسم</button>`;
         subCategories.forEach(sub => {
-            subHtml += `<button class="category-chip" onclick="filterCategory('${sub.id}', this)" style="font-size: 12px; padding: 6px 12px;">📁 ${sub.name}</button>`;
+            // نتحقق إذا كان هذا القسم الفرعي هو المفعل حالياً
+            let isActive = (sub.id === categoryName) ? 'active' : '';
+            subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
         });
-        
         subContainer.innerHTML = subHtml;
     } else {
-        // إذا لم تكن هناك أقسام فرعية، نُخفي الشريط
-        subContainer.style.display = 'none';
+        // 🌟 الخطوة الذكية: إذا كان القسم فرعياً (مثل "هواتف") وليس له أبناء تحته،
+        // نبحث عن أبيه لكي نثبت الشريط الفرعي ولا تختفي الأقسام المجاورة!
+        let currentCat = categoriesData.find(c => c.id === categoryName);
+        if (currentCat && currentCat.parentId) {
+            let parentId = currentCat.parentId;
+            let siblingCategories = categoriesData.filter(cat => cat.parentId === parentId);
+            
+            subContainer.style.display = 'flex';
+            let subHtml = `<button class="category-chip" onclick="filterCategory('${parentId}', this)">الكل</button>`;
+            siblingCategories.forEach(sub => {
+                let isActive = (sub.id === categoryName) ? 'active' : '';
+                subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
+            });
+            subContainer.innerHTML = subHtml;
+        }
     }
 }
 
