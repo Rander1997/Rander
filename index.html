@@ -2592,34 +2592,30 @@ card.setAttribute('data-category', product.category || 'all');
 
 let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 let basePrice = Number(product.price);
+let baseSize = product.size || product.storage || product.capacity || 'القياسي';
 
-let variantsHtml = '';
+// الخيار الأول الافتراضي والمعطل لكي لا يتم اختيار أي شيء تلقائياً
+let optionsHtml = `<option value="" disabled selected data-price="${basePrice}">اختر المواصفات</option>`;
 
-// النظام هنا مرن بالكامل ويقرأ أسماء الأقسام كما حددتها أنت تماماً في لوحة التحكم
+// الخيار القياسي الأساسي للمنتج
+optionsHtml += `<option value="${baseSize}" data-price="${basePrice}">القياسي (${baseSize})</option>`;
+
+// جلب الأقسام والخيارات المدخلة من لوحة التحكم بشكل ديناميكي ومضبوط
 if (product.variants && product.variants.length > 0) {
-    product.variants.forEach((group, index) => {
-        // جلب اسم القسم الذي حددته أنت في لوحة التحكم (سواء كان اللون، الحجم، أو أي اسم آخر)
-        let groupTitle = group.categoryName || group.section || group.title || `خيار ${index + 1}`;
+    product.variants.forEach(group => {
+        let groupTitle = group.categoryName || group.section || group.title || 'خيارات أخرى';
         let groupItems = group.items || group.options || [group];
 
-        variantsHtml += `
-            <div style="flex: 1; min-width: 45%;">
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" style="width: 100%; padding: 5px 6px; border-radius: 5px; border: 1px solid #ddd; background-color: #fff; font-family: inherit; font-size: 11px; cursor: pointer;">
-                    <option value="" disabled selected>${groupTitle}</option>
-        `;
-
+        optionsHtml += `<optgroup label="${groupTitle}">`;
+        
         if (Array.isArray(groupItems)) {
             groupItems.forEach(item => {
                 let itemName = item.name || item.value || item;
                 let itemPrice = item.price !== undefined ? Number(item.price) : basePrice;
-                variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
+                optionsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
             });
         }
-
-        variantsHtml += `
-                </select>
-            </div>
-        `;
+        optionsHtml += `</optgroup>`;
     });
 }
 
@@ -2631,14 +2627,15 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- القوائم المنسدلة الأفقية بأسماء الأقسام المستمدة مباشرة من لوحة التحكم -->
-    <div class="control-group" style="margin: 6px 0; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
-        ${variantsHtml}
+    <!-- القائمة المنسدلة الرفيعة والأنيقة بدون أي مربعات كبيرة أو زوائد -->
+    <div class="control-group" style="margin: 8px 0;">
+        <select class="product-option single-unified-select" data-product-id="${productId}" onchange="updateUnifiedPrice(this, '${productId}', ${basePrice})" style="width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid #ddd; background-color: #fff; font-family: inherit; font-size: 13px; cursor: pointer;">
+            ${optionsHtml}
+        </select>
     </div>
     
-    <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
+    <button class="buy-button" onclick="addUnifiedToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
-
 
 
 
