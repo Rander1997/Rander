@@ -2596,26 +2596,42 @@ function renderProductsList(productsArray, gridElement) {
         if (document.querySelector(`[data-id="${productId}"]`)) return;
 
         let card = document.createElement('div');
-        card.className = 'product-card';
-        card.setAttribute('data-id', productId);
-        card.setAttribute('data-category', product.category || 'all');
+card.className = 'product-card';
+card.setAttribute('data-id', productId);
+card.setAttribute('data-category', product.category || 'all');
 
-        let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
+let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
+let basePrice = Number(product.price);
 
-        card.innerHTML = `
-            <span class="badge" style="background:#10b981;">✨ جديد</span>
-            <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-            <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
-            <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
-            <div class="product-price">${Number(product.price).toLocaleString('ar-IQ')} د.ع</div>
-            <div class="control-group">
-                <label>اللون:</label>
-                <select class="product-option"><option value="قياسي">قياسي</option></select>
-            </div>
-            <button class="buy-button" onclick="addToCart(this, '${product.name}', ${product.price})">إضافة للسلة 🛒</button>
-        `;
+// بناء قائمة الخيارات (تظهر فقط إذا وُجدت متغيرات مضافة من لوحة التحكم للمنتج)
+let variantsHTML = '';
+if (product.variants && product.variants.length > 0) {
+    variantsHTML = `
+        <div class="control-group">
+            <select class="product-option product-variant-select" onchange="updateCardPrice(this, '${productId}', ${basePrice})">
+                <option value="" data-price="${basePrice}">الأساسي (${basePrice.toLocaleString('ar-IQ')} د.ع)</option>
+                ${product.variants.map(v => `<option value="${v.name}" data-price="${v.price}">${v.name} -${Number(v.price).toLocaleString('ar-IQ')} د.ع</option>`).join('')}
+            </select>
+        </div>
+    `;
+}
 
-        gridElement.prepend(card);
+card.innerHTML = `
+    <span class="badge" style="background:#10b981;">✨ جديد</span>
+    <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
+    <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
+    <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
+    
+    <!-- السعر (يتحدث تلقائياً إذا اختار العميل خياراً مختلفاً، أو يبقى الأساسي) -->
+    <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
+    
+    <!-- قائمة الخيارات تظهر فقط عند وجودها في لوحة التحكم -->
+    ${variantsHTML}
+    
+    <button class="buy-button" onclick="addToCartWithSelectedVariant(event, '${productId}')">إضافة للسلة 🛒</button>
+`;
+
+gridElement.prepend(card);
     });
 }
 
@@ -2624,6 +2640,15 @@ document.addEventListener("DOMContentLoaded", function() {
     loadCloudProducts();
 });
 
+function updateCardPrice(selectElement, productId, basePrice) {
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const price = selectedOption.getAttribute('data-price') || basePrice;
+    const priceElement = document.getElementById(`price-${productId}`);
+    if (priceElement) {
+        priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
+    }
+}
+    
     function executeQuickAdd() {
     // تعريف متغير قاعدة البيانات محلياً داخل الدالة لضمان اتصالها الفوري
     const db = firebase.firestore();
