@@ -1543,16 +1543,6 @@ function addNewProduct() {
     });
 }
 
-// 4. دالة تسجيل دخول الأدمن
-function loginAsAdmin() {
-    let password = prompt("Rander 2026:");
-    if (password === "640397") {
-        document.getElementById('admin-panel').style.display = 'block';
-        alert('مرحباً بك يا أدمن! تم فتح لوحة التحكم بنجاح.');
-    } else {
-        alert('اضغط على زر العودة مرتين للخروج من التطبيق!');
-    }
-}
 
     
         var cartArray = JSON.parse(localStorage.getItem('rander_cart')) || [];
@@ -2603,14 +2593,14 @@ card.setAttribute('data-category', product.category || 'all');
 let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 let basePrice = Number(product.price);
 
-// بناء قائمة الخيارات (تظهر فقط إذا وُجدت متغيرات مضافة من لوحة التحكم للمنتج)
+// بناء قائمة الخيارات بشكل احترافي (الاسم فقط بدون عرض السعر بجانبه)
 let variantsHTML = '';
 if (product.variants && product.variants.length > 0) {
     variantsHTML = `
         <div class="control-group">
             <select class="product-option product-variant-select" onchange="updateCardPrice(this, '${productId}', ${basePrice})">
-                <option value="" data-price="${basePrice}">الأساسي (${basePrice.toLocaleString('ar-IQ')} د.ع)</option>
-                ${product.variants.map(v => `<option value="${v.name}" data-price="${v.price}">${v.name} -${Number(v.price).toLocaleString('ar-IQ')} د.ع</option>`).join('')}
+                <option value="الأساسي" data-price="${basePrice}">اختر المواصفات...</option>
+                ${product.variants.map(v => `<option value="${v.name}" data-price="${v.price}">${v.name}</option>`).join('')}
             </select>
         </div>
     `;
@@ -2622,10 +2612,10 @@ card.innerHTML = `
     <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
     <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
     
-    <!-- السعر (يتحدث تلقائياً إذا اختار العميل خياراً مختلفاً، أو يبقى الأساسي) -->
+    <!-- السعر الأساسي الذي يتغير فوراً عند اختيار العتيق للخاصية -->
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- قائمة الخيارات تظهر فقط عند وجودها في لوحة التحكم -->
+    <!-- قائمة الخيارات النظيفة (بدون أسعار داخلها) -->
     ${variantsHTML}
     
     <button class="buy-button" onclick="addToCartWithSelectedVariant(event, '${productId}')">إضافة للسلة 🛒</button>
@@ -2647,8 +2637,7 @@ function updateCardPrice(selectElement, productId, basePrice) {
     if (priceElement) {
         priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
     }
-}
-    
+}    
     function executeQuickAdd() {
     // تعريف متغير قاعدة البيانات محلياً داخل الدالة لضمان اتصالها الفوري
     const db = firebase.firestore();
