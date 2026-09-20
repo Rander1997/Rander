@@ -2623,7 +2623,7 @@ card.innerHTML = `
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
     <div class="control-group" style="margin: 8px 0; text-align: right;">
-        <label style="font-size: 11px; font-weight: bold; color: var(--text-secondary, #666); display: block; margin-bottom: 3px;">اختر المواصفات (اضغط مع الاستمرار لحدد أكثر من خيار)</label>
+        <label style="font-size: 11px; font-weight: bold; color: var(--text-secondary, #666); display: block; margin-bottom: 3px;">اختر المواصفات</label>
         <select multiple class="product-option single-unified-select" data-product-id="${productId}" onchange="updateUnifiedPrice(this, '${productId}', ${basePrice})" style="width: 100%; height: 85px; padding: 4px; border-radius: 6px; border: 1px solid #ddd; font-family: inherit; font-size: 12px;">
             ${optionsHtml}
         </select>
@@ -2631,6 +2631,7 @@ card.innerHTML = `
     
     <button class="buy-button" onclick="addUnifiedToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
+
 
 gridElement.prepend(card);
     });
