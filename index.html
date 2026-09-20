@@ -2600,9 +2600,10 @@ if (product.variants && product.variants.length > 0) {
         let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
         let groupItems = group.items || group.options || [];
 
-        // التنسيق المتقابل: القائمة في اليسار والعنوان في اليمين تماماً مثل الصورة المطلوبة
+        // ترتيب الأماكن: القائمة في اليمين والعنوان في اليسار تماماً مثل الصورة
         variantsHtml += `
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px;">
+                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: right;">اختر ${groupTitle}:</span>
                 <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="flex: 1; max-width: 120px; padding: 6px 10px; border-radius: 8px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 11px; cursor: pointer; text-align: right;">
                     <option value="" disabled selected>${groupTitle}</option>
         `;
@@ -2617,7 +2618,6 @@ if (product.variants && product.variants.length > 0) {
 
         variantsHtml += `
                 </select>
-                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left;">اختر ${groupTitle}:</span>
             </div>
         `;
     });
@@ -2631,13 +2631,13 @@ card.innerHTML = `
     
     <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
     
-    <!-- الحاكمة المتقابلة تماماً لصورة العرض -->
     <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
         ${variantsHtml}
     </div>
     
     <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
+
 
 
 
@@ -2664,6 +2664,7 @@ function updateCardPrice(selectElement, productId, basePrice) {
 
 
 // دالة تحديث السعر فوراً عند اختيار أي حجم أو سعة من المتجر
+// دالة تحديث السعر بحيث يتغير فقط عند اختيار حجم/سعة، ويبقى ثابت عند اختيار اللون
 function updateMultiVariantPrice(selectElement, productId, basePrice) {
     const card = selectElement.closest('.product-card');
     if (!card) return;
@@ -2672,11 +2673,16 @@ function updateMultiVariantPrice(selectElement, productId, basePrice) {
     let finalPrice = basePrice;
 
     selects.forEach(sel => {
+        const groupName = (sel.getAttribute('data-group-name') || '').toLowerCase();
         const opt = sel.options[sel.selectedIndex];
-        if (opt && opt.getAttribute('data-price')) {
-            const p = Number(opt.getAttribute('data-price'));
-            if (!isNaN(p) && p > 0) {
-                finalPrice = p; // اعتماد السعر الجديد المخصص من لوحة التحكم
+        
+        // التحقق أن التغيير يتم على الحجم أو السعة وليس اللون لضمان ثبات سعر اللون
+        if (groupName.includes('حجم') || groupName.includes('سعة') || groupName.includes('مقاس') || (!groupName.includes('لون') && !groupName.includes('color'))) {
+            if (opt && opt.getAttribute('data-price')) {
+                const p = Number(opt.getAttribute('data-price'));
+                if (!isNaN(p) && p > 0) {
+                    finalPrice = p;
+                }
             }
         }
     });
@@ -2687,7 +2693,7 @@ function updateMultiVariantPrice(selectElement, productId, basePrice) {
     }
 }
 
-// دالة إضافة المنتج للسلة بالخيارات والأسعار المحدثة
+// دالة إضافة المنتج للسلة مع دمج الخيارات المختارة
 function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
     const card = btnElement.closest('.product-card');
     const selects = card.querySelectorAll('.dynamic-variant-select');
@@ -2697,14 +2703,18 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
 
     selects.forEach(sel => {
         const opt = sel.options[sel.selectedIndex];
+        const groupName = (sel.getAttribute('data-group-name') || '').toLowerCase();
+        
         if (opt && opt.value) {
-            // نأخذ اسم الخيار فقط بدون السعر المعروض داخله ليبقى العنوان نظيفاً
             let cleanValue = opt.value.split(' (')[0];
             selectedTexts.push(cleanValue);
             
-            const p = Number(opt.getAttribute('data-price'));
-            if (!isNaN(p) && p > 0) {
-                finalPrice = p;
+            // السعر يعتمد على الحجم والسعة فقط
+            if (groupName.includes('حجم') || groupName.includes('سعة') || groupName.includes('مقاس') || (!groupName.includes('لون') && !groupName.includes('color'))) {
+                const p = Number(opt.getAttribute('data-price'));
+                if (!isNaN(p) && p > 0) {
+                    finalPrice = p;
+                }
             }
         }
     });
@@ -2718,6 +2728,7 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
         alert("تمت الإضافة: " + customName);
     }
 }
+
 
 
     function executeQuickAdd() {
