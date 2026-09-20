@@ -164,44 +164,44 @@
         <!-- قسم المنتجات -->
         <div id="tab-products" class="tab-content active">
             <div class="card">
-                <h3 id="form-title">➕ إضافة منتج جديد (مع المواصفات والأسعار المخصصة)</h3>
+                <h3 id="form-title">➕ إضافة منتج جديد (مع السعة والحجم واللون)</h3>
                 <form id="product-form" onsubmit="event.preventDefault(); saveProduct();">
                     <input type="hidden" id="edit-doc-id">
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📌 اسم المنتج:</label>
-                    <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: iPhone 15 Pro)" class="form-input" required>
+                    <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">💵 السعر الأساسي للمنتج (د.ع):</label>
-                    <input type="text" id="p-price" placeholder="مثلاً: 250000" class="form-input" required>
+                    <input type="text" id="p-price" placeholder="مثلاً: 20000" class="form-input" required>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📝 وصف وتفاصيل المنتج:</label>
-                    <textarea id="p-desc" placeholder="وصف وتفاصيل المنتج الكاملة..." class="form-input" rows="3"></textarea>
+                    <textarea id="p-desc" placeholder="وصف المنتج..." class="form-input" rows="3"></textarea>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">1️⃣ الصورة الرئيسية الرسمية:</label>
-                    <input type="url" id="p-main-image" placeholder="رابط الصورة الرئيسية المباشر" class="form-input" required>
+                    <input type="url" id="p-main-image" placeholder="رابط الصورة الرئيسية" class="form-input" required>
 
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
-                    <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
+                    <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg" class="form-input" rows="2"></textarea>
 
-                    <!-- قسم الحقول والخيارات المخصصة (السعة، اللون، وأي حقل آخر مع سعره) -->
+                    <!-- قسم خيارات السعة والحجم واللون لتظهر مطابقة تماماً للشكل المطلوب -->
                     <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
-                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ خيارات المنتج (السعة، اللون، أو أي حقل آخر مع سعره)</label>
-                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">حدد الحقول وقيمها وأسعارها المخصصة لكي تتغير تلقائياً عند اختيار الزبون في التطبيق.</p>
+                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚙️ خيارات السعة / الحجم واللون والأسعار</label>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">قم بإضافة الخيارات والأسعار الجديدة لكل خيار.</p>
                         
                         <div id="variants-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
-                            <!-- صفوف المجموعات والخيارات تضاف ديناميكياً -->
+                            <!-- تضاف الحقول هنا ديناميكياً -->
                         </div>
                         
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" onclick="addVariantGroup('السعة / الحجم')" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل السعة/الحجم</button>
+                            <button type="button" onclick="addVariantGroup('السعة / الحجم')" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل السعة / الحجم</button>
                             <button type="button" onclick="addVariantGroup('اللون')" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل اللون</button>
                             <button type="button" onclick="addVariantGroup('')" style="background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid #10b981; padding: 7px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold;">+ إضافة حقل مخصص آخر</button>
                         </div>
                     </div>
                     
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف (يتم جلبه تلقائياً من الأقسام المضافة):</label>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف:</label>
                     <select id="p-category" class="form-input" required>
-                        <option value="">-- اختر التصنيف المناسب --</option>
+                        <option value="">-- اختر التصنيف --</option>
                     </select>
 
                     <button type="submit" id="save-btn" class="btn btn-success">نشر المنتج في المتجر 🚀</button>
@@ -231,18 +231,17 @@
         <!-- قسم الستوريات (Stories) -->
         <div id="tab-stories" class="tab-content">
             <div class="card">
-                <h3>📸 نشر ستوري جديد (مستقل بسعر وزر شراء)</h3>
+                <h3>📸 نشر ستوري جديد</h3>
                 <form id="story-form" onsubmit="event.preventDefault(); saveStory();">
-                    <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عرض خاص)" class="form-input" required>
-                    <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
-                    <input type="url" id="s-image" placeholder="رابط صورة الستوري الطولية (تيك توك 9:16)" class="form-input" required>
-                    
-                    <button type="submit" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
+                    <input type="text" id="s-title" placeholder="عنوان الستوري" class="form-input" required>
+                    <input type="text" id="s-price" placeholder="سعر الستوري (د.ع)" class="form-input" required>
+                    <input type="url" id="s-image" placeholder="رابط صورة الستوري" class="form-input" required>
+                    <button type="submit" class="btn btn-success">نشر الستوري 🚀</button>
                 </form>
             </div>
 
             <div class="card">
-                <h3>🎞️ الستوريات النشطة حالياً</h3>
+                <h3>🎞️ الستوريات النشطة</h3>
                 <div style="overflow-x: auto;">
                     <table class="items-table">
                         <thead>
@@ -260,27 +259,23 @@
             </div>
         </div>
         
-        <!-- قسم إدارة الأقسام الهرمية المتداخلة -->
+        <!-- قسم الأقسام الهرمية -->
         <div id="tab-categories" class="tab-content">
             <div class="card">
-                <h3>📂 إضافة قسم جديد (رئيسي أو فرعي متداخل)</h3>
+                <h3>📂 إضافة قسم جديد</h3>
                 <form id="category-form" onsubmit="event.preventDefault(); saveCategory();">
-                    <input type="text" id="cat-name" placeholder="اسم القسم (مثلاً: أجهزة منزلية، المطبخ...)" class="form-input" required>
-                    
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">اختر القسم الأب (اتركه فارغاً إذا كان قسماً رئيسياً):</label>
+                    <input type="text" id="cat-name" placeholder="اسم القسم" class="form-input" required>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">القسم الأب (اختياري):</label>
                     <select id="cat-parent" class="form-input">
-                        <option value="">-- قسم رئيسي (بدون أب) --</option>
+                        <option value="">-- قسم رئيسي --</option>
                     </select>
-
                     <button type="submit" class="btn btn-success">إضافة القسم 🚀</button>
                 </form>
             </div>
 
             <div class="card">
-                <h3>🌳 شجرة الأقسام الحالية</h3>
-                <div id="admin-categories-tree" style="font-size: 14px; line-height: 1.8;">
-                    جاري تحميل الأقسام...
-                </div>
+                <h3>🌳 شجرة الأقسام</h3>
+                <div id="admin-categories-tree" style="font-size: 14px; line-height: 1.8;">جاري التحميل...</div>
             </div>
         </div>
     </div>
@@ -313,7 +308,6 @@
             }
         }
 
-        // --- جلب الأقسام لتحديث قائمة التصنيفات في نموذج المنتجات ولحظياً ---
         function loadAdminCategoriesData(callback) {
             db.collection("categories").get().then((snapshot) => {
                 let categories = [];
@@ -321,11 +315,10 @@
                     categories.push({ id: doc.id, ...doc.data() });
                 });
 
-                // تحديث قائمة التصنيفات في نموذج المنتجات تلقائياً
                 const productCategorySelect = document.getElementById('p-category');
                 if (productCategorySelect) {
                     let currentSelected = productCategorySelect.value;
-                    productCategorySelect.innerHTML = '<option value="">-- اختر التصنيف المناسب --</option>';
+                    productCategorySelect.innerHTML = '<option value="">-- اختر التصنيف --</option>';
                     categories.forEach(cat => {
                         productCategorySelect.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
                     });
@@ -336,7 +329,6 @@
             });
         }
 
-        // --- إدارة المتغيرات والمواصفات المخصصة المتوافقة مع التطبيق (categoryName, items) ---
         function addVariantGroup(groupTitle = '', items = []) {
             const container = document.getElementById('variants-container');
             const groupId = 'group_' + Date.now() + Math.random().toString(36).substr(2, 5);
@@ -347,11 +339,11 @@
             
             groupDiv.innerHTML = `
                 <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
-                    <input type="text" placeholder="اسم الحقل (مثال: السعة / الحجم، أو اللون)" value="${groupTitle}" class="form-input variant-group-title" style="flex: 2; margin: 0; font-weight: bold; color: var(--accent);" required>
-                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">حذف الحقل ✕</button>
+                    <input type="text" placeholder="اسم الحقل (مثال: السعة / الحجم أو اللون)" value="${groupTitle}" class="form-input variant-group-title" style="flex: 2; margin: 0; font-weight: bold; color: var(--accent);" required>
+                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold;">حذف الحقل ✕</button>
                 </div>
                 <div class="variant-items-list" id="${groupId}" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; padding-right: 10px;"></div>
-                <button type="button" onclick="addVariantItem('${groupId}')" style="background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ إضافة قيمة وسعر جديد لهذا الحقل</button>
+                <button type="button" onclick="addVariantItem('${groupId}')" style="background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ إضافة خيار وسعر جديد</button>
             `;
             
             container.appendChild(groupDiv);
@@ -372,14 +364,13 @@
             const itemRow = document.createElement('div');
             itemRow.style.cssText = "display: flex; gap: 6px; align-items: center;";
             itemRow.innerHTML = `
-                <input type="text" placeholder="قيمة الخيار (مثل: 256GB أو أحمر)" value="${itemName}" class="form-input v-item-name" style="flex: 2; margin: 0;">
+                <input type="text" placeholder="اسم الخيار (مثل: القياسي أو أحمر)" value="${itemName}" class="form-input v-item-name" style="flex: 2; margin: 0;">
                 <input type="number" placeholder="السعر الجديد (د.ع)" value="${itemPrice}" class="form-input v-item-price" style="flex: 1; margin: 0;">
                 <button type="button" onclick="this.parentElement.remove()" style="background: none; color: #ef4444; border: none; font-weight: bold; cursor: pointer; padding: 4px 8px;">✕</button>
             `;
             itemsContainer.appendChild(itemRow);
         }
 
-        // --- إدارة المنتجات ---
         function loadAdminProducts() {
             const tbody = document.getElementById('admin-products-list');
             db.collection("products").get().then((snapshot) => {
@@ -429,7 +420,6 @@
                     document.getElementById('p-extra-images').value = extraImgs;
                     document.getElementById('p-category').value = p.category || '';
 
-                    // تعبئة مجموعات الحقول والخيارات بالشكل المتطابق تماماً مع هيكل التطبيق
                     const container = document.getElementById('variants-container');
                     container.innerHTML = '';
                     if (p.variants && Array.isArray(p.variants)) {
@@ -458,7 +448,7 @@
             const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value;
 
-            if (!name || !price || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، التصنيف، والصورة الرئيسية على الأقل!");
+            if (!name || !price || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، التصنيف، والصورة الرئيسية!");
 
             let imagesArray = [mainImage];
             if (extraRaw) {
@@ -466,7 +456,6 @@
                 imagesArray = imagesArray.concat(extras);
             }
 
-            // جمع الخيارات والحقول بالهيكل المطلوب (categoryName و items) لتتطابق مع كود التطبيق بدقة
             const groupBoxes = document.querySelectorAll('.variant-group-box');
             const variants = [];
             groupBoxes.forEach(box => {
@@ -510,7 +499,7 @@
             } else {
                 productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                 db.collection("products").add(productData).then(() => {
-                    alert("تم إضافة المنتج ونشره بنجاح في المتجر 🚀");
+                    alert("تم إضافة المنتج ونشره بنجاح 🚀");
                     resetProductForm();
                     loadAdminProducts();
                     localStorage.removeItem('rander_cloud_products_cache');
@@ -522,19 +511,18 @@
             document.getElementById('product-form').reset();
             document.getElementById('edit-doc-id').value = "";
             document.getElementById('variants-container').innerHTML = "";
-            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع المواصفات والأسعار المخصصة)";
+            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع السعة والحجم واللون)";
             document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
             document.getElementById('save-btn').style.background = "#28a745";
             document.getElementById('cancel-btn').style.display = "none";
         }
 
-        // --- إدارة الستوريات ---
         function loadAdminStories() {
             const tbody = document.getElementById('admin-stories-list');
             db.collection("stories").get().then((snapshot) => {
                 tbody.innerHTML = '';
                 if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات نشطة.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات.</td></tr>';
                     return;
                 }
                 snapshot.forEach((doc) => {
@@ -555,7 +543,7 @@
             const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
             const image = document.getElementById('s-image').value.trim();
 
-            if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
+            if (!title || !image || !price) return alert("يرجى ملء الحقول!");
 
             db.collection("stories").add({
                 title: title,
@@ -567,7 +555,7 @@
                 document.getElementById('story-form').reset();
                 loadAdminStories();
             }).catch(error => {
-                alert("❌ خطأ أثناء النشر: " + error.message);
+                alert("❌ خطأ: " + error.message);
             });
         }
 
@@ -583,7 +571,6 @@
             }
         }
 
-        // --- إدارة الأقسام الهرمية المتداخلة ---
         function loadAdminCategories() {
             db.collection("categories").get().then((snapshot) => {
                 let categories = [];
@@ -593,48 +580,28 @@
 
                 let parentSelect = document.getElementById('cat-parent');
                 if (parentSelect) {
-                    parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
-
-                    function renderOptions(parentId = "", prefix = "") {
-                        let filtered = categories.filter(c => (c.parentId || "") === parentId);
-                        filtered.forEach(cat => {
-                            parentSelect.innerHTML += `<option value="${cat.id}">${prefix} 📁 ${cat.name}</option>`;
-                            renderOptions(cat.id, prefix + " — ");
-                        });
-                    }
-
-                    renderOptions("");
+                    parentSelect.innerHTML = '<option value="">-- قسم رئيسي --</option>';
+                    categories.forEach(cat => {
+                        parentSelect.innerHTML += `<option value="${cat.id}">📁 ${cat.name}</option>`;
+                    });
                 }
 
                 let treeContainer = document.getElementById('admin-categories-tree');
                 if (treeContainer) {
                     if (categories.length === 0) {
-                        treeContainer.innerHTML = 'لا توجد أقسام مسجلة حالياً.';
+                        treeContainer.innerHTML = 'لا توجد أقسام مسجلة.';
                         return;
                     }
-
-                    function buildAdminTree(parentId = "") {
-                        let filtered = categories.filter(c => (c.parentId || "") === parentId);
-                        if (filtered.length === 0) return "";
-                        
-                        let html = "<ul style='list-style-type: none; padding-right: 15px; margin: 5px 0;'>";
-                        filtered.forEach(cat => {
-                            html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                                <span>📁 <b>${cat.name}</b></span>
-                                <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteCategory('${cat.id}')">حذف</button>
-                            </li>`;
-                            html += buildAdminTree(cat.id);
-                        });
-                        html += "</ul>";
-                        return html;
-                    }
-
-                    treeContainer.innerHTML = buildAdminTree("");
+                    let html = "<ul style='list-style-type: none; padding-right: 15px;'>";
+                    categories.forEach(cat => {
+                        html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <span>📁 <b>${cat.name}</b></span>
+                            <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px;" onclick="deleteCategory('${cat.id}')">حذف</button>
+                        </li>`;
+                    });
+                    html += "</ul>";
+                    treeContainer.innerHTML = html;
                 }
-
-                loadAdminCategoriesData();
-            }).catch(err => {
-                console.error("Error loading categories: ", err);
             });
         }
 
@@ -656,9 +623,9 @@
         }
 
         function deleteCategory(catId) {
-            if (confirm("هل أنت متأكد من حذف هذا القسم؟ سيتم تحديث القوائم تلقائياً.")) {
+            if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
                 db.collection("categories").doc(catId).delete().then(() => {
-                    alert("🗑️ تم حذف القسم وتحديث القوائم بنجاح.");
+                    alert("🗑️ تم الحذف.");
                     loadAdminCategories();
                 }).catch(err => alert("❌ خطأ: " + err.message));
             }
