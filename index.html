@@ -1065,7 +1065,19 @@ body.dark-mode textarea {
 }
 
 
-
+/* --- وضع الأداء الخفيف والسريع للهواتف القديمة --- */
+@media (prefers-reduced-motion: reduce), (max-width: 768px) {
+    *, ::before, ::after {
+        animation-duration: 0.001s !important;
+        transition-duration: 0.001s !important;
+    }
+    
+    /* تقليل تأثير الزجاج الثقيل واستبداله بلون خلفية صلب وسريع */
+    .btn, button, .category-chip, .futuristic-scroll-container {
+        backdrop-filter: none !important;
+        background: rgba(15, 23, 42, 0.95) !important;
+    }
+}
         
 </style>
 
