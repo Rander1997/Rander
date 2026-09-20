@@ -2851,22 +2851,29 @@ document.addEventListener("DOMContentLoaded", function() {
     loadStoreCategories();
 });
 
-// كود إضافي لإزالة القسم "منزلية" قسراً من أي قائمة أو زر عرض في التطبيق
+
+// كود مخصص لحذف وإخفاء قسم "المنزلية" المتكرر من الواجهة نهائياً
 document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(() => {
-        // البحث عن أي أزرار أو عناصر تحتوي على اسم القسم وحذفها
-        const elements = document.querySelectorAll('*');
+    const removeExactCategory = () => {
+        const elements = document.querySelectorAll('button, div, span, a, li');
         elements.forEach(el => {
-            if (el.innerText && (el.innerText.trim() === 'منزلية' || el.innerText.trim() === 'قسم منزلية')) {
-                // إذا كان زراً أو عنصراً في قائمة الأقسام، نقوم بإخفائه أو حذفه
-                let itemContainer = el.closest('button') || el.closest('.category-item') || el;
-                if (itemContainer) {
-                    itemContainer.style.display = 'none';
+            // التحقق المطابق تماماً لاسم "المنزلية"
+            if (el.childNodes.length === 1 && el.innerText && el.innerText.trim() === 'المنزلية') {
+                let target = el.closest('button') || el.closest('.category-item') || el.closest('.filter-btn') || el;
+                if (target && target !== document.body) {
+                    target.remove(); // إزالة العنصر من الشاشة تماماً
                 }
             }
         });
-    }, 1000);
+    };
+
+    // التشغيل المتكرر لضمان اختفائه حتى لو تم جلب البيانات بتأخير من قاعدة البيانات
+    removeExactCategory();
+    setTimeout(removeExactCategory, 500);
+    setTimeout(removeExactCategory, 1500);
+    setTimeout(removeExactCategory, 3000);
 });
+
 
 
     
