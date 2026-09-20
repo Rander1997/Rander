@@ -143,7 +143,7 @@
     <div id="login-screen">
         <h2>🔐 تطبيق أدمن راندر</h2>
         <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للتحكم الكامل</p>
-        <input type="password" id="admin-password" placeholder="hmmm" class="form-input">
+        <input type="password" id="admin-password" placeholder="رمز المرور" class="form-input">
         <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
     </div>
 
@@ -164,13 +164,20 @@
         <!-- قسم المنتجات -->
         <div id="tab-products" class="tab-content active">
             <div class="card">
-                <h3 id="form-title">➕ إضافة منتج جديد (مع الوصف والصور المتعددة)</h3>
+                <h3 id="form-title">➕ إضافة منتج جديد (مع المواصفات والخيارات المتكاملة)</h3>
                 <form id="product-form" onsubmit="event.preventDefault(); saveProduct();">
                     <input type="hidden" id="edit-doc-id">
-                    <input type="text" id="p-name" placeholder="اسم المنتج" class="form-input" required>
-                    <input type="text" id="p-price" placeholder="السعر الأساسي بـ (د.ع) مثلاً: 25000" class="form-input" required>
                     
-                    <!-- حقل الوصف -->
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📌 اسم المنتج:</label>
+                    <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: iPad Pro)" class="form-input" required>
+                    
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">💵 السعر الأساسي للمنتج (د.ع):</label>
+                    <input type="text" id="p-price" placeholder="مثلاً: 250000" class="form-input" required>
+
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">🏷️ السعة / الحجم الأساسي المعروض:</label>
+                    <input type="text" id="p-base-size" placeholder="مثلاً: 128GB أو الحجم العادي" class="form-input" required>
+                    
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📝 وصف وتفاصيل المنتج:</label>
                     <textarea id="p-desc" placeholder="وصف وتفاصيل المنتج الكاملة..." class="form-input" rows="3"></textarea>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">1️⃣ الصورة الرئيسية الرسمية:</label>
@@ -179,18 +186,18 @@
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
 
-                    <!-- حقل اللون الاختياري -->
-                    <input type="text" id="p-color" placeholder="لون المنتج (اختياري) مثل: أسود / تيتانيوم" class="form-input">
-
-                    <!-- قسم الخيارات والأسعار المتغيرة (السعة، الحجم، إلخ) -->
-                    <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
-                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px;">⚡ خيارات السعة / الحجم بسعار مختلفة (اختياري)</label>
+                    <!-- قسم الخيارات والمواصفات الإضافية المتغيرة (سعات أخرى، ألوان، أحجام) -->
+                    <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ الخيارات والمواصفات الإضافية (سعات، ألوان، أحجام أخرى مع أسعارها)</label>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">أضف الخيارات التي ستظهر للعميل في قائمة المواصفات بجانب السعة الأساسية.</p>
+                        
                         <div id="variants-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
                             <!-- صفوف الخيارات تضاف هنا ديناميكياً -->
                         </div>
-                        <button type="button" onclick="addVariantRow()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة خيار جديد (سعة/حجم بسعر مختلف)</button>
+                        <button type="button" onclick="addVariantRow()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة خيار جديد (سعة/لون/حجم بسعر مختلف)</button>
                     </div>
                     
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف:</label>
                     <select id="p-category" class="form-input">
                         <option value="school">مستلزمات مدرسية</option>
                         <option value="ipads">ايبادات</option>
@@ -214,7 +221,7 @@
                         <thead>
                             <tr>
                                 <th>الصورة</th>
-                                <th>الاسم والسعر والوصف</th>
+                                <th>الاسم والسعر والمواصفات</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
@@ -290,7 +297,7 @@
                 document.getElementById('dashboard-content').style.display = 'block';
                 loadAdminProducts();
                 loadAdminStories();
-                loadAdminCategories(); // تحميل الأقسام فور تسجيل الدخول
+                loadAdminCategories();
             } else {
                 alert("❌ رمز المرور غير صحيح!");
             }
@@ -302,19 +309,18 @@
             btn.classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
 
-            // جلب الأقسام تلقائياً وفورياً عند فتح التبويب الخاص بها
             if (tabName === 'categories') {
                 loadAdminCategories();
             }
         }
 
-        // --- إدارة المتغيرات (السعة/الحجم بأسعار مختلفة) في لوحة التحكم ---
+        // --- إدارة المتغيرات (الخيار والإضافة الديناميكية) ---
         function addVariantRow(name = '', price = '') {
             const container = document.getElementById('variants-container');
             const row = document.createElement('div');
             row.style.cssText = "display: flex; gap: 8px; align-items: center; margin-bottom: 6px;";
             row.innerHTML = `
-                <input type="text" placeholder="اسم الخيار (مثل: 256GB أو L)" value="${name}" class="form-input variant-name" style="flex: 2; margin: 0;">
+                <input type="text" placeholder="اسم الخيار (مثل: 256GB أو أسود)" value="${name}" class="form-input variant-name" style="flex: 2; margin: 0;">
                 <input type="number" placeholder="السعر (د.ع)" value="${price}" class="form-input variant-price" style="flex: 1; margin: 0;">
                 <button type="button" onclick="this.parentElement.remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕</button>
             `;
@@ -334,7 +340,7 @@
                     let p = doc.data();
                     let id = doc.id;
                     let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
-                    let descText = p.description || p.desc || '';
+                    let baseSizeText = p.size || p.storage || p.capacity || 'الأساسي';
                     
                     tbody.innerHTML += `
                         <tr>
@@ -342,7 +348,7 @@
                             <td>
                                 <b>${p.name}</b><br>
                                 <span style="color:var(--accent);">${p.price ? Number(p.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                                <small style="color:var(--text-secondary);">${descText.substring(0, 35)}...</small>
+                                <small style="color:var(--text-secondary);">الحجم الأساسي: ${baseSizeText}</small>
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px;">
@@ -363,17 +369,18 @@
                     let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
                     let extraImgs = p.images && p.images.length > 1 ? p.images.slice(1).join(', ') : '';
                     let descText = p.description || p.desc || '';
+                    let baseSizeText = p.size || p.storage || p.capacity || '';
 
                     document.getElementById('edit-doc-id').value = id;
                     document.getElementById('p-name').value = p.name || '';
                     document.getElementById('p-price').value = p.price || '';
+                    document.getElementById('p-base-size').value = baseSizeText;
                     document.getElementById('p-desc').value = descText;
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
-                    document.getElementById('p-color').value = p.color || '';
                     document.getElementById('p-category').value = p.category || 'school';
 
-                    // تعبئة المتغيرات (الخيارات والأسعار) إن وجدت
+                    // تعبئة المتغيرات والخيارات الإضافية إن وجدت
                     const container = document.getElementById('variants-container');
                     container.innerHTML = '';
                     if (p.variants && Array.isArray(p.variants)) {
@@ -395,13 +402,13 @@
             const docId = document.getElementById('edit-doc-id').value;
             const name = document.getElementById('p-name').value.trim();
             const price = parseInt(document.getElementById('p-price').value.replace(/[^0-9]/g, '')) || 0;
+            const baseSize = document.getElementById('p-base-size').value.trim() || 'الأساسي';
             const description = document.getElementById('p-desc').value.trim();
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value;
-            const colorValue = document.getElementById('p-color').value.trim();
 
-            if (!name || !price || !mainImage) return alert("يرجى ملء الاسم والسعر والصورة الرئيسية على الأقل!");
+            if (!name || !price || !mainImage || !baseSize) return alert("يرجى ملء الاسم، السعر، الحجم الأساسي، والصورة الرئيسية على الأقل!");
 
             let imagesArray = [mainImage];
             if (extraRaw) {
@@ -409,7 +416,7 @@
                 imagesArray = imagesArray.concat(extras);
             }
 
-            // جمع الخيارات والمتغيرات (السعة/الحجم مع أسعارها)
+            // جمع الخيارات والمتغيرات الإضافية
             const variantRows = document.querySelectorAll('#variants-container > div');
             const variants = [];
             variantRows.forEach(row => {
@@ -423,12 +430,13 @@
             const productData = {
                 name: name,
                 price: price,
+                size: baseSize,
+                storage: baseSize,
                 description: description,
                 desc: description,
                 category: category,
                 images: imagesArray,
                 image: mainImage,
-                color: colorValue,
                 variants: variants
             };
 
@@ -454,7 +462,7 @@
             document.getElementById('product-form').reset();
             document.getElementById('edit-doc-id').value = "";
             document.getElementById('variants-container').innerHTML = "";
-            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع الوصف والصور المتعددة)";
+            document.getElementById('form-title').innerText = "➕ إضافة منتج جديد (مع المواصفات والخيارات المتكاملة)";
             document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
             document.getElementById('save-btn').style.background = "#28a745";
             document.getElementById('cancel-btn').style.display = "none";
@@ -523,7 +531,6 @@
                     categories.push({ id: doc.id, ...doc.data() });
                 });
 
-                // 1. تعبئة قائمة اختيار القسم الأب بشكل هرمي دقيق
                 let parentSelect = document.getElementById('cat-parent');
                 if (parentSelect) {
                     parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
@@ -539,7 +546,6 @@
                     renderOptions("");
                 }
 
-                // 2. عرض شجرة الأقسام بالكامل في لوحة التحكم للحذف والإدارة
                 let treeContainer = document.getElementById('admin-categories-tree');
                 if (treeContainer) {
                     if (categories.length === 0) {
