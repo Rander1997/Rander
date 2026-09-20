@@ -1168,11 +1168,14 @@ body.dark-mode textarea {
     <!-- الأقسام -->
         <!-- الأقسام الديناميكية من فايربيس -->
     <div class="categories-section" id="categories-bar">
-        <div class="categories-container" id="store-categories-container">
-            <button class="category-chip active" onclick="filterCategory('all', this)">الكل</button>
-            <!-- سيتم جلب الأقسام المضافة من لوحة التحكم هنا تلقائياً -->
-        </div>
+    <div class="categories-container" id="store-categories-container">
+        <button class="category-chip active" onclick="filterCategory('all', this)">الكل</button>
+        <!-- سيتم جلب الأقسام المضافة من لوحة التحكم هنا تلقائياً -->
     </div>
+    
+    <!-- 🌟 حاوية الأقسام الفرعية التي تظهر أسفل الأقسام الرئيسية -->
+    <div id="subcategories-container" style="display: none; gap: 8px; overflow-x: auto; padding: 5px 0; margin-top: 8px; white-space: nowrap;"></div>
+</div>
 
     <main class="products-section" id="products-section">
         <h2 class="section-title" id="section-heading">جميع المنتجات</h2>
@@ -1816,14 +1819,49 @@ function displayProductModal(product) {
         }
 
         function filterCategory(categoryName, btnElement) {
-            var noResults = document.getElementById('no-results');
-            if (noResults) noResults.style.display = 'none';
-            document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
-            if (btnElement) btnElement.classList.add('active');
-            document.querySelectorAll('.product-card').forEach(function(card) {
-                card.style.display = (categoryName === 'all' || card.getAttribute('data-category') === categoryName) ? 'flex' : 'none';
-            });
-        }
+    var noResults = document.getElementById('no-results');
+    if (noResults) noResults.style.display = 'none';
+    
+    document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
+    if (btnElement) btnElement.classList.add('active');
+
+    // 1. تصفية المنتجات حسب القسم (الرئيسي أو الفرعي)
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        card.style.display = (categoryName === 'all' || card.getAttribute('data-category') === categoryName) ? 'flex' : 'none';
+    });
+
+    // 2. إدارة وتحديث شريط الأقسام الفرعية
+    var subContainer = document.getElementById('subcategories-container');
+    if (!subContainer) return;
+
+    subContainer.innerHTML = ''; // إفراغ الشريط الفرعي مبدئياً
+
+    if (categoryName === 'all') {
+        // إذا ضغط المستخدم على "الكل"، نقوم بإخفاء شريط الأقسام الفرعية
+        subContainer.style.display = 'none';
+        return;
+    }
+
+    // البحث عن الأقسام الفرعية التابعة لهذا القسم
+    let subCategories = categoriesData.filter(cat => cat.parentId === categoryName);
+
+    if (subCategories.length > 0) {
+        subContainer.style.display = 'flex'; // إظهار الشريط الفرعي لوجود أقسام تابعة
+        
+        // زر لتصفية القسم الرئيسي نفسه مع فروعه‌
+        let subHtml = `<button class="category-chip active" onclick="filterCategory('${categoryName}', this)" style="font-size: 12px; padding: 6px 12px;">الكل في ${btnElement ? btnElement.innerText : ''}</button>`;
+        
+        // إضافة الأقسام الفرعية للشريط
+        subCategories.forEach(sub => {
+            subHtml += `<button class="category-chip" onclick="filterCategory('${sub.id}', this)" style="font-size: 12px; padding: 6px 12px;">📁 ${sub.name}</button>`;
+        });
+        
+        subContainer.innerHTML = subHtml;
+    } else {
+        // إذا لم تكن هناك أقسام فرعية، نُخفي الشريط
+        subContainer.style.display = 'none';
+    }
+}
 
         function addToCart(buttonElement, productName, unitPrice) {
             try {
