@@ -150,7 +150,7 @@
     <!-- لوحة التحكم الرئيسية -->
     <div id="dashboard-content" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>⚡ لوحة تحكم راندر المستقلة</h2>
+            <h2>⚡ لوحة تحكم راندر الاحترافية</h2>
             <button class="btn" style="width: auto; background: #64748b; padding: 8px 12px; font-size: 12px;" onclick="location.reload()">قفل التطبيق</button>
         </div>
 
@@ -169,13 +169,10 @@
                     <input type="hidden" id="edit-doc-id">
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📌 اسم المنتج:</label>
-                    <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: iPad Pro)" class="form-input" required>
+                    <input type="text" id="p-name" placeholder="اسم المنتج (مثلاً: iPhone 15 Pro)" class="form-input" required>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">💵 السعر الأساسي للمنتج (د.ع):</label>
                     <input type="text" id="p-price" placeholder="مثلاً: 250000" class="form-input" required>
-
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">🏷️ السعة / الحجم الأساسي المعروض:</label>
-                    <input type="text" id="p-base-size" placeholder="مثلاً: 128GB أو الحجم العادي" class="form-input" required>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📝 وصف وتفاصيل المنتج:</label>
                     <textarea id="p-desc" placeholder="وصف وتفاصيل المنتج الكاملة..." class="form-input" rows="3"></textarea>
@@ -186,27 +183,20 @@
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">2️⃣ صور إضافية للمعرض (اختياري - افصل بينها بفاصلة `,`):</label>
                     <textarea id="p-extra-images" placeholder="https://img2.com/b.jpg, https://img3.com/c.jpg" class="form-input" rows="2"></textarea>
 
-                    <!-- قسم الخيارات والمواصفات الإضافية المتغيرة (سعات أخرى، ألوان، أحجام) -->
+                    <!-- قسم الخيارات والمواصفات الإضافية المتغيرة (ألوان، سعات، أحجام تخصصها بنفسك) -->
                     <div style="background: rgba(15, 23, 42, 0.03); border: 1px dashed var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
-                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ الخيارات والمواصفات الإضافية (سعات، ألوان، أحجام أخرى مع أسعارها)</label>
-                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">أضف الخيارات التي ستظهر للعميل في قائمة المواصفات بجانب السعة الأساسية.</p>
+                        <label style="color: var(--accent); font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px;">⚡ الخيارات والمواصفات المتغيرة (مثل: اللون، السعة، المقاس)</label>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px;">أضف اسم القسم (مثال: اللون) ثم الخيارات التابعة له مع أسعارها.</p>
                         
-                        <div id="variants-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
-                            <!-- صفوف الخيارات تضاف هنا ديناميكياً -->
+                        <div id="variants-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
+                            <!-- صفوف المجموعات والخيارات تضاف ديناميكياً -->
                         </div>
-                        <button type="button" onclick="addVariantRow()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة خيار جديد (سعة/لون/حجم بسعر مختلف)</button>
+                        <button type="button" onclick="addVariantGroup()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة مجموعة خيارات جديدة (مثل: اللون أو الحجم)</button>
                     </div>
                     
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف:</label>
-                    <select id="p-category" class="form-input">
-                        <option value="school">مستلزمات مدرسية</option>
-                        <option value="ipads">ايبادات</option>
-                        <option value="english">English</option>
-                        <option value="phones">هواتف</option>
-                        <option value="used">أجهزة مستعملة</option>
-                        <option value="watches">ساعات ذكية</option>
-                        <option value="gaming">Gaming</option>
-                        <option value="accessories">إكسسوارات</option>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف (يتم جلبه تلقائياً من الأقسام المضافة):</label>
+                    <select id="p-category" class="form-input" required>
+                        <option value="">-- اختر التصنيف المناسب --</option>
                     </select>
 
                     <button type="submit" id="save-btn" class="btn btn-success">نشر المنتج في المتجر 🚀</button>
@@ -221,7 +211,7 @@
                         <thead>
                             <tr>
                                 <th>الصورة</th>
-                                <th>الاسم والسعر والمواصفات</th>
+                                <th>الاسم والسعر والتصنيف</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
@@ -295,9 +285,11 @@
             if (document.getElementById('admin-password').value === "640397") {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
-                loadAdminProducts();
-                loadAdminStories();
-                loadAdminCategories();
+                loadAdminCategoriesData(() => {
+                    loadAdminProducts();
+                    loadAdminStories();
+                    loadAdminCategories();
+                });
             } else {
                 alert("❌ رمز المرور غير صحيح!");
             }
@@ -311,20 +303,76 @@
 
             if (tabName === 'categories') {
                 loadAdminCategories();
+            } else if (tabName === 'products') {
+                loadAdminCategoriesData();
             }
         }
 
-        // --- إدارة المتغيرات (الخيار والإضافة الديناميكية) ---
-        function addVariantRow(name = '', price = '') {
+        // --- جلب الأقسام لتحديث قائمة التصنيفات في نموذج المنتجات ولحظياً ---
+        function loadAdminCategoriesData(callback) {
+            db.collection("categories").get().then((snapshot) => {
+                let categories = [];
+                snapshot.forEach((doc) => {
+                    categories.push({ id: doc.id, ...doc.data() });
+                });
+
+                // تحديث قائمة التصنيفات في نموذج المنتجات تلقائياً
+                const productCategorySelect = document.getElementById('p-category');
+                if (productCategorySelect) {
+                    let currentSelected = productCategorySelect.value;
+                    productCategorySelect.innerHTML = '<option value="">-- اختر التصنيف المناسب --</option>';
+                    categories.forEach(cat => {
+                        productCategorySelect.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+                    });
+                    productCategorySelect.value = currentSelected;
+                }
+
+                if (callback) callback();
+            });
+        }
+
+        // --- إدارة المتغيرات والمواصفات الديناميكية (اللون، الحجم، وغيرها) ---
+        function addVariantGroup(groupTitle = '', items = []) {
             const container = document.getElementById('variants-container');
-            const row = document.createElement('div');
-            row.style.cssText = "display: flex; gap: 8px; align-items: center; margin-bottom: 6px;";
-            row.innerHTML = `
-                <input type="text" placeholder="اسم الخيار (مثل: 256GB أو أسود)" value="${name}" class="form-input variant-name" style="flex: 2; margin: 0;">
-                <input type="number" placeholder="السعر (د.ع)" value="${price}" class="form-input variant-price" style="flex: 1; margin: 0;">
-                <button type="button" onclick="this.parentElement.remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 10px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕</button>
+            const groupId = 'group_' + Date.now() + Math.random().toString(36).substr(2, 5);
+            
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'variant-group-box';
+            groupDiv.style.cssText = "background: #fff; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 8px;";
+            
+            groupDiv.innerHTML = `
+                <div style="display: flex; gap: 8px; margin-bottom: 6px; align-items: center;">
+                    <input type="text" placeholder="اسم القسم (مثال: اللون أو الحجم)" value="${groupTitle}" class="form-input variant-group-title" style="flex: 2; margin: 0; font-weight: bold; color: var(--accent);" required>
+                    <button type="button" onclick="this.closest('.variant-group-box').remove()" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">حذف المجموعة ✕</button>
+                </div>
+                <div class="variant-items-list" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; padding-right: 10px;"></div>
+                <button type="button" onclick="addVariantItem('${groupId}')" style="background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ إضافة خيار جديد لهذه المجموعة</button>
             `;
-            container.appendChild(row);
+            
+            groupDiv.querySelector('.variant-items-list').id = groupId;
+            container.appendChild(groupDiv);
+
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    addVariantItem(groupId, item.name, item.price);
+                });
+            } else {
+                addVariantItem(groupId);
+            }
+        }
+
+        function addVariantItem(groupId, itemName = '', itemPrice = '') {
+            const itemsContainer = document.getElementById(groupId);
+            if (!itemsContainer) return;
+
+            const itemRow = document.createElement('div');
+            itemRow.style.cssText = "display: flex; gap: 6px; align-items: center;";
+            itemRow.innerHTML = `
+                <input type="text" placeholder="اسم الخيار (مثل: أسود أو 256GB)" value="${itemName}" class="form-input v-item-name" style="flex: 2; margin: 0;">
+                <input type="number" placeholder="السعر (د.ع)" value="${itemPrice}" class="form-input v-item-price" style="flex: 1; margin: 0;">
+                <button type="button" onclick="this.parentElement.remove()" style="background: none; color: #ef4444; border: none; font-weight: bold; cursor: pointer; padding: 4px 8px;">✕</button>
+            `;
+            itemsContainer.appendChild(itemRow);
         }
 
         // --- إدارة المنتجات ---
@@ -340,7 +388,6 @@
                     let p = doc.data();
                     let id = doc.id;
                     let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
-                    let baseSizeText = p.size || p.storage || p.capacity || 'الأساسي';
                     
                     tbody.innerHTML += `
                         <tr>
@@ -348,7 +395,7 @@
                             <td>
                                 <b>${p.name}</b><br>
                                 <span style="color:var(--accent);">${p.price ? Number(p.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                                <small style="color:var(--text-secondary);">الحجم الأساسي: ${baseSizeText}</small>
+                                <small style="color:var(--text-secondary);">التصنيف: ${p.category || 'عام'}</small>
                             </td>
                             <td>
                                 <div style="display: flex; gap: 6px;">
@@ -369,23 +416,21 @@
                     let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
                     let extraImgs = p.images && p.images.length > 1 ? p.images.slice(1).join(', ') : '';
                     let descText = p.description || p.desc || '';
-                    let baseSizeText = p.size || p.storage || p.capacity || '';
 
                     document.getElementById('edit-doc-id').value = id;
                     document.getElementById('p-name').value = p.name || '';
                     document.getElementById('p-price').value = p.price || '';
-                    document.getElementById('p-base-size').value = baseSizeText;
                     document.getElementById('p-desc').value = descText;
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
-                    document.getElementById('p-category').value = p.category || 'school';
+                    document.getElementById('p-category').value = p.category || '';
 
-                    // تعبئة المتغيرات والخيارات الإضافية إن وجدت
+                    // تعبئة مجموعات الخيارات والمواصفات
                     const container = document.getElementById('variants-container');
                     container.innerHTML = '';
                     if (p.variants && Array.isArray(p.variants)) {
-                        p.variants.forEach(v => {
-                            addVariantRow(v.name, v.price);
+                        p.variants.forEach(group => {
+                            addVariantGroup(group.categoryName || group.title || 'خيارات', group.items || group.options || []);
                         });
                     }
 
@@ -402,13 +447,12 @@
             const docId = document.getElementById('edit-doc-id').value;
             const name = document.getElementById('p-name').value.trim();
             const price = parseInt(document.getElementById('p-price').value.replace(/[^0-9]/g, '')) || 0;
-            const baseSize = document.getElementById('p-base-size').value.trim() || 'الأساسي';
             const description = document.getElementById('p-desc').value.trim();
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value;
 
-            if (!name || !price || !mainImage || !baseSize) return alert("يرجى ملء الاسم، السعر، الحجم الأساسي، والصورة الرئيسية على الأقل!");
+            if (!name || !price || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، التصنيف، والصورة الرئيسية على الأقل!");
 
             let imagesArray = [mainImage];
             if (extraRaw) {
@@ -416,22 +460,32 @@
                 imagesArray = imagesArray.concat(extras);
             }
 
-            // جمع الخيارات والمتغيرات الإضافية
-            const variantRows = document.querySelectorAll('#variants-container > div');
+            // جمع مجموعات الخيارات والمواصفات المخصصة
+            const groupBoxes = document.querySelectorAll('.variant-group-box');
             const variants = [];
-            variantRows.forEach(row => {
-                const vName = row.querySelector('.variant-name').value.trim();
-                const vPrice = parseInt(row.querySelector('.variant-price').value.replace(/[^0-9]/g, '')) || price;
-                if (vName) {
-                    variants.push({ name: vName, price: vPrice });
+            groupBoxes.forEach(box => {
+                const groupTitle = box.querySelector('.variant-group-title').value.trim() || 'خيارات';
+                const itemRows = box.querySelectorAll('.v-item-name');
+                const items = [];
+                
+                itemRows.forEach(iRow => {
+                    const itemName = iRow.value.trim();
+                    const itemPriceInput = iRow.parentElement.querySelector('.v-item-price');
+                    const itemPrice = itemPriceInput && itemPriceInput.value !== '' ? parseInt(itemPriceInput.value.replace(/[^0-9]/g, '')) : price;
+                    
+                    if (itemName) {
+                        items.push({ name: itemName, price: itemPrice });
+                    }
+                });
+
+                if (items.length > 0) {
+                    variants.push({ categoryName: groupTitle, items: items });
                 }
             });
 
             const productData = {
                 name: name,
                 price: price,
-                size: baseSize,
-                storage: baseSize,
                 description: description,
                 desc: description,
                 category: category,
@@ -571,6 +625,9 @@
 
                     treeContainer.innerHTML = buildAdminTree("");
                 }
+
+                // تحديث قائمة الأقسام للمنتجات أيضاً فورياً
+                loadAdminCategoriesData();
             }).catch(err => {
                 console.error("Error loading categories: ", err);
             });
@@ -594,9 +651,9 @@
         }
 
         function deleteCategory(catId) {
-            if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
+            if (confirm("هل أنت متأكد من حذف هذا القسم؟ سيتم تحديث القوائم تلقائياً.")) {
                 db.collection("categories").doc(catId).delete().then(() => {
-                    alert("🗑️ تم حذف القسم.");
+                    alert("🗑️ تم حذف القسم وتحديث القوائم بنجاح.");
                     loadAdminCategories();
                 }).catch(err => alert("❌ خطأ: " + err.message));
             }
