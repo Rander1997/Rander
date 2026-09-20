@@ -2593,7 +2593,7 @@ function renderProductsList(productsArray, gridElement) {
         let card = document.createElement('div');
 card.className = 'product-card';
 card.setAttribute('data-id', productId);
-card.setAttribute('data-category', product.category || 'all');
+card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
 
 let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 let basePrice = Number(product.price) || 0;
