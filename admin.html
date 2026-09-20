@@ -143,7 +143,7 @@
     <div id="login-screen">
         <h2>🔐 تطبيق أدمن راندر</h2>
         <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للتحكم الكامل</p>
-        <input type="password" id="admin-password" placeholder="رمز المرور (640397)" class="form-input">
+        <input type="password" id="admin-password" placeholder="hmmm" class="form-input">
         <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
     </div>
 
@@ -469,43 +469,53 @@ function loadAdminCategories() {
             categories.push({ id: doc.id, ...doc.data() });
         });
 
-        // 1. تعبئة قائمة اختيار القسم الأب في النموذج
+        // 1. تعبئة قائمة اختيار القسم الأب بشكل هرمي دقيق
         let parentSelect = document.getElementById('cat-parent');
         parentSelect.innerHTML = '<option value="">-- قسم رئيسي (بدون أب) --</option>';
-        categories.forEach(cat => {
-            parentSelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-        });
 
-        // 2. عرض الشجرة الهرمية للأقسام
+        // دالة مساعدة لترتيب وعرض الأقسام بصيغة متداخلة في القائمة المنسدلة
+        function renderOptions(parentId = "", prefix = "") {
+            let filtered = categories.filter(c => (c.parentId || "") === parentId);
+            filtered.forEach(cat => {
+                parentSelect.innerHTML += `<option value="${cat.id}">${prefix} 📁 ${cat.name}</option>`;
+                // استدعاء الأقسام التابعة لهذا القسم لتظهر تحته مباشرة وبشكل متداخل
+                renderOptions(cat.id, prefix + " — ");
+            });
+        }
+
+        renderOptions("");
+
+        // 2. عرض شجرة الأقسام بالكامل في لوحة التحكم للحذف والإدارة
         let treeContainer = document.getElementById('admin-categories-tree');
         if (categories.length === 0) {
             treeContainer.innerHTML = 'لا توجد أقسام مسجلة حالياً.';
             return;
         }
 
-        // بناء الشجرة ديناميكياً لأي عدد من المستويات اللانهائية
-        function buildTree(parentId = "") {
+        function buildAdminTree(parentId = "") {
             let filtered = categories.filter(c => (c.parentId || "") === parentId);
             if (filtered.length === 0) return "";
             
-            let html = "<ul style='list-style-type: disc; margin-right: 20px;'>";
+            let html = "<ul style='list-style-type: none; padding-right: 15px; margin: 5px 0;'>";
             filtered.forEach(cat => {
-                html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">
+                html += `<li style="margin: 6px 0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
                     <span>📁 <b>${cat.name}</b></span>
-                    <button class="btn btn-danger" style="width: auto; padding: 2px 8px; font-size: 11px;" onclick="deleteCategory('${cat.id}')">حذف</button>
+                    <button class="btn btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="deleteCategory('${cat.id}')">حذف</button>
                 </li>`;
-                // استدعاء دالة بناء الفروع الفرعية إلى مالا نهاية (Nested recursion)
-                html += buildTree(cat.id);
+                // عرض الأقسام الفرعية المتداخلة إلى مالا نهاية
+                html += buildAdminTree(cat.id);
             });
             html += "</ul>";
             return html;
         }
 
-        treeContainer.innerHTML = buildTree("");
+        treeContainer.innerHTML = buildAdminTree("");
+    }).catch(err => {
+        console.error("Error loading categories: ", err);
     });
 }
 
-// حفظ القسم الجديد في فايربيس
+// حفظ القسم الجديد في فايربيس (يبقى كما هو)
 function saveCategory() {
     const name = document.getElementById('cat-name').value.trim();
     const parentId = document.getElementById('cat-parent').value;
@@ -514,7 +524,7 @@ function saveCategory() {
 
     db.collection("categories").add({
         name: name,
-        parentId: parentId || "", // إذا كان فارغاً فهوا قسم رئيسي
+        parentId: parentId || "", 
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         alert("📁 تم إضافة القسم بنجاح!");
@@ -523,7 +533,7 @@ function saveCategory() {
     }).catch(err => alert("❌ خطأ: " + err.message));
 }
 
-// حذف قسم
+// حذف قسم (يبقى كما هو)
 function deleteCategory(catId) {
     if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
         db.collection("categories").doc(catId).delete().then(() => {
