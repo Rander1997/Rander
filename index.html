@@ -2609,11 +2609,11 @@ if (product.variants && product.variants.length > 0) {
         let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
         let groupItems = group.items || group.options || [];
 
-        // ضبط التصميم بحيث تظهر كلمة "اختر" وبجانبها اسم الخيار (اللون، السعة، الحجم) داخل القائمة بنفس الحجم تماماً
+        // ترتيب الأماكن: القائمة في اليمين والعنوان في اليسار تماماً مثل الصورة
         variantsHtml += `
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px;">
-                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: right;">اختر:</span>
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="flex: 1; max-width: 140px; padding: 6px 10px; border-radius: 8px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 11px; cursor: pointer; text-align: right;">
+                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: right;">اختر ${groupTitle}:</span>
+                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="flex: 1; max-width: 120px; padding: 6px 10px; border-radius: 8px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 11px; cursor: pointer; text-align: right;">
                     <option value="" disabled selected>${groupTitle}</option>
         `;
 
@@ -2624,13 +2624,6 @@ if (product.variants && product.variants.length > 0) {
                 variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
             });
         }
-
-        variantsHtml += `
-                </select>
-            </div>
-        `;
-    });
-}
 
         variantsHtml += `
                 </select>
