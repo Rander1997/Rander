@@ -2599,7 +2599,7 @@ card.className = 'product-card';
 card.setAttribute('data-id', productId);
 card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
 
-letlet mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
+let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
 let basePrice = Number(product.price) || 0;
 
 let variantsHtml = '';
@@ -2609,7 +2609,7 @@ if (product.variants && product.variants.length > 0) {
         let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
         let groupItems = group.items || group.options || [];
 
-        // ترتيب الأماكن: القائمة في اليمين وكلمة اختر بجانبها اسم المجموعة (اللون، السعة، الحجم) في اليسار
+        // ترتيب الأماكن: القائمة في اليمين والعنوان في اليسار تماماً مثل الصورة
         variantsHtml += `
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px;">
                 <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: right;">اختر ${groupTitle}:</span>
