@@ -2609,11 +2609,11 @@ if (product.variants && product.variants.length > 0) {
         let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
         let groupItems = group.items || group.options || [];
 
-        // تصغير القوائم المنسدلة لتكون صغيرة جداً، مع الحفاظ على محاذاة كلمة "اختر" فوق بعضها بدقة
+        // تقليل الارتفاع والطول (padding رأسي أصغر) لتصبح القائمة قصيرة وغير طويلة، مع ثبات حجم الخط والمحاذاة
         variantsHtml += `
             <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 6px; gap: 8px;">
                 <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left; width: 42px;">اختر:</span>
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 85px; padding: 3px 6px; border-radius: 6px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
+                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 85px; height: 26px; padding: 0 6px; border-radius: 6px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 11px; cursor: pointer; text-align: right; line-height: 26px;">
                     <option value="" disabled selected>${groupTitle}</option>
         `;
 
