@@ -1080,6 +1080,21 @@ body.dark-mode textarea {
         background: rgba(15, 23, 42, 0.95) !important;
     }
 }
+
+/* تخصيص أزرار الدفع الثلاثة بألوان مختلفة ومميزة عن أزرار المتجر */
+button.btn[onclick*="sendOrder"] {
+    background: linear-gradient(135deg, #059669, #10b981) !important;
+    border: 1px solid #34d399 !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+}
+
+button.btn[onclick*="sendOrder"]:hover {
+    background: linear-gradient(135deg, #047857, #059669) !important;
+    border-color: #6ee7b7 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+    transform: translateY(-2px);
+}
+
         
 </style>
 
