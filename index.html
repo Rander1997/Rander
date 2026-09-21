@@ -1021,14 +1021,13 @@ body.dark-mode textarea {
     left: 100%;
 }
 /* --- التصميم المستقبلي العام للأزرار (عام 2100 - Cyberpunk Glass) --- */
-.btn, button:not(.category-chip):not(.cart-qty-btn):not(.cart-item-delete-btn):not(.delete-btn):not(.nav-btn) {
+.btn, button:not(.category-chip):not(.cart-qty-btn):not(.cart-item-delete-btn):not(.delete-btn):not(.nav-btn):not([onclick*="sendOrder"]) {
     background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8)) !important;
     color: #38bdf8 !important;
     border: 1px solid rgba(56, 189, 248, 0.4) !important;
-    padding: 5px 10px;
-    border-radius: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
     font-weight: 600;
-    font-size: 11px;
     cursor: pointer;
     backdrop-filter: blur(12px);
     box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
@@ -1036,7 +1035,7 @@ body.dark-mode textarea {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .btn:hover, button:not(.category-chip):not(.cart-qty-btn):not(.cart-item-delete-btn):not(.delete-btn):not(.nav-btn):hover {
