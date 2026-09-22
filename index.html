@@ -1760,10 +1760,18 @@ function displayProductModal(product) {
             var thumb = document.createElement('img');
             thumb.src = imgSrc;
             thumb.className = 'gallery-thumb' + (idx === 0 ? ' active' : '');
+            
+            // تنسيق بسيط للصور المصغرة لضمان ظهورها بشكل جميل ومتناسق
+            thumb.style.cssText = "width: 65px; height: 65px; border-radius: 12px; object-fit: cover; cursor: pointer; border: 2px solid " + (idx === 0 ? "#2563eb" : "#e2e8f0") + "; flex-shrink: 0; background: #f8fafc; transition: 0.2s;";
+
             thumb.onclick = function() {
                 mainImg.src = imgSrc;
-                document.querySelectorAll('.gallery-thumb').forEach(function(t) { t.classList.remove('active'); });
+                Array.from(thumbsContainer.querySelectorAll('.gallery-thumb')).forEach(function(t) { 
+                    t.classList.remove('active'); 
+                    t.style.borderColor = "#e2e8f0";
+                });
                 thumb.classList.add('active');
+                thumb.style.borderColor = "#2563eb";
             };
             thumbsContainer.appendChild(thumb);
         });
@@ -1783,13 +1791,16 @@ function displayProductModal(product) {
     var modal = document.getElementById('detail-modal');
     if (modal) {
         modal.style.display = 'flex';
-        modal.style.backdropFilter = 'blur(15px)';
+        modal.style.backdropFilter = 'blur(8px)';
     }
     
-    renderRecommendations(product.id);
+    // استدعاء دالة عرض المنتجات المقترحة إذا كانت موجودة لديك
+    if (typeof renderRecommendations === 'function') {
+        renderRecommendations(product.id);
+    }
 
     // ==========================================
-    // الإضافات الجديدة الخاصة بالحركة والسحب الآلي
+    // الإضافات الخاصة بالحركة والسحب الآلي
     // ==========================================
     if (images.length > 1) {
         // إيقاف أي مؤقت سابق لكي لا يتداخل
@@ -1842,10 +1853,16 @@ function displayProductModal(product) {
     }
 }
 
-        function closeDetailModal() { 
-            var modal = document.getElementById('detail-modal');
-            if (modal) modal.style.display = 'none'; 
-        }
+// دالة إغلاق النافذة مع إيقاف مؤقت تقليب الصور التلقائي
+function closeDetailModal() {
+    var modal = document.getElementById('detail-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    if (window._autoSlideInterval) {
+        clearInterval(window._autoSlideInterval);
+    }
+}
 
         function addToCartDirect(productName, unitPrice) {
             addToCart(null, productName, unitPrice);
