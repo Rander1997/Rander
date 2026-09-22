@@ -1129,34 +1129,37 @@ button.btn[onclick*="sendOrder"]:hover {
     }
 
 /* تطبيق فكرة الشاشة الكبيرة بتنسيق ذكي ومريح على الشاشات الصغيرة والهواتف */
+/* ضبط بطاقة المنتج لتكون شبه مربعة وأنيقة على الشاشات الصغيرة */
 @media (max-width: 768px) {
     .products-grid {
-        grid-template-columns: repeat(2, 1fr) !important; /* منتجان في كل صف كالمتاجر العالمية */
-        gap: 10px !important;                             /* مسافات متوازنة وصغيرة تناسب الموبايل */
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
         padding: 8px !important;
     }
 
     .product-card {
-        border-radius: 14px !important;                   /* زوايا دائرية ناعمة تحاكي فخامة الشاشة الكبيرة */
-        padding: 10px !important;                         /* هوامش داخلية مريحة لا تضغط المحتوى */
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+        border-radius: 14px !important;
+        padding: 8px !important; /* تقليل الهوامش الداخلية لتصبح البطاقة متناسقة وليست طويلة */
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04) !important;
     }
 
     .product-image {
-        height: 135px !important;                         /* ارتفاع مثالي وذكي للصورة لتبدو واضحة دون أن تستهلك مساحة الشاشة */
+        height: 110px !important; /* تقليل ارتفاع الصورة لتأخذ طابعاً يشبه المربع المختصر */
         object-fit: contain !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 6px !important;
     }
 
     .product-title {
-        font-size: 12px !important;                       /* خط واضح وصغير يتحمله الموبايل دون ازدحام */
-        line-height: 1.3 !important;
+        font-size: 12px !important;
+        line-height: 1.2 !important;
         margin-bottom: 4px !important;
+        max-height: 2.4em !important; /* تقييد العنوان بسطرين كحد أقصى لمنع الطول الزائد */
+        overflow: hidden !important;
     }
 
     .product-price {
-        font-size: 13px !important;                       /* سعر بارز ومنسق بنفس روح الشاشة الكبيرة */
-        margin-bottom: 8px !important;
+        font-size: 13px !important;
+        margin-bottom: 6px !important;
     }
 }
 
