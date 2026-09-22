@@ -1097,11 +1097,21 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* كود التوافق العام لتثبيت عرض تفاصيل المنتج على جميع الشاشات بنفس الشكل */
 @media (max-width: 768px) {
+    /* النافذة مخفية افتراضياً ولا تفتح إلا عند النقر عليها برمجيراً */
     #detail-modal {
-        display: flex !important;
+        display: none; 
+        position: fixed !important;
+        inset: 0 !important;
         align-items: center !important;
         justify-content: center !important;
         padding: 10px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        z-index: 99999 !important;
+    }
+    /* إذا فتحت النافذة وأصبحت active أو تم تغيير عرضها عبر الجافاسكريبت */
+    #detail-modal[style*="display: block"],
+    #detail-modal[style*="display: flex"] {
+        display: flex !important;
     }
     #detail-modal .modal-card {
         width: 100% !important;
