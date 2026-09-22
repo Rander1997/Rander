@@ -2238,9 +2238,14 @@ iconEl.innerHTML = '<img src="https://i.imgur.com/Heerq69.png" alt="ZainCash" st
                 cartArray.forEach(function(item, i) {
                     var qty = item.qty || 1;
                     var itemTotal = (Number(item.price) || 0) * qty;
-                    subtotal += itemTotal;
-                    var optionText = item.option ? " (" + item.option + ")" : "";
-                    itemList += (i + 1) + ". 🛒 " + (item.name || item.title) + optionText + " *x" + qty + "* - " + itemTotal.toLocaleString('ar-IQ') + " د.ع\n";
+subtotal += itemTotal;
+var optionText = item.option ? " (" + item.option + ")" : "";
+
+// أضفنا هذا السطر لجلب اسم الشركة إذا كان موجوداً
+var supplierText = item.supplier ? " 🏢 المورد: " + item.supplier : "";
+
+// أضفنا supplierText هنا لكي يظهر في الرسالة
+itemList += (i + 1) + ". " + (item.name || item.title) + optionText + supplierText + " - الكمية: " + qty + " - السعر: " + itemTotal.toLocaleString('ar-IQ') + " د.ع\n";
                 });
 
                 var grandTotal = subtotal + deliveryCost;
