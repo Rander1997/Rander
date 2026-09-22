@@ -173,6 +173,10 @@
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">💵 السعر الأساسي للمنتج (د.ع):</label>
                     <input type="text" id="p-price" placeholder="مثلاً: 250000" class="form-input" required>
+
+                    <!-- حقل الشركة الموردة للمنتج -->
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">🏢 اسم الشركة الموردة للمنتج:</label>
+                    <input type="text" id="p-supplier" placeholder="مثلاً: شركة الفرات للتجارة" class="form-input" required>
                     
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📝 وصف وتفاصيل المنتج:</label>
                     <textarea id="p-desc" placeholder="وصف وتفاصيل المنتج الكاملة..." class="form-input" rows="3"></textarea>
@@ -209,7 +213,7 @@
                         <thead>
                             <tr>
                                 <th>الصورة</th>
-                                <th>الاسم والسعر والتصنيف</th>
+                                <th>الاسم والسعر والتصنيف والشركة</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
@@ -229,6 +233,10 @@
                     <input type="hidden" id="edit-story-id">
                     <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عرض خاص)" class="form-input" required>
                     <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
+                    
+                    <!-- حقل الشركة الموردة للستوري -->
+                    <input type="text" id="s-supplier" placeholder="اسم الشركة الموردة للستوري (مثلاً: شركة الفرات)" class="form-input" required>
+                    
                     <input type="url" id="s-image" placeholder="رابط صورة الستوري الطولية (تيك توك 9:16)" class="form-input" required>
                     
                     <button type="submit" id="story-save-btn" class="btn btn-success">نشر الستوري في المتجر 🚀</button>
@@ -244,7 +252,7 @@
                         <thead>
                             <tr>
                                 <th>الصورة</th>
-                                <th>العنوان والسعر</th>
+                                <th>العنوان والسعر والشركة</th>
                                 <th>إجراء</th>
                             </tr>
                         </thead>
@@ -411,7 +419,7 @@
                         <td>
                             <b>${p.name}</b><br>
                             <span style="color:var(--accent);">${p.price ? Number(p.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                            <small style="color:var(--text-secondary);">التصنيف: ${p.category || 'عام'}</small>
+                            <small style="color:var(--text-secondary);">التصنيف: ${p.category || 'عام'} | الشركة: <b>${p.supplier || 'غير محدد'}</b></small>
                         </td>
                         <td>
                             <div style="display: flex; gap: 6px;">
@@ -428,7 +436,8 @@
             const query = document.getElementById('search-products').value.trim().toLowerCase();
             const filtered = allProductsCache.filter(p => 
                 (p.name && p.name.toLowerCase().includes(query)) || 
-                (p.category && p.category.toLowerCase().includes(query))
+                (p.category && p.category.toLowerCase().includes(query)) ||
+                (p.supplier && p.supplier.toLowerCase().includes(query))
             );
             renderProductsTable(filtered);
         }
@@ -444,6 +453,7 @@
                     document.getElementById('edit-doc-id').value = id;
                     document.getElementById('p-name').value = p.name || '';
                     document.getElementById('p-price').value = p.price || '';
+                    document.getElementById('p-supplier').value = p.supplier || '';
                     document.getElementById('p-desc').value = descText;
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
@@ -470,12 +480,13 @@
             const docId = document.getElementById('edit-doc-id').value;
             const name = document.getElementById('p-name').value.trim();
             const price = parseInt(document.getElementById('p-price').value.replace(/[^0-9]/g, '')) || 0;
+            const supplier = document.getElementById('p-supplier').value.trim();
             const description = document.getElementById('p-desc').value.trim();
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
             const category = document.getElementById('p-category').value.trim();
 
-            if (!name || !price || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، التصنيف، والصورة الرئيسية على الأقل!");
+            if (!name || !price || !supplier || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، اسم الشركة، التصنيف، والصورة الرئيسية على الأقل!");
 
             let imagesArray = [mainImage];
             if (extraRaw) {
@@ -508,6 +519,7 @@
             const productData = {
                 name: name,
                 price: price,
+                supplier: supplier,
                 description: description,
                 desc: description,
                 category: category,
@@ -545,103 +557,108 @@
         }
 
         // --- إدارة الستوريات ---
-        // --- إدارة الستوريات (محدثة لتتطابق مع آلية التحديث الفوري) ---
-function loadAdminStories() {
-    db.collection("stories").get().then((snapshot) => {
-        allStoriesCache = [];
-        snapshot.forEach((doc) => {
-            allStoriesCache.push({ id: doc.id, ...doc.data() });
-        });
-        renderStoriesTable(allStoriesCache);
-    });
-}
-
-function renderStoriesTable(stories) {
-    const tbody = document.getElementById('admin-stories-list');
-    tbody.innerHTML = '';
-    if (stories.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات مطابقة.</td></tr>';
-        return;
-    }
-    stories.forEach((s) => {
-        tbody.innerHTML += `
-            <tr>
-                <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
-                <td>
-                    <b>${s.title}</b><br>
-                    <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span>
-                </td>
-                <td>
-                    <div style="display: flex; gap: 6px;">
-                        <button class="btn btn-warning" onclick="prepareEditStory('${s.id}')">تعديل</button>
-                        <button class="btn btn-danger" onclick="deleteDocItem('stories', '${s.id}', loadAdminStories)">حذف</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function filterAdminStories() {
-    const query = document.getElementById('search-stories').value.trim().toLowerCase();
-    const filtered = allStoriesCache.filter(s => s.title && s.title.toLowerCase().includes(query));
-    renderStoriesTable(filtered);
-}
-
-function prepareEditStory(id) {
-    db.collection("stories").doc(id).get().then((doc) => {
-        if (doc.exists) {
-            let s = doc.data();
-            document.getElementById('edit-story-id').value = id;
-            document.getElementById('s-title').value = s.title || '';
-            document.getElementById('s-price').value = s.price || '';
-            document.getElementById('s-image').value = s.image || '';
-
-            document.getElementById('story-form-title').innerText = "✏️ تعديل الستوري";
-            document.getElementById('story-save-btn').innerText = "حفظ التعديلات";
-            document.getElementById('story-save-btn').style.background = "#f59e0b";
-            document.getElementById('story-cancel-btn').style.display = "block";
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function loadAdminStories() {
+            db.collection("stories").get().then((snapshot) => {
+                allStoriesCache = [];
+                snapshot.forEach((doc) => {
+                    allStoriesCache.push({ id: doc.id, ...doc.data() });
+                });
+                renderStoriesTable(allStoriesCache);
+            });
         }
-    });
-}
 
-function saveStory() {
-    const docId = document.getElementById('edit-story-id').value;
-    const title = document.getElementById('s-title').value.trim();
-    const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
-    const image = document.getElementById('s-image').value.trim();
+        function renderStoriesTable(stories) {
+            const tbody = document.getElementById('admin-stories-list');
+            tbody.innerHTML = '';
+            if (stories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد ستوريات مطابقة.</td></tr>';
+                return;
+            }
+            stories.forEach((s) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
+                        <td>
+                            <b>${s.title}</b><br>
+                            <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
+                            <small style="color:var(--text-secondary);">الشركة: <b>${s.supplier || 'غير محدد'}</b></small>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-warning" onclick="prepareEditStory('${s.id}')">تعديل</button>
+                                <button class="btn btn-danger" onclick="deleteDocItem('stories', '${s.id}', loadAdminStories)">حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
 
-    if (!title || !image || !price) return alert("يرجى ملء العنوان، السعر، ورابط الصورة الطولية!");
+        function filterAdminStories() {
+            const query = document.getElementById('search-stories').value.trim().toLowerCase();
+            const filtered = allStoriesCache.filter(s => 
+                (s.title && s.title.toLowerCase().includes(query)) || 
+                (s.supplier && s.supplier.toLowerCase().includes(query))
+            );
+            renderStoriesTable(filtered);
+        }
 
-    const storyData = { title: title, price: price, image: image };
+        function prepareEditStory(id) {
+            db.collection("stories").doc(id).get().then((doc) => {
+                if (doc.exists) {
+                    let s = doc.data();
+                    document.getElementById('edit-story-id').value = id;
+                    document.getElementById('s-title').value = s.title || '';
+                    document.getElementById('s-price').value = s.price || '';
+                    document.getElementById('s-supplier').value = s.supplier || '';
+                    document.getElementById('s-image').value = s.image || '';
 
-    if (docId) {
-        db.collection("stories").doc(docId).update(storyData).then(() => {
-            alert("تم تعديل الستوري بنجاح 🛠️");
-            resetStoryForm();
-            loadAdminStories();
-        }).catch(err => alert("خطأ: " + err.message));
-    } else {
-        storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        db.collection("stories").add(storyData).then(() => {
-            alert("📸 تم نشر الستوري بنجاح!");
-            resetStoryForm();
-            loadAdminStories();
-        }).catch(error => {
-            alert("❌ خطأ أثناء النشر: " + error.message);
-        });
-    }
-}
+                    document.getElementById('story-form-title').innerText = "✏️ تعديل الستوري";
+                    document.getElementById('story-save-btn').innerText = "حفظ التعديلات";
+                    document.getElementById('story-save-btn').style.background = "#f59e0b";
+                    document.getElementById('story-cancel-btn').style.display = "block";
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }
+            });
+        }
 
-function resetStoryForm() {
-    document.getElementById('story-form').reset();
-    document.getElementById('edit-story-id').value = "";
-    document.getElementById('story-form-title').innerText = "📸 نشر ستوري جديد (مستقل بسعر وزر شراء)";
-    document.getElementById('story-save-btn').innerText = "نشر الستوري في المتجر 🚀";
-    document.getElementById('story-save-btn').style.background = "#28a745";
-    document.getElementById('story-cancel-btn').style.display = "none";
-}
+        function saveStory() {
+            const docId = document.getElementById('edit-story-id').value;
+            const title = document.getElementById('s-title').value.trim();
+            const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
+            const supplier = document.getElementById('s-supplier').value.trim();
+            const image = document.getElementById('s-image').value.trim();
+
+            if (!title || !image || !price || !supplier) return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط الصورة الطولية!");
+
+            const storyData = { title: title, price: price, supplier: supplier, image: image };
+
+            if (docId) {
+                db.collection("stories").doc(docId).update(storyData).then(() => {
+                    alert("تم تعديل الستوري بنجاح 🛠️");
+                    resetStoryForm();
+                    loadAdminStories();
+                }).catch(err => alert("خطأ: " + err.message));
+            } else {
+                storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("stories").add(storyData).then(() => {
+                    alert("📸 تم نشر الستوري بنجاح!");
+                    resetStoryForm();
+                    loadAdminStories();
+                }).catch(error => {
+                    alert("❌ خطأ أثناء النشر: " + error.message);
+                });
+            }
+        }
+
+        function resetStoryForm() {
+            document.getElementById('story-form').reset();
+            document.getElementById('edit-story-id').value = "";
+            document.getElementById('story-form-title').innerText = "📸 نشر ستوري جديد (مستقل بسعر وزر شراء)";
+            document.getElementById('story-save-btn').innerText = "نشر الستوري في المتجر 🚀";
+            document.getElementById('story-save-btn').style.background = "#28a745";
+            document.getElementById('story-cancel-btn').style.display = "none";
+        }
 
         function deleteDocItem(collectionName, docId, callback) {
             if (confirm("هل أنت متأكد من الحذف؟")) {
