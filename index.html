@@ -1133,37 +1133,87 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* ضغط البطاقة وقصر طولها لتصبح مربعة وفاخرة تماماً على الموبايل */
 /* ترتيب كلمة اختر والقائمة تحت السعر وإلى اليمين تماماً بدون طول زائد */
-@media (max-width: 480px) {
-    .products-section {
-        padding: 16px 16px 32px;
-    }
+@media (max-width: 768px) {
     .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        padding: 6px !important;
     }
+
     .product-card {
-        padding: 10px;
-        border-radius: 14px;
+        border-radius: 12px !important;
+        padding: 8px !important;
+        min-height: unset !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
+
     .product-image {
-        height: 140px;
-        margin-bottom: 10px;
+        height: 85px !important;
+        object-fit: contain !important;
+        margin-bottom: 4px !important;
     }
+
     .product-title {
-        font-size: 12px;
-        line-height: 1.3;
+        font-size: 11px !important;
+        line-height: 1.1 !important;
+        margin-bottom: 3px !important;
+        max-height: 2.2em !important;
+        overflow: hidden !important;
+        text-align: right !important;
     }
+
     .product-price {
-        font-size: 14px;
-        margin-bottom: 10px;
+        font-size: 11px !important;
+        margin-bottom: 3px !important;
+        text-align: right !important;
     }
-    .buy-button {
-        padding: 10px;
-        font-size: 12px;
-        border-radius: 10px;
+
+    /* ضبط مجموعة التحكم لتكون أسفل السعر ومحاذية تماماً لليمين بمستوى اسم المنتج */
+    .control-group {
+        margin: 0 0 6px 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        text-align: right !important;
+        width: 100% !important;
+        position: static !important;
+    }
+
+    .control-group > div {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        direction: rtl !important;
+        gap: 4px !important;
+        width: 100% !important;
+        margin-bottom: 2px !important;
+    }
+
+    .control-group span {
+        font-size: 10px !important;
+        font-weight: bold !important;
+        color: #94a3b8 !important;
+    }
+
+    .control-group select {
+        width: 75px !important;
+        height: 20px !important;
+        font-size: 10px !important;
+        padding: 0 2px !important;
+        text-align: right !important;
+    }
+
+    .product-card button.buy-button {
+        padding: 5px !important;
+        font-size: 10px !important;
+        border-radius: 6px !important;
+        margin-top: 2px !important;
+        width: 100% !important;
     }
 }
-
 
         
 </style>
