@@ -1096,80 +1096,24 @@ button.btn[onclick*="sendOrder"]:hover {
 }
 
 /* كود التوافق العام لتثبيت عرض تفاصيل المنتج على جميع الشاشات بنفس الشكل */
-@media (max-width: 768px) {
-    /* 1. تثبيت النافذة لتصبح بطاقة مركزية فخمة تماماً مثل الآيباد */
-    #detail-modal.modal-overlay {
-        display: none;
-        position: fixed !important;
-        inset: 0 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 10px !important;
-        background: rgba(0, 0, 0, 0.75) !important;
-        backdrop-filter: blur(12px) !important;
-        z-index: 99999 !important;
+    /* للشاشات الكبيرة والآيباد: تظهر كبطاقة مركزية تطفو في المنتصف */
+    @media (min-width: 769px) {
+        #detail-modal {
+            align-items: center !important;
+            padding: 20px !important;
+        }
+        #detail-modal .modal-card {
+            max-width: 550px !important;
+            min-height: auto !important;
+            max-height: 90vh !important;
+            border-radius: 24px !important;
+            overflow-y: auto !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
+        }
+        #detail-modal button[onclick="closeDetailModal()"]:first-of-type {
+            display: none !important; /* إخفاء زر الإغلاق العائم في الشاشات الكبيرة لعدم الحاجة له */
+        }
     }
-    
-    #detail-modal[style*="display: block"],
-    #detail-modal[style*="display: flex"] {
-        display: flex !important;
-    }
-
-    #detail-modal .modal-card {
-        width: 100% !important;
-        max-width: 550px !important; /* نفس عرض الآيباد */
-        height: auto !important;
-        max-height: 90vh !important;
-        border-radius: 24px !important;
-        padding: 24px !important; /* نفس الهوامش الداخلية الكبيرة والواسعة */
-        overflow-y: auto !important;
-        margin: auto !important;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.3) !important;
-    }
-
-    /* 2. تكبير الصورة الرئيسية لتأخذ حجماً ضخماً وواضحاً تماماً كالنسخة الكبيرة */
-    #detail-modal #image-slider-container {
-        height: 320px !important; /* نفس الارتفاع تماماً */
-        border-radius: 16px !important;
-    }
-    #detail-modal #detail-main-img {
-        object-fit: contain !important;
-    }
-
-    /* 3. جعل عنوان المنتج والسعر والوصف بنفس حجم الشاشات الكبيرة والبارزة */
-    #detail-modal #detail-title {
-        font-size: 22px !important;
-        font-weight: 800 !important;
-        margin: 16px 0 8px !important;
-    }
-    #detail-modal #detail-price {
-        font-size: 24px !important;
-        font-weight: bold !important;
-        margin-bottom: 12px !important;
-    }
-    #detail-modal #detail-desc {
-        font-size: 14px !important;
-        padding: 12px !important;
-        line-height: 1.6 !important;
-        margin-bottom: 24px !important;
-    }
-
-    /* 4. زر الإضافة للسلة بنفس الحجم البارز والفاخر */
-    #detail-modal #detail-add-btn {
-        padding: 16px !important;
-        font-size: 18px !important;
-        border-radius: 14px !important;
-        margin-bottom: 20px !important;
-    }
-
-    /* 5. المنتجات المقترحة بنفس تنسيق وحجم الشاشات الكبيرة */
-    #detail-modal .rec-grid {
-        display: flex !important;
-        gap: 12px !important;
-        overflow-x: auto !important;
-        padding-bottom: 12px !important;
-    }
-}
 
         
 </style>
@@ -1397,33 +1341,36 @@ button.btn[onclick*="sendOrder"]:hover {
     </main>
 
     <!-- نافذة تفاصيل المنتج المحدثة بالكامل مع معرض صور والمنتجات المقترحة -->
-    <div id="detail-modal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 99999; justify-content: center; align-items: center; padding: 15px; direction: rtl; font-family: system-ui, sans-serif;">
-    <div class="modal-card" style="background: #ffffff; width: 100%; max-width: 500px; max-height: 85vh; border-radius: 20px; overflow-y: auto; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); display: flex; flex-direction: column; position: relative;">
+    <div id="detail-modal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 99999; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 0; direction: rtl; font-family: system-ui, sans-serif;">
+    <div class="modal-card" style="background: #ffffff; width: 100%; max-width: 550px; min-height: 100vh; border-radius: 0; overflow-y: visible; padding: 20px 20px 50px 20px; box-shadow: none; display: flex; flex-direction: column; position: relative;">
         
-        <!-- حاوية الصورة بتصميم متناسق وفكرة الشاشة الكبيرة -->
-        <div id="image-slider-container" style="position: relative; width: 100%; height: 260px; background: #f8f9fa; border-radius: 14px; overflow: hidden; touch-action: pan-y pinch-zoom;">
+        <!-- زر الإغلاق العائم للشاشات الصغيرة لسهولة التصفح والخروج -->
+        <button onclick="closeDetailModal()" style="position: sticky; top: 10px; left: 10px; align-self: flex-start; background: rgba(0,0,0,0.6); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">✕</button>
+
+        <!-- حاوية الصورة الرئيسية -->
+        <div id="image-slider-container" style="position: relative; width: 100%; height: 320px; background: #f8f9fa; border-radius: 16px; overflow: hidden; touch-action: pan-y pinch-zoom;">
             <img id="detail-main-img" class="gallery-main-img" src="" alt="صورة المنتج" style="width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; transform-origin: center;">
         </div>
         
         <!-- الصور المصغرة -->
-        <div class="gallery-thumbs" id="detail-thumbs" style="display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;"></div>
+        <div class="gallery-thumbs" id="detail-thumbs" style="display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;"></div>
 
         <!-- معلومات المنتج -->
-        <h3 id="detail-title" style="margin: 14px 0 6px; font-size: 20px; color: #1a1a1a; font-weight: 800;"></h3>
-        <div id="detail-price" style="font-weight: bold; color: #ef4444; font-size: 22px; margin-bottom: 10px;"></div>
-        <p id="detail-desc" style="font-size: 13px; color: #4b5563; margin-bottom: 18px; line-height: 1.5; background: #f3f4f6; padding: 10px; border-radius: 10px;"></p>
+        <h3 id="detail-title" style="margin: 16px 0 8px; font-size: 22px; color: #1a1a1a; font-weight: 800;"></h3>
+        <div id="detail-price" style="font-weight: bold; color: #ef4444; font-size: 24px; margin-bottom: 12px;"></div>
+        <p id="detail-desc" style="font-size: 14px; color: #4b5563; margin-bottom: 24px; line-height: 1.6; background: #f3f4f6; padding: 12px; border-radius: 12px;"></p>
         
         <!-- زر الإضافة للسلة -->
-        <button id="detail-add-btn" class="buy-button" style="background: #000; color: #fff; border: none; padding: 14px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: 0.2s; margin-bottom: 16px;">إضافة إلى السلة 🛒</button>
+        <button id="detail-add-btn" class="buy-button" style="background: #000; color: #fff; border: none; padding: 16px; border-radius: 14px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: 0.2s; margin-bottom: 20px;">إضافة إلى السلة 🛒</button>
 
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0;">
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 20px 0;">
         
         <!-- المنتجات المقترحة -->
-        <h4 style="font-size: 15px; font-weight: bold; color: #1a1a1a; margin-bottom: 10px;">🛍️ منتجات أخرى قد تعجبك:</h4>
-        <div class="rec-grid" id="detail-recommendations" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
+        <h4 style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-bottom: 12px;">🛍️ منتجات أخرى قد تعجبك:</h4>
+        <div class="rec-grid" id="detail-recommendations" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px;"></div>
 
-        <!-- زر الإغلاق -->
-        <button onclick="closeDetailModal()" style="margin-top: 10px; background: #f3f4f6; border: 1px solid #e5e7eb; color: #374151; padding: 12px; border-radius: 10px; width: 100%; font-size: 15px; font-weight: bold; cursor: pointer;">إغلاق التفاصيل</button>
+        <!-- زر الإغلاق السفلي -->
+        <button onclick="closeDetailModal()" style="margin-top: 30px; background: #f3f4f6; border: 1px solid #e5e7eb; color: #374151; padding: 14px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer;">إغلاق التفاصيل</button>
     </div>
 </div>
 
