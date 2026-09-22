@@ -1130,36 +1130,46 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* تطبيق فكرة الشاشة الكبيرة بتنسيق ذكي ومريح على الشاشات الصغيرة والهواتف */
 /* ضبط بطاقة المنتج لتكون شبه مربعة وأنيقة على الشاشات الصغيرة */
+/* ضغط البطاقة عمودياً لتصبح مربعة ومختصرة تماماً على الشاشات الصغيرة */
 @media (max-width: 768px) {
     .products-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-        padding: 8px !important;
+        gap: 8px !important;
+        padding: 6px !important;
     }
 
     .product-card {
-        border-radius: 14px !important;
-        padding: 8px !important; /* تقليل الهوامش الداخلية لتصبح البطاقة متناسقة وليست طويلة */
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04) !important;
+        border-radius: 12px !important;
+        padding: 6px !important; /* تقليص الهوامش الداخلية إلى الحد الأدنى */
+        min-height: unset !important;
+        height: auto !important;
     }
 
     .product-image {
-        height: 110px !important; /* تقليل ارتفاع الصورة لتأخذ طابعاً يشبه المربع المختصر */
+        height: 95px !important; /* جعل الصورة مربعة بشكل واضح وقصير */
         object-fit: contain !important;
-        margin-bottom: 6px !important;
+        margin-bottom: 4px !important;
     }
 
     .product-title {
-        font-size: 12px !important;
-        line-height: 1.2 !important;
-        margin-bottom: 4px !important;
-        max-height: 2.4em !important; /* تقييد العنوان بسطرين كحد أقصى لمنع الطول الزائد */
+        font-size: 11px !important;
+        line-height: 1.1 !important;
+        margin-bottom: 2px !important;
+        max-height: 2.2em !important; /* قصر العنوان على سطر واحد أو سطرين كحد أقصى لمنع الطول */
         overflow: hidden !important;
     }
 
     .product-price {
-        font-size: 13px !important;
-        margin-bottom: 6px !important;
+        font-size: 12px !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* ضغط الأزرار أو أي تفاصيل إضافية داخل البطاقة لتصبح مختصرة */
+    .product-card button, .product-card .buy-button, .product-card select {
+        padding: 6px !important;
+        font-size: 11px !important;
+        border-radius: 8px !important;
+        margin-top: 2px !important;
     }
 }
 
