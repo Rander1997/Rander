@@ -278,94 +278,7 @@
         .section-title { font-size: 20px; margin-bottom: 16px; }
 
         /* التصميم العالمي الموحد: عمودان (2) فقط في كل صف على كافة الأجهزة بلا استثناء */
-.products-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 20px !important;
-    max-width: 900px !important; /* تحديد أقصى عرض لتبقى شبكة المنتجات متناسقة ومرتبة على الشاشات الكبيرة */
-    margin: 0 auto !important;
-    padding: 20px !important;
-}
 
-/* تصميم بطاقة المنتج بمقاييس وأبعاد المتاجر العالمية الفخمة */
-.product-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 20px !important;
-    padding: 16px !important;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-width: 0;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04) !important;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* تأثير فخم عند تحريك الماوس على البطاقة في الحواسب والآيباد */
-.product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08) !important;
-}
-
-.badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: #ef4444;
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 8px;
-    z-index: 2;
-}
-
-.fav-btn {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-    transition: background 0.2s;
-}
-
-/* أبعاد صورة المنتج بمقاييس المتاجر العالمية (واسعة، واضحة، وبارزة) */
-.product-image {
-    width: 100%;
-    height: 220px !important; /* ارتفاع فخم يعطي مساحة حقيقية لرؤية تفاصيل المنتج */
-    object-fit: contain;
-    border-radius: 12px !important;
-    margin-bottom: 12px !important;
-    cursor: pointer;
-    background: #f8fafc; /* خلفية ناعمة داخل إطار الصورة تماماً كالمتاجر الكبرى */
-    padding: 10px;
-}
-
-/* خط عناوين المنتجات بوضوح وأناقة عالية */
-.product-title { 
-    font-size: 15px !important; 
-    font-weight: 700 !important; 
-    margin-bottom: 8px !important;
-    line-height: 1.4 !important;
-    color: var(--text-primary, #1e293b);
-}
-
-/* إبراز السعر بطريقة راقية وجذابة */
-.product-price {
-    color: var(--accent, #2563eb);
-    font-size: 16px !important;
-    font-weight: 800 !important;
-    margin-bottom: 12px !important;
-}
 
         /* تعديل متجاوب إضافي للشاشات الصغيرة جداً */
         @media (max-width: 480px) {
@@ -1133,87 +1046,82 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* ضغط البطاقة وقصر طولها لتصبح مربعة وفاخرة تماماً على الموبايل */
 /* ترتيب كلمة اختر والقائمة تحت السعر وإلى اليمين تماماً بدون طول زائد */
-@media (max-width: 768px) {
-    .products-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-        padding: 6px !important;
-    }
+/* ==========================================================
+   RANDER NEXT-GEN UI/UX UPGRADE - EXTENSION & ENHANCEMENT
+   ========================================================== */
 
-    .product-card {
-        border-radius: 12px !important;
-        padding: 8px !important;
-        min-height: unset !important;
-        height: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important;
+/* تحسينات إضافية للتجاوب مع الشاشات الكبيرة (Desktop Viewports) */
+@media (min-width: 1024px) {
+    header {
+        padding: 18px 48px;
     }
-
-    .product-image {
-        height: 85px !important;
-        object-fit: contain !important;
-        margin-bottom: 4px !important;
+    .hero {
+        padding: 64px 20px 40px;
     }
-
-    .product-title {
-        font-size: 11px !important;
-        line-height: 1.1 !important;
-        margin-bottom: 3px !important;
-        max-height: 2.2em !important;
-        overflow: hidden !important;
-        text-align: right !important;
+    .hero h1 {
+        font-size: 32px;
     }
-
-    .product-price {
-        font-size: 11px !important;
-        margin-bottom: 3px !important;
-        text-align: right !important;
-    }
-
-    /* ضبط مجموعة التحكم لتكون أسفل السعر ومحاذية تماماً لليمين بمستوى اسم المنتج */
-    .control-group {
-        margin: 0 0 6px 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-end !important;
-        text-align: right !important;
-        width: 100% !important;
-        position: static !important;
-    }
-
-    .control-group > div {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        direction: rtl !important;
-        gap: 4px !important;
-        width: 100% !important;
-        margin-bottom: 2px !important;
-    }
-
-    .control-group span {
-        font-size: 10px !important;
-        font-weight: bold !important;
-        color: #94a3b8 !important;
-    }
-
-    .control-group select {
-        width: 75px !important;
-        height: 20px !important;
-        font-size: 10px !important;
-        padding: 0 2px !important;
-        text-align: right !important;
-    }
-
-    .product-card button.buy-button {
-        padding: 5px !important;
-        font-size: 10px !important;
-        border-radius: 6px !important;
-        margin-top: 2px !important;
-        width: 100% !important;
+    .products-section {
+        padding: 0 48px;
     }
 }
+
+/* تحسينات الهواتف الذكية وتجربة الاستخدام بيد واحدة (Mobile Viewports) */
+@media (max-width: 767px) {
+    header {
+        padding: 12px 16px;
+    }
+    .hero {
+        padding: 32px 16px 20px;
+    }
+    .hero h1 {
+        font-size: 22px;
+    }
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .product-card {
+        padding: 10px;
+        border-radius: var(--r-radius-md, 14px);
+    }
+    .product-image {
+        height: 140px;
+        margin-bottom: 8px;
+    }
+    .bottom-nav {
+        bottom: 16px;
+        width: calc(100% - 24px);
+        padding: 6px;
+    }
+}
+
+/* تحسينات تفاعلية ناعمة للعناصر والعرض الهادئ */
+.product-card, .category-chip, .cart-btn, .buy-button {
+    will-change: transform;
+}
+
+/* تفعيل التمرير السلس العام */
+html {
+    scroll-behavior: smooth;
+}
+
+/* تحسين مظهر شريط التمرير (Scrollbar) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--r-border, #e5e5ea);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--r-text-muted, #86868b);
+}
+
 
         
 </style>
