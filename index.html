@@ -1128,6 +1128,38 @@ button.btn[onclick*="sendOrder"]:hover {
         }
     }
 
+/* تطبيق فكرة الشاشة الكبيرة بتنسيق ذكي ومريح على الشاشات الصغيرة والهواتف */
+@media (max-width: 768px) {
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr) !important; /* منتجان في كل صف كالمتاجر العالمية */
+        gap: 10px !important;                             /* مسافات متوازنة وصغيرة تناسب الموبايل */
+        padding: 8px !important;
+    }
+
+    .product-card {
+        border-radius: 14px !important;                   /* زوايا دائرية ناعمة تحاكي فخامة الشاشة الكبيرة */
+        padding: 10px !important;                         /* هوامش داخلية مريحة لا تضغط المحتوى */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .product-image {
+        height: 135px !important;                         /* ارتفاع مثالي وذكي للصورة لتبدو واضحة دون أن تستهلك مساحة الشاشة */
+        object-fit: contain !important;
+        margin-bottom: 8px !important;
+    }
+
+    .product-title {
+        font-size: 12px !important;                       /* خط واضح وصغير يتحمله الموبايل دون ازدحام */
+        line-height: 1.3 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .product-price {
+        font-size: 13px !important;                       /* سعر بارز ومنسق بنفس روح الشاشة الكبيرة */
+        margin-bottom: 8px !important;
+    }
+}
+
         
 </style>
 
