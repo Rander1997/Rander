@@ -1097,15 +1097,13 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* كود التوافق العام لتثبيت عرض تفاصيل المنتج على جميع الشاشات بنفس الشكل */
 @media (max-width: 768px) {
-    #detail-modal.modal-overlay,
-    .modal-overlay {
+    #detail-modal {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         padding: 10px !important;
     }
-    #detail-modal .modal-card,
-    .modal-card {
+    #detail-modal .modal-card {
         width: 100% !important;
         max-width: 600px !important;
         max-height: 90vh !important;
@@ -1113,6 +1111,7 @@ button.btn[onclick*="sendOrder"]:hover {
         overflow-y: auto !important;
         margin: auto !important;
     }
+}
 
         
 </style>
