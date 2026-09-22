@@ -1171,12 +1171,13 @@ button.btn[onclick*="sendOrder"]:hover {
         text-align: right !important;
     }
 
-    /* إرجاع مجموعة التحكم لتكون تحت السعر مباشرة وبمحاذاة اليمين */
+    /* ضبط مجموعة التحكم لتكون أسفل السعر ومحاذية تماماً لليمين بمستوى اسم المنتج */
     .control-group {
         margin: 0 0 6px 0 !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-end !important;
+        text-align: right !important;
         width: 100% !important;
         position: static !important;
     }
@@ -1185,6 +1186,7 @@ button.btn[onclick*="sendOrder"]:hover {
         display: flex !important;
         align-items: center !important;
         justify-content: flex-end !important;
+        direction: rtl !important;
         gap: 4px !important;
         width: 100% !important;
         margin-bottom: 2px !important;
