@@ -1097,29 +1097,50 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* كود التوافق العام لتثبيت عرض تفاصيل المنتج على جميع الشاشات بنفس الشكل */
 @media (max-width: 768px) {
-    /* النافذة مخفية افتراضياً ولا تفتح إلا عند النقر عليها برمجيراً */
-    #detail-modal {
-        display: none; 
+    /* جعل نافذة تفاصيل المنتج تفتح في المنتصف كبطاقة مطابقة للآيباد تماماً على الهواتف */
+    #detail-modal.modal-overlay {
+        display: none; /* تظل مخفية افتراضياً حتى يتم النقر عليها */
         position: fixed !important;
         inset: 0 !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 10px !important;
-        background: rgba(0, 0, 0, 0.8) !important;
+        padding: 12px !important;
+        background: rgba(0, 0, 0, 0.75) !important;
+        backdrop-filter: blur(10px) !important;
         z-index: 99999 !important;
     }
-    /* إذا فتحت النافذة وأصبحت active أو تم تغيير عرضها عبر الجافاسكريبت */
+    
+    /* تفعيل إظهار النافذة عند طلبها برمجياً */
     #detail-modal[style*="display: block"],
     #detail-modal[style*="display: flex"] {
         display: flex !important;
     }
+
+    /* تثبيت مقاس وتصميم البطاقة المركزية على الهواتف لتعطيك نفس مظهر الآيباد */
     #detail-modal .modal-card {
         width: 100% !important;
-        max-width: 600px !important;
-        max-height: 90vh !important;
-        border-radius: 20px !important;
+        max-width: 520px !important;
+        height: auto !important;
+        max-height: 88vh !important;
+        border-radius: 24px !important;
+        padding: 16px !important;
         overflow-y: auto !important;
         margin: auto !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+    }
+
+    /* الحفاظ على وضوح وحجم الصورة الرئيسية على الموبايل */
+    #detail-modal #image-slider-container {
+        height: 280px !important;
+        border-radius: 14px !important;
+    }
+
+    /* ضمان ظهور المنتجات المقترحة بشكل مرتب وجميل تماماً كاللوحة الكبيرة */
+    #detail-modal .rec-grid {
+        display: flex !important;
+        gap: 10px !important;
+        overflow-x: auto !important;
+        padding-bottom: 8px !important;
     }
 }
 
