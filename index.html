@@ -1717,15 +1717,14 @@ function displayProductModal(product) {
     if (descEl) descEl.innerText = product.desc || "لا يوجد وصف متاح.";
     
     var mainImg = document.getElementById('detail-main-img');
-    let images = (product.images && product.images.length > 0) ? product.images : [product.image || 'https://i.imgur.com/ZMtVEDi.png'];
-    mainImg.src = images[0];
+    mainImg.src = product.images[0];
 
     var thumbsContainer = document.getElementById('detail-thumbs');
     thumbsContainer.innerHTML = '';
     
-    // هنا يتم توليد الصور الإضافية (الثانية والثالثة) تلقائياً
-    if (images.length > 1) {
-        images.forEach(function(imgSrc, idx) {
+    // هنا يتم توليد الصور الإضافية (الصور التانية والثالثة) تلقائياً
+    if (product.images && product.images.length > 1) {
+        product.images.forEach(function(imgSrc, idx) {
             var thumb = document.createElement('img');
             thumb.src = imgSrc;
             thumb.className = 'gallery-thumb' + (idx === 0 ? ' active' : '');
@@ -1736,9 +1735,6 @@ function displayProductModal(product) {
             };
             thumbsContainer.appendChild(thumb);
         });
-        thumbsContainer.style.display = 'flex';
-    } else {
-        thumbsContainer.style.display = 'none';
     }
 
     var addBtn = document.getElementById('detail-add-btn');
@@ -1750,12 +1746,8 @@ function displayProductModal(product) {
     }
 
     var modal = document.getElementById('detail-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.style.backdropFilter = 'blur(15px)';
-    }
-    
-    renderRecommendations(product.id);
+    if (modal) modal.style.display = 'flex';
+        renderRecommendations(product.id);
 }
 
         function closeDetailModal() { 
