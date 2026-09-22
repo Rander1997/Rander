@@ -1097,50 +1097,77 @@ button.btn[onclick*="sendOrder"]:hover {
 
 /* كود التوافق العام لتثبيت عرض تفاصيل المنتج على جميع الشاشات بنفس الشكل */
 @media (max-width: 768px) {
-    /* جعل نافذة تفاصيل المنتج تفتح في المنتصف كبطاقة مطابقة للآيباد تماماً على الهواتف */
+    /* 1. تثبيت النافذة لتصبح بطاقة مركزية فخمة تماماً مثل الآيباد */
     #detail-modal.modal-overlay {
-        display: none; /* تظل مخفية افتراضياً حتى يتم النقر عليها */
+        display: none;
         position: fixed !important;
         inset: 0 !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 12px !important;
+        padding: 10px !important;
         background: rgba(0, 0, 0, 0.75) !important;
-        backdrop-filter: blur(10px) !important;
+        backdrop-filter: blur(12px) !important;
         z-index: 99999 !important;
     }
     
-    /* تفعيل إظهار النافذة عند طلبها برمجياً */
     #detail-modal[style*="display: block"],
     #detail-modal[style*="display: flex"] {
         display: flex !important;
     }
 
-    /* تثبيت مقاس وتصميم البطاقة المركزية على الهواتف لتعطيك نفس مظهر الآيباد */
     #detail-modal .modal-card {
         width: 100% !important;
-        max-width: 520px !important;
+        max-width: 550px !important; /* نفس عرض الآيباد */
         height: auto !important;
-        max-height: 88vh !important;
+        max-height: 90vh !important;
         border-radius: 24px !important;
-        padding: 16px !important;
+        padding: 24px !important; /* نفس الهوامش الداخلية الكبيرة والواسعة */
         overflow-y: auto !important;
         margin: auto !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3) !important;
     }
 
-    /* الحفاظ على وضوح وحجم الصورة الرئيسية على الموبايل */
+    /* 2. تكبير الصورة الرئيسية لتأخذ حجماً ضخماً وواضحاً تماماً كالنسخة الكبيرة */
     #detail-modal #image-slider-container {
-        height: 280px !important;
-        border-radius: 14px !important;
+        height: 320px !important; /* نفس الارتفاع تماماً */
+        border-radius: 16px !important;
+    }
+    #detail-modal #detail-main-img {
+        object-fit: contain !important;
     }
 
-    /* ضمان ظهور المنتجات المقترحة بشكل مرتب وجميل تماماً كاللوحة الكبيرة */
+    /* 3. جعل عنوان المنتج والسعر والوصف بنفس حجم الشاشات الكبيرة والبارزة */
+    #detail-modal #detail-title {
+        font-size: 22px !important;
+        font-weight: 800 !important;
+        margin: 16px 0 8px !important;
+    }
+    #detail-modal #detail-price {
+        font-size: 24px !important;
+        font-weight: bold !important;
+        margin-bottom: 12px !important;
+    }
+    #detail-modal #detail-desc {
+        font-size: 14px !important;
+        padding: 12px !important;
+        line-height: 1.6 !important;
+        margin-bottom: 24px !important;
+    }
+
+    /* 4. زر الإضافة للسلة بنفس الحجم البارز والفاخر */
+    #detail-modal #detail-add-btn {
+        padding: 16px !important;
+        font-size: 18px !important;
+        border-radius: 14px !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* 5. المنتجات المقترحة بنفس تنسيق وحجم الشاشات الكبيرة */
     #detail-modal .rec-grid {
         display: flex !important;
-        gap: 10px !important;
+        gap: 12px !important;
         overflow-x: auto !important;
-        padding-bottom: 8px !important;
+        padding-bottom: 12px !important;
     }
 }
 
