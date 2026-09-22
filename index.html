@@ -2789,11 +2789,10 @@ if (product.variants && product.variants.length > 0) {
         let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
         let groupItems = group.items || group.options || [];
 
-        // تقليص العرض (الامتداد الأفقي) إلى النصف لتصبح القائمة ضيقة وغير عريضة، مع ثبات محاذاة كلمة "اختر"
         variantsHtml += `
-            <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 3px; gap: 4px;">
-                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left;">اختر:</span>
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 55px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
+            <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 2px; gap: 6px; direction: rtl; width: 100%;">
+                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap;">اختر:</span>
+                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 72px; height: 22px; padding: 0 2px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right; text-overflow: ellipsis;">
                     <option value="" disabled selected>${groupTitle}</option>
         `;
 
