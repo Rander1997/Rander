@@ -1132,6 +1132,7 @@ button.btn[onclick*="sendOrder"]:hover {
 
 
 /* ضغط البطاقة وقصر طولها لتصبح مربعة وفاخرة تماماً على الموبايل */
+/* ترتيب كلمة اختر والقائمة تحت السعر وإلى اليمين تماماً بدون طول زائد */
 @media (max-width: 768px) {
     .products-grid {
         grid-template-columns: repeat(2, 1fr) !important;
@@ -1141,69 +1142,74 @@ button.btn[onclick*="sendOrder"]:hover {
 
     .product-card {
         border-radius: 12px !important;
-        padding: 6px !important;
+        padding: 8px !important;
         min-height: unset !important;
         height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
 
     .product-image {
-        height: 85px !important; /* تقصير الصورة لتصبح مربعة ومضغوطة جداً */
+        height: 85px !important;
         object-fit: contain !important;
-        margin-bottom: 3px !important;
+        margin-bottom: 4px !important;
     }
 
     .product-title {
         font-size: 11px !important;
         line-height: 1.1 !important;
-        margin-bottom: 2px !important;
+        margin-bottom: 3px !important;
         max-height: 2.2em !important;
         overflow: hidden !important;
+        text-align: right !important;
     }
 
-    /* جعل السعر وخانة "اختر" يتقاسمان نفس المساحة أو يصعدان للأعلى بجانب بعضهما */
     .product-price {
         font-size: 11px !important;
-        margin-bottom: 2px !important;
+        margin-bottom: 3px !important;
+        text-align: right !important;
     }
 
-    /* سحب كلمة اختر والقائمة المنسدلة إلى زاوية اليمين ورفعها لأعلى لإلغاء الطول */
+    /* إرجاع مجموعة التحكم لتكون تحت السعر مباشرة وبمحاذاة اليمين */
     .control-group {
-        position: absolute !important;
-        top: 6px !important;
-        left: 6px !important;
-        margin: 0 !important;
+        margin: 0 0 6px 0 !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-end !important;
-        z-index: 5;
+        width: 100% !important;
+        position: static !important;
     }
 
-    /* تصغير شكل خانة اختر لتكون مصغرة جداً في الزاوية دون أن تطول البطاقة */
     .control-group > div {
-        background: rgba(15, 23, 42, 0.85) !important;
-        padding: 2px 4px !important;
-        border-radius: 6px !important;
-        backdrop-filter: blur(4px);
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 4px !important;
+        width: 100% !important;
+        margin-bottom: 2px !important;
     }
 
     .control-group span {
-        font-size: 9px !important;
-        color: #cbd5e1 !important;
+        font-size: 10px !important;
+        font-weight: bold !important;
+        color: #94a3b8 !important;
     }
 
     .control-group select {
-        width: 60px !important;
-        height: 18px !important;
-        font-size: 9px !important;
-        padding: 0 !important;
+        width: 75px !important;
+        height: 20px !important;
+        font-size: 10px !important;
+        padding: 0 2px !important;
+        text-align: right !important;
     }
 
-    /* تقليص زر إضافة للسلة ليصبح قصير ومربع الأبعاد */
     .product-card button.buy-button {
         padding: 5px !important;
         font-size: 10px !important;
         border-radius: 6px !important;
-        margin-top: 4px !important;
+        margin-top: 2px !important;
+        width: 100% !important;
     }
 }
 
