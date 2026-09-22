@@ -1764,6 +1764,59 @@ function displayProductModal(product) {
     }
     
     renderRecommendations(product.id);
+
+    // ==========================================
+    // الإضافات الجديدة الخاصة بالحركة والسحب الآلي
+    // ==========================================
+    if (images.length > 1) {
+        // إيقاف أي مؤقت سابق لكي لا يتداخل
+        if (window._autoSlideInterval) clearInterval(window._autoSlideInterval);
+        
+        // 1. التمرير التلقائي للصور كل 3 ثوانٍ مع العودة للأولى عند النهاية
+        window._autoSlideInterval = setInterval(function() {
+            if (!modal || modal.style.display === 'none') {
+                clearInterval(window._autoSlideInterval);
+                return;
+            }
+            const thumbs = Array.from(thumbsContainer.querySelectorAll('.gallery-thumb'));
+            if (thumbs.length <= 1) return;
+            
+            let activeIdx = thumbs.findIndex(t => t.classList.contains('active'));
+            let nextIdx = activeIdx + 1;
+            if (nextIdx >= thumbs.length) nextIdx = 0; // العودة للأولى إذا انتهت
+            
+            thumbs[nextIdx].click();
+        }, 3000);
+
+        // 2. السحب بالإصبع (Swipe) يميناً ويساراً على الصورة الرئيسية
+        if (!mainImg._hasSwipeListener) {
+            mainImg._hasSwipeListener = true;
+            let startX = 0;
+            
+            mainImg.addEventListener('touchstart', function(e) {
+                startX = e.changedTouches[0].screenX;
+                if (window._autoSlideInterval) clearInterval(window._autoSlideInterval); // إيقاف المؤقت مؤقتاً أثناء لمس المستخدم
+            }, {passive: true});
+
+            mainImg.addEventListener('touchend', function(e) {
+                let endX = e.changedTouches[0].screenX;
+                const thumbs = Array.from(thumbsContainer.querySelectorAll('.gallery-thumb'));
+                if (thumbs.length <= 1) return;
+                
+                let activeIdx = thumbs.findIndex(t => t.classList.contains('active'));
+                
+                if (endX < startX - 40) {
+                    // سحب لليسار (التالي)
+                    let nextIdx = (activeIdx + 1) >= thumbs.length ? 0 : activeIdx + 1;
+                    thumbs[nextIdx].click();
+                } else if (endX > startX + 40) {
+                    // سحب لليمين (السابق)
+                    let prevIdx = (activeIdx - 1) < 0 ? thumbs.length - 1 : activeIdx - 1;
+                    thumbs[prevIdx].click();
+                }
+            }, {passive: true});
+        }
+    }
 }
 
         function closeDetailModal() { 
