@@ -2779,40 +2779,40 @@ card.className = 'product-card';
 card.setAttribute('data-id', productId);
 card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
 
-Let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
-Let basePrice = Number(product.price) || 0;
+let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
+let basePrice = Number(product.price) || 0;
 
-Let variantsHtml = '';
+let variantsHtml = '';
 
-If (product.variants && product.variants.length > 0) {
-    Product.variants.forEach((group, index) => {
-        Let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
-        Let groupItems = group.items || group.options || [];
+if (product.variants && product.variants.length > 0) {
+    product.variants.forEach((group, index) => {
+        let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
+        let groupItems = group.items || group.options || [];
 
-        // ضبط المحاذاة لتكون إلى اليمين مباشرة ورفعها لتلتحم بشكل أنيق وصغير
-        VariantsHtml += `
-            <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 3px; gap: 4px; width: 100%;">
-                <span style="font-size: 10px; font-weight: bold; color: #94a3b8; white-space: nowrap;">اختر:</span>
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 58px; height: 20px; padding: 0 2px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
+        // تقليص العرض (الامتداد الأفقي) إلى النصف لتصبح القائمة ضيقة وغير عريضة، مع ثبات محاذاة كلمة "اختر"
+        variantsHtml += `
+            <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 3px; gap: 4px;">
+                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left;">اختر:</span>
+                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 55px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
                     <option value="" disabled selected>${groupTitle}</option>
         `;
 
-        If (Array.isArray(groupItems)) {
-            GroupItems.forEach(item => {
-                Let itemName = item.name || item.value || item;
-                Let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
-                VariantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
+        if (Array.isArray(groupItems)) {
+            groupItems.forEach(item => {
+                let itemName = item.name || item.value || item;
+                let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
+                variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
             });
         }
 
-        VariantsHtml += `
+        variantsHtml += `
                 </select>
             </div>
         `;
     });
 }
 
-Card.innerHTML = `
+card.innerHTML = `
     <span class="badge" style="background:#10b981;">✨ جديد</span>
     <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
     <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
@@ -2824,7 +2824,7 @@ Card.innerHTML = `
         ${variantsHtml}
     </div>
     
-    <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})" style="padding: 6px; font-size: 11px; border-radius: 8px;">إضافة للسلة 🛒</button>
+    <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
 `;
 
 
