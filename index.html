@@ -3162,6 +3162,18 @@ function renderStoreCategories() {
     // 🌟 تصفية الأقسام لعرض الأقسام الرئيسية فقط (التي لا تمتلك parentId أو أن حقل الـ parentId فيها فارغ)
     let mainCategories = categoriesData.filter(cat => !cat.parentId || cat.parentId === "");
 
+    // --- ترتيب الأقسام الرئيسية حسب حقل order (تصاعدياً) ثم حسب التاريخ ---
+    mainCategories.sort((a, b) => {
+        let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
+        let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+        let timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        let timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return timeB - timeA;
+    });
+
     // حلقة تكرارية للأقسام الرئيسية فقط لتظهر كأزرار أفقية متجاورة بسلاسة وتمنع ظهور الأقسام الفرعية بشكل عشوائي
     mainCategories.forEach(cat => {
         html += `<button class="category-chip" onclick="filterCategory('${cat.id}', this)">${cat.name}</button>`;
