@@ -1244,90 +1244,62 @@ button.btn[onclick*="sendOrder"]:hover {
    
 
 /* ==========================================================
-   RANDER — PERFECT BLURRED & FULL-WIDTH SEARCH BAR
+   RANDER — NATIVE BLURRED & SOPHISTICATED SEARCH BAR
    ========================================================== */
 
-/* قياسات الحاوية لتمتد من أقصى اليمين إلى أقصى اليسار بكامل عرض الشاشة */
+/* حاوية شريط البحث بعرض الشاشة والهوامش القياسية المتناسقة */
 .search-container, .search-bar-wrapper, #search-container {
     width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 0 20px 0 !important;
-    padding: 0 16px !important;
+    max-width: 1300px !important;
+    margin: 0 auto 24px auto !important;
+    padding: 0 24px !important;
     box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
+    display: block !important;
 }
 
-/* تصميم حقل البحث (الخلفية، الحدود، والظل الفاخر) مع الامتداد الكامل */
+/* تصميم حقل البحث ليكون متوافقاً تماماً مع هوية المتجر الفاخرة */
 .search-input, input[type="search"], input[id*="search"], input[class*="search"] {
-    flex: 1 !important;
     width: 100% !important;
-    background: rgba(26, 31, 44, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
-    padding: 14px 20px 14px 45px !important;
-    border-radius: 12px !important;
+    background: var(--r-bg-surface, #ffffff) !important;
+    border: 1.5px solid var(--r-border, #e5e5ea) !important;
+    color: var(--r-text-main, #1d1d1f) !important;
+    padding: 14px 20px 14px 48px !important;
+    border-radius: var(--r-radius-lg, 18px) !important;
     font-size: 14px !important;
     font-family: inherit !important;
     font-weight: 500 !important;
     outline: none !important;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-    transition: all 0.3s ease !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03) !important;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     text-align: right;
     box-sizing: border-box !important;
 }
 
-/* لون النص التوضيحي داخل حقل البحث */
+/* تخصيص النص التوضيحي داخل البحث (Placeholder) ليكون هادئاً */
 .search-input::placeholder, input[type="search"]::placeholder, input[id*="search"]::placeholder {
-    color: #8b949e !important;
+    color: var(--r-text-muted, #86868b);
     font-weight: 400;
 }
 
-/* حالة التركيز (Focus State) */
+/* تأثير التفاعل والتركيز الفاخر (Focus State) */
 .search-input:focus, input[type="search"]:focus, input[id*="search"]:focus, input[class*="search"]:focus {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    background: rgba(26, 31, 44, 0.85) !important;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 255, 255, 0.05) !important;
-}
-
-/* الزر الجانبي المجاور لحقل البحث */
-.search-side-btn, .search-container button, .search-bar-wrapper button {
-    background: rgba(26, 31, 44, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    color: #8b949e !important;
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 12px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    flex-shrink: 0 !important;
-    transition: all 0.2s ease !important;
-}
-
-.search-side-btn:hover, .search-container button:hover {
-    background: rgba(26, 31, 44, 0.9) !important;
-    color: #ffffff !important;
+    background: var(--r-bg-surface, #ffffff) !important;
+    border-color: var(--r-text-main, #1d1d1f) !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.07) !important;
+    transform: translateY(-2px);
 }
 
 /* التجاوب الدقيق مع الشاشات الصغيرة والهواتف */
 @media (max-width: 480px) {
     .search-container, .search-bar-wrapper, #search-container {
-        padding: 0 12px !important;
-        margin-bottom: 16px !important;
-        gap: 8px !important;
+        padding: 0 16px !important;
+        margin-bottom: 20px !important;
     }
     .search-input, input[type="search"], input[id*="search"], input[class*="search"] {
-        padding: 12px 16px 12px 40px !important;
+        padding: 12px 16px 12px 42px !important;
         font-size: 13px !important;
-        border-radius: 10px !important;
-    }
-    .search-side-btn, .search-container button, .search-bar-wrapper button {
-        width: 42px !important;
-        height: 42px !important;
-        border-radius: 10px !important;
+        border-radius: 14px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
     }
 }
 
