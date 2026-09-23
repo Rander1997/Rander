@@ -2157,6 +2157,19 @@ function closeDetailModal() {
     // 🌟 الخطوة الذكية: معرفة ما إذا كان هذا القسم "رئيسياً" ولديه أقسام فرعية
     // لجلب المنتجات الخاصة به وبكل فروعه دفعة واحدة عند النقر عليه
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryName);
+
+    // --- ترتيب الأقسام الفرعية حسب حقل order (تصاعدياً) ثم حسب التاريخ ---
+    subCategories.sort((a, b) => {
+        let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
+        let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+        let timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        let timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return timeB - timeA;
+    });
+
     let validCategoryNames = [targetCategoryName, selectedCat];
     
     if (subCategories.length > 0) {
