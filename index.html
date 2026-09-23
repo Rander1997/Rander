@@ -2213,7 +2213,7 @@ function closeDetailModal() {
             let subHtml = `<button class="category-chip" onclick="filterCategory('${parentId}', this)">الكل</button>`;
             siblingCategories.forEach(sub => {
                 let isActive = (sub.id === categoryName) ? 'active' : '';
-                subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
+                subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${sub.id}', this)"> ${sub.name}</button>`;
             });
             subContainer.innerHTML = subHtml;
         }
