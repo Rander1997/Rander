@@ -1244,28 +1244,28 @@ button.btn[onclick*="sendOrder"]:hover {
    
 
 /* ==========================================================
-   RANDER — EXACT SEARCH BAR REPLICA FROM IMAGE
+   RANDER — FULL-SCREEN WIDTH SEARCH BAR
    ========================================================== */
 
-/* الحاوية لتكون عريضة وممتدة بعرض الشاشة والهوامش */
+/* الحاوية لتمتد بعرض الشاشة بالكامل بدون قيود */
 .search-container, .search-bar-wrapper, #search-container {
     width: 100% !important;
-    max-width: 1300px !important;
-    margin: 0 auto 24px auto !important;
-    padding: 0 24px !important;
+    max-width: 100% !important;
+    margin: 0 0 24px 0 !important;
+    padding: 0 16px !important;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
 }
 
-/* تنسيق حقل البحث والأزرار ليطابق الصورة تماماً */
+/* حقل البحث ليكون طويلاً وممتداً بعرض الشاشة بالكامل */
 .search-input, input[type="search"], input[id*="search"], input[class*="search"] {
     width: 100% !important;
-    background: rgba(26, 31, 44, 0.6) !important; /* خلفية غامقة شفافة مطابقة للصورة */
+    background: rgba(26, 31, 44, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
-    padding: 14px 20px 14px 45px !important; /* مساحة لأيقونة البحث على اليسار */
+    padding: 14px 20px 14px 45px !important;
     border-radius: 12px !important;
     font-size: 14px !important;
     font-family: inherit !important;
@@ -1287,7 +1287,7 @@ button.btn[onclick*="sendOrder"]:hover {
     background: rgba(26, 31, 44, 0.85) !important;
 }
 
-/* الزر الجانبي المجاور لحقل البحث (مثل زر الأيقونة في الصورة) */
+/* الزر الجانبي المجاور لحقل البحث */
 .search-side-btn, .search-container button, .search-bar-wrapper button {
     background: rgba(26, 31, 44, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -1311,7 +1311,7 @@ button.btn[onclick*="sendOrder"]:hover {
 /* التجاوب مع الهواتف والشاشات الصغيرة */
 @media (max-width: 480px) {
     .search-container, .search-bar-wrapper, #search-container {
-        padding: 0 16px !important;
+        padding: 0 12px !important;
         margin-bottom: 16px !important;
         gap: 8px !important;
     }
