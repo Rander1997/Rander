@@ -2199,7 +2199,7 @@ function closeDetailModal() {
         subContainer.style.display = 'flex';
         let subHtml = `<button class="category-chip active" onclick="filterCategory('${categoryName}', this)">الكل في هذا القسم</button>`;
         subCategories.forEach(sub => {
-            subHtml += `<button class="category-chip" onclick="filterCategory('${sub.id}', this)">📁 ${sub.name}</button>`;
+            subHtml += `<button class="category-chip" onclick="filterCategory('${sub.id}', this)"> ${sub.name}</button>`;
         });
         subContainer.innerHTML = subHtml;
     } else {
