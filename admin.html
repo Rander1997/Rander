@@ -294,6 +294,12 @@
                         <option value="">-- قسم رئيسي (بدون أب) --</option>
                     </select>
 
+                    <!-- حقل ترتيب القسم (رئيسي أو فرعي) -->
+<div style="margin-bottom: 15px;">
+    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض (اختياري - الأقل يظهر أولاً)</label>
+    <input type="number" id="cat-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
+</div>
+
                     <button type="submit" id="cat-save-btn" class="btn btn-success">إضافة القسم 🚀</button>
                     <button type="button" id="cat-cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetCategoryForm()">إلغاء التعديل</button>
                 </form>
@@ -788,31 +794,36 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
             });
         }
 
-        function saveCategory() {
-            const docId = document.getElementById('edit-cat-id').value;
-            const name = document.getElementById('cat-name').value.trim();
-            const parentId = document.getElementById('cat-parent').value;
+        Function saveCategory() {
+    const docId = document.getElementById('edit-cat-id').value;
+    const name = document.getElementById('cat-name').value.trim();
+    const parentId = document.getElementById('cat-parent').value;
+    const catOrder = Number(document.getElementById('cat-order').value) || 0;
 
-            if (!name) return alert("يرجى إدخال اسم القسم!");
+    if (!name) return alert("يرجى إدخال اسم القسم!");
 
-            const catData = { name: name, parentId: parentId || "" };
+    const catData = { 
+        name: name, 
+        parentId: parentId || "", 
+        order: catOrder 
+    };
 
-            if (docId) {
-                if (docId === parentId) return alert("❌ لا يمكن جعل القسم أب لنفسه!");
-                db.collection("categories").doc(docId).update(catData).then(() => {
-                    alert("📁 تم تعديل القسم بنجاح!");
-                    resetCategoryForm();
-                    loadAdminCategories();
-                }).catch(err => alert("❌ خطأ: " + err.message));
-            } else {
-                catData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                db.collection("categories").add(catData).then(() => {
-                    alert("📁 تم إضافة القسم بنجاح!");
-                    resetCategoryForm();
-                    loadAdminCategories();
-                }).catch(err => alert("❌ خطأ: " + err.message));
-            }
-        }
+    if (docId) {
+        if (docId === parentId) return alert("❌ لا يمكن جعل القسم أب لنفسه!");
+        db.collection("categories").doc(docId).update(catData).then(() => {
+            alert("📁 تم تعديل القسم بنجاح!");
+            resetCategoryForm();
+            loadAdminCategories();
+        }).catch(err => alert("❌ خطأ: " + err.message));
+    } else {
+        catData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        db.collection("categories").add(catData).then(() => {
+            alert("📁 تم إضافة القسم بنجاح!");
+            resetCategoryForm();
+            loadAdminCategories();
+        }).catch(err => alert("❌ خطأ: " + err.message));
+    }
+}
 
         function resetCategoryForm() {
             document.getElementById('category-form').reset();
