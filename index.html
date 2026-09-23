@@ -2904,65 +2904,66 @@ function renderProductsList(productsArray, gridElement) {
         if (document.querySelector(`[data-id="${productId}"]`)) return;
 
         let card = document.createElement('div');
-card.className = 'product-card';
-card.setAttribute('data-id', productId);
-card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
+        card.className = 'product-card';
+        card.setAttribute('data-id', productId);
+        card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
 
-let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
-let basePrice = Number(product.price) || 0;
+        let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
+        let basePrice = Number(product.price) || 0;
 
-let variantsHtml = '';
+        let variantsHtml = '';
 
-if (product.variants && product.variants.length > 0) {
-    product.variants.forEach((group, index) => {
-        let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
-        let groupItems = group.items || group.options || [];
+        if (product.variants && product.variants.length > 0) {
+            product.variants.forEach((group, index) => {
+                let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
+                let groupItems = group.items || group.options || [];
 
-        // تقليص العرض (الامتداد الأفقي) إلى النصف لتصبح القائمة ضيقة وغير عريضة، مع ثبات محاذاة كلمة "اختر"
-        variantsHtml += `
-            <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 5px; gap: 6px;">
-                <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left; width: 42px;">اختر:</span>
-                <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 50px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
-                    <option value="" disabled selected>${groupTitle}</option>
-        `;
+                // تقليص العرض (الامتداد الأفقي) إلى النصف لتصبح القائمة ضيقة وغير عريضة، مع ثبات محاذاة كلمة "اختر"
+                variantsHtml += `
+                    <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 5px; gap: 6px;">
+                        <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left; width: 42px;">اختر:</span>
+                        <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 50px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
+                            <option value="" disabled selected>${groupTitle}</option>
+                `;
 
-        if (Array.isArray(groupItems)) {
-            groupItems.forEach(item => {
-                let itemName = item.name || item.value || item;
-                let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
-                variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
+                if (Array.isArray(groupItems)) {
+                    groupItems.forEach(item => {
+                        let itemName = item.name || item.value || item;
+                        let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
+                        variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
+                    });
+                }
+
+                variantsHtml += `
+                        </select>
+                    </div>
+                `;
             });
         }
 
-        variantsHtml += `
-                </select>
+        // --- توليد شارة المنتج الديناميكية حسب ما تم إدخاله من لوحة التحكم ---
+        let badgeHtml = '';
+        if (product.badgeText && product.badgeText.trim() !== '') {
+            let bColor = product.badgeColor || '#10b981'; // اللون الافتراضي (أخضر) إذا لم يتم تحديد لون
+            badgeHtml = `<span class="badge" style="background-color: ${bColor}; color: #fff;">${product.badgeText}</span>`;
+        }
+
+        card.innerHTML = `
+            ${badgeHtml}
+            <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
+            <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
+            <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
+            
+            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
+            
+            <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
+                ${variantsHtml}
             </div>
+            
+            <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
         `;
-    });
-}
 
-card.innerHTML = `
-    <span class="badge" style="background:#10b981;">✨ جديد</span>
-    <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-    <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
-    <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
-    
-    <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
-    
-    <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
-        ${variantsHtml}
-    </div>
-    
-    <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
-`;
-
-
-
-
-
-
-
-gridElement.prepend(card);
+        gridElement.prepend(card);
     });
 }
 
