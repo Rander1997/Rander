@@ -3237,48 +3237,7 @@ document.addEventListener("DOMContentLoaded", function() {
     setTimeout(removeExactCategory, 3000);
 });
 
-function addToCart(productId) {
-  // 1. كود إضافة المنتج للسلة الخاص بك (سواء في الـ LocalStorage أو فايربيس)
-  // ... منطق الإضافة هنا ...
 
-  // 2. تفعيل تأثير البرق/الضوء على أيكونة أو زر السلة
-  const cartIcon = document.getElementById('cart-icon-id'); // استبدل بـ ID زر أو أيقونة السلة لديك
-  if (cartIcon) {
-    cartIcon.classList.add('cart-flash-effect');
-    
-    // إزالة الكلاس بعد انتهاء الحركة لكي يمكن إعادة استخدامها في المرة القادمة
-    setTimeout(() => {
-      cartIcon.classList.remove('cart-flash-effect');
-    }, 600);
-  }
-
-  // 3. إظهار الإشعار العائم مع زر "عرض السلة"
-  showCartToast();
-}
-
-// دالة إظهار الإشعار العائم
-function showCartToast() {
-  // التأكد من عدم تكرار الإشعار إذا كان موجوداً
-  let toast = document.getElementById('dynamic-cart-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'dynamic-cart-toast';
-    toast.className = 'cart-toast';
-    toast.innerHTML = `
-      <span>تمت إضافة المنتج إلى السلة بنجاح ✨</span>
-      <button onclick="openCartModal()">فتح السلة</button>
-    `;
-    document.body.appendChild(toast);
-  }
-
-  // إظهار الإشعار
-  setTimeout(() => toast.classList.add('show'), 100);
-
-  // إخفاؤه تلقائياً بعد 3 ثوانٍ
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3500);
-}
 
     
 </script>
