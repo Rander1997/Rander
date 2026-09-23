@@ -211,6 +211,12 @@
     <input type="color" id="p-badge-color" value="#28a745" class="form-input" style="width: 100%; height: 40px; padding: 2px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
 </div>
 
+<!-- حقل ترتيب العرض في الرئيسية -->
+<div style="margin-bottom: 15px;">
+    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض في الرئيسية (اختياري - الأقل يظهر أولاً)</label>
+    <input type="number" id="p-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
+</div>
+                    
                     <button type="submit" id="save-btn" class="btn btn-success">نشر المنتج في المتجر 🚀</button>
                     <button type="button" id="cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetProductForm()">إلغاء التعديل</button>
                 </form>
@@ -530,7 +536,9 @@
                 // جلب قيم الشارة الجديدة
     const badgeText = document.getElementById('p-badge-text').value.trim();
     const badgeColor = document.getElementById('p-badge-color').value;
-
+            
+const productOrder = Number(document.getElementById('p-order').value) || 0;
+            
     const productData = {
         name: name,
         price: price,
@@ -542,7 +550,8 @@
         image: mainImage,
         variants: variants,
         badgeText: badgeText,   // تم الإضافة بنجاح
-        badgeColor: badgeColor  // تم الإضافة بنجاح
+        badgeColor: badgeColor 
+        displayOrder: productOrder,
     };
 
             if (docId) {
