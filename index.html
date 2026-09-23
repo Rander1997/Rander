@@ -1244,14 +1244,14 @@ button.btn[onclick*="sendOrder"]:hover {
    
 
 /* ==========================================================
-   RANDER — FULL-SCREEN WIDTH SEARCH BAR
+   RANDER — FULL WIDTH EDGE-TO-EDGE SEARCH BAR
    ========================================================== */
 
-/* الحاوية لتمتد بعرض الشاشة بالكامل بدون قيود */
+/* الحاوية لتمتد من أقصى اليمين إلى أقصى اليسار بكامل عرض الشاشة */
 .search-container, .search-bar-wrapper, #search-container {
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 0 24px 0 !important;
+    margin: 0 0 20px 0 !important;
     padding: 0 16px !important;
     box-sizing: border-box !important;
     display: flex !important;
@@ -1259,8 +1259,9 @@ button.btn[onclick*="sendOrder"]:hover {
     gap: 10px !important;
 }
 
-/* حقل البحث ليكون طويلاً وممتداً بعرض الشاشة بالكامل */
+/* حقل البحث ليكون عريضاً تماماً ويمتد من اليمين لليسار */
 .search-input, input[type="search"], input[id*="search"], input[class*="search"] {
+    flex: 1 !important;
     width: 100% !important;
     background: rgba(26, 31, 44, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -1276,7 +1277,7 @@ button.btn[onclick*="sendOrder"]:hover {
     box-sizing: border-box !important;
 }
 
-/* لون النص التوضيحي داخل حقل البحث */
+/* لون النص التوضيحي */
 .search-input::placeholder, input[type="search"]::placeholder, input[id*="search"]::placeholder {
     color: #8b949e !important;
 }
@@ -1287,7 +1288,7 @@ button.btn[onclick*="sendOrder"]:hover {
     background: rgba(26, 31, 44, 0.85) !important;
 }
 
-/* الزر الجانبي المجاور لحقل البحث */
+/* الزر الجانبي المجاور */
 .search-side-btn, .search-container button, .search-bar-wrapper button {
     background: rgba(26, 31, 44, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -1308,7 +1309,7 @@ button.btn[onclick*="sendOrder"]:hover {
     color: #ffffff !important;
 }
 
-/* التجاوب مع الهواتف والشاشات الصغيرة */
+/* التجاوب مع الشاشات الصغيرة */
 @media (max-width: 480px) {
     .search-container, .search-bar-wrapper, #search-container {
         padding: 0 12px !important;
@@ -1326,6 +1327,7 @@ button.btn[onclick*="sendOrder"]:hover {
         border-radius: 10px !important;
     }
 }
+
 
 
         
