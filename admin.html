@@ -199,6 +199,17 @@
                     <select id="p-category" class="form-input" required>
                         <option value="">-- اختر التصنيف المناسب --</option>
                     </select>
+                    <!-- حقل شارة المنتج الاختيارية -->
+<div style="margin-bottom: 15px;">
+    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">نص الشارة (اختياري - مثل: جديد، تخفيض)</label>
+    <input type="text" id="p-badge-text" placeholder="اتركه فارغاً إذا لا تريد شارة" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+</div>
+
+<!-- حقل اختيار لون الشارة -->
+<div style="margin-bottom: 15px;">
+    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">لون الشارة</label>
+    <input type="color" id="p-badge-color" value="#28a745" class="form-input" style="width: 100%; height: 40px; padding: 2px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+</div>
 
                     <button type="submit" id="save-btn" class="btn btn-success">نشر المنتج في المتجر 🚀</button>
                     <button type="button" id="cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetProductForm()">إلغاء التعديل</button>
@@ -516,17 +527,23 @@
                 }
             });
 
-            const productData = {
-                name: name,
-                price: price,
-                supplier: supplier,
-                description: description,
-                desc: description,
-                category: category,
-                images: imagesArray,
-                image: mainImage,
-                variants: variants
-            };
+                // جلب قيم الشارة الجديدة
+    const badgeText = document.getElementById('p-badge-text').value.trim();
+    const badgeColor = document.getElementById('p-badge-color').value;
+
+    const productData = {
+        name: name,
+        price: price,
+        supplier: supplier,
+        description: description,
+        desc: description,
+        category: category,
+        images: imagesArray,
+        image: mainImage,
+        variants: variants,
+        badgeText: badgeText,   // تم الإضافة بنجاح
+        badgeColor: badgeColor  // تم الإضافة بنجاح
+    };
 
             if (docId) {
                 db.collection("products").doc(docId).update(productData).then(() => {
