@@ -2896,6 +2896,20 @@ function loadCloudProducts() {
 
 // دالة مساعدة لتنظيف وترتيب عرض المنتجات بدون تكرار
 function renderProductsList(productsArray, gridElement) {
+    // --- ترتيب المنتجات حسب رقم العرض المحدد يدوياً أو التلقائي ---
+    productsArray.sort((a, b) => {
+        let orderA = a.displayOrder !== undefined && a.displayOrder !== null ? Number(a.displayOrder) : 0;
+        let orderB = b.displayOrder !== undefined && b.displayOrder !== null ? Number(b.displayOrder) : 0;
+        
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+        
+        let timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        let timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return timeB - timeA;
+    });
+
     // الاحتفاظ بالمنتجات الثابتة أو تنظيف القديمة حسب رغبتك، هنا سنضمن عدم التكرار
     productsArray.forEach(product => {
         let productId = product.id;
