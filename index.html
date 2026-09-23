@@ -1239,27 +1239,32 @@ button.btn[onclick*="sendOrder"]:hover {
 
 
 
-/* ==========================================================
-   RANDER — SEARCH BAR REDESIGN (HOME SCREEN)
-   ========================================================== */
+
+   
+   
 
 /* حاوية شريط البحث لتكون منسقة ومتوسطة العرض بمسافات مريحة */
+/* ==========================================================
+   RANDER — FULL-WIDTH PERMANENT SEARCH BAR
+   ========================================================== */
+
+/* حاوية شريط البحث لتأخذ عرض الشاشة بالكامل مع الهوامش المناسبة للمتجر */
 .search-container, .search-bar-wrapper, #search-container {
-    max-width: 600px;
-    margin: 0 auto 20px auto;
-    padding: 0 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    width: 100% !important;
+    max-width: 1300px !important; /* نفس أقصى عرض لشبكة المنتجات وقسم الأقسام */
+    margin: 0 auto 20px auto !important;
+    padding: 0 24px !important;
+    box-sizing: border-box !important;
+    display: block !important;
 }
 
-/* حقل وinput البحث بتصميم Apple & Nothing الفاخر */
+/* حقل البحث ليكون عريضاً وممتداً بعرض المساحة المتاحة */
 .search-input, input[type="search"], input[id*="search"], input[class*="search"] {
     width: 100% !important;
     background: var(--r-bg-surface, #ffffff) !important;
     border: 1px solid var(--r-border, #e5e5ea) !important;
     color: var(--r-text-main, #1d1d1f) !important;
-    padding: 12px 20px 12px 45px !important; /* مساحة لأيقونة البحث يساراً أو يميناً بحسب اللغة */
+    padding: 14px 20px 14px 50px !important; /* مساحة لأيقونة البحث على اليسار */
     border-radius: var(--r-radius-md, 14px) !important;
     font-size: 14px !important;
     font-family: inherit !important;
@@ -1267,38 +1272,29 @@ button.btn[onclick*="sendOrder"]:hover {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     text-align: right;
+    box-sizing: border-box !important;
 }
 
-/* حالة التركيز (Focus State) لشريط البحث */
+/* حالة التركيز (Focus State) */
 .search-input:focus, input[type="search"]:focus, input[id*="search"]:focus, input[class*="search"]:focus {
     border-color: var(--r-text-main, #1d1d1f) !important;
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.06) !important;
     transform: translateY(-1px);
 }
 
-/* تنسيق أيقونة البحث داخل الحقل إن وجدت */
-.search-icon, .search-container svg {
-    color: var(--r-text-muted, #86868b);
-    transition: color 0.2s ease;
-}
-
-.search-input:focus ~ .search-icon, 
-input[type="search"]:focus ~ .search-icon {
-    color: var(--r-text-main, #1d1d1f);
-}
-
 /* التجاوب مع الشاشات الصغيرة والهواتف */
 @media (max-width: 480px) {
     .search-container, .search-bar-wrapper, #search-container {
-        padding: 0 16px;
-        margin-bottom: 16px;
+        padding: 0 16px !important;
+        margin-bottom: 16px !important;
     }
     .search-input, input[type="search"], input[id*="search"], input[class*="search"] {
-        padding: 10px 16px 10px 40px !important;
+        padding: 12px 16px 12px 42px !important;
         font-size: 13px !important;
         border-radius: 12px !important;
     }
 }
+
         
 </style>
 
