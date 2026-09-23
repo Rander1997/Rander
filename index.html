@@ -2274,7 +2274,7 @@ function closeDetailModal() {
     }
 }
 
-        function addToCart(buttonElement, productName, unitPrice) {
+                function addToCart(buttonElement, productName, unitPrice) {
             try {
                 if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) {
                     window.cartArray = [];
@@ -2309,9 +2309,43 @@ function closeDetailModal() {
                 if (typeof saveCartToStorage === 'function') saveCartToStorage();
                 if (typeof updateCartCounter === 'function') updateCartCounter();
                 if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
+
+                // ---- [ الإضافات الجديدة لتأثير البرق والإشعار العائم ] ----
+                
+                // 1. تأثير وميض البرق على زر السلة (تأكد من أن زر/أيقونة السلة لديك يحمل الـ id="cart-icon" أو قم بتعديله)
+                var cartIcon = document.getElementById('cart-icon'); 
+                if (cartIcon) {
+                    cartIcon.classList.add('cart-flash-effect');
+                    setTimeout(function() {
+                        cartIcon.classList.remove('cart-flash-effect');
+                    }, 600);
+                }
+
+                // 2. إظهار الإشعار العائم مع زر فتح السلة
+                showCartToast();
+
+                // ----------------------------------------------------
+
             } catch (err) {
                 console.error("خطأ في الإضافة للسلة:", err);
             }
+        }
+
+        // دالة الإشعار العائم السفلية (أضفها بجانب الدوال لديك)
+        function showCartToast() {
+            var toast = document.getElementById('dynamic-cart-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'dynamic-cart-toast';
+                toast.className = 'cart-toast';
+                toast.innerHTML = `
+                    <span>تمت إضافة المنتج إلى السلة بنجاح ✨</span>
+                    <button onclick="if(typeof openCartModal === 'function') openCartModal();">فتح السلة</button>
+                `;
+                document.body.appendChild(toast);
+            }
+            setTimeout(function() { toast.classList.add('show'); }, 100);
+            setTimeout(function() { toast.classList.remove('show'); }, 3500);
         }
 
         function closeCartModal() {
