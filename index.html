@@ -1584,9 +1584,6 @@ button.btn[onclick*="sendOrder"]:hover {
         <button class="nav-item active btn" onclick="navGoHome(this)">
     <span style="font-size: 7px; color: #38bdf8;">⬡</span> الرئيسية
 </button>
-<button class="nav-item btn" onclick="navGoCategories(this)">
-    <span style="font-size: 7px; color: #38bdf8;">◈</span> الأقسام
-</button>
 <button class="nav-item btn" onclick="showFavorites(this)">
     <span style="font-size: 7px; color: #38bdf8;">⟡</span> المفضلة
 </button>
@@ -2092,28 +2089,6 @@ function closeDetailModal() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function navGoCategories(btnElement) {
-    setActiveNav(btnElement);
-    
-    // 1. البحث عن حاوية الأقسام في الصفحة الحالية
-    var catBar = document.getElementById('store-categories-container') || document.getElementById('categories-bar');
-    
-    if (catBar) {
-        // إذا وجدناها في نفس الصفحة، قم بإظهارها والتمرير إليها بسلاسة
-        catBar.style.display = 'flex';
-        catBar.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        // إذا لم تكن في الصفحة الرئيسية، يتم التوجيه للصفحة الرئيسية أو أعلى الصفحة حيث توجد الأقسام
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        // محاولة إظهار الأقسام إن وجدت بعد التمرير
-        setTimeout(() => {
-            var catBarAlt = document.getElementById('store-categories-container');
-            if (catBarAlt) {
-                catBarAlt.scrollIntoView({ behavior: 'smooth' });
-            }
-        }, 300);
-    }
-}
 
         function navToggleSearch(btnElement) {
             setActiveNav(btnElement);
