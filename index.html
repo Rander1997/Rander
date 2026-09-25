@@ -2882,7 +2882,6 @@ function openStory(storyId) {
     var modal = document.getElementById('story-modal');
     if (modal) modal.style.display = 'flex';
 
-    // بناء الأشرطة مرة واحدة عند فتح الستوري
     initProgressBars();
     playStoryImages();
 }
@@ -2894,7 +2893,7 @@ function getActiveImages() {
     return [currentStoryItem.image || ''];
 }
 
-// بناء الهيكل الأساسي لأشرطة التقدم حسب عدد الصور
+// بناء الأشرطة
 function initProgressBars() {
     const imgs = getActiveImages();
     const progressContainer = document.getElementById('story-progress-container');
@@ -2905,7 +2904,7 @@ function initProgressBars() {
     }
 }
 
-// تشغيل عرض الصور والتحكم بتحريك الشريط المتصل
+// تشغيل الصور والشريط
 function playStoryImages() {
     if (isStoryPaused) return;
 
@@ -2915,7 +2914,6 @@ function playStoryImages() {
         return;
     }
 
-    // عرض الصورة الحالية
     var imgEl = document.getElementById('story-media-img');
     if (imgEl) {
         imgEl.style.display = 'block';
@@ -2924,7 +2922,6 @@ function playStoryImages() {
         imgEl.style.aspectRatio = '9/16';
     }
 
-    // تحديث حالة الأشرطة العلوية (السابقة ممتلئة، الحالية تتحرك، القادمة فارغة)
     for (let i = 0; i < imgs.length; i++) {
         const fill = document.getElementById(`story-progress-${i}`);
         if (fill) {
@@ -2933,20 +2930,21 @@ function playStoryImages() {
                 fill.style.width = '100%';
             } else if (i === currentStoryImageIndex) {
                 fill.style.width = '0%';
-                // تشغيل حركة الامتلاء بشكل ناعم طوال مدة العرض
-                setTimeout(() => {
-                    if (!isStoryPaused) {
-                        fill.style.transition = `width ${storyDuration}ms linear`;
-                        fill.style.width = '100%';
-                    }
-                }, 50);
+                // استخدام requestAnimationFrame لضمان عمل الـ transition بسلاسة على الهواتف الصغيرة
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        if (!isStoryPaused) {
+                            fill.style.transition = `width ${storyDuration}ms linear`;
+                            fill.style.width = '100%';
+                        }
+                    });
+                });
             } else {
                 fill.style.width = '0%';
             }
         }
     }
 
-    // المؤقت للانتقال للصورة التالية تلقائياً
     clearTimeout(storyTimer);
     storyTimer = setTimeout(() => {
         if (!isStoryPaused) {
@@ -2956,61 +2954,53 @@ function playStoryImages() {
     }, storyDuration);
 }
 
-// تفاعل اللمس والإيقاف المؤقت عند الضغط (Pause on Hold)
+// التعامل مع النقر والضغط المتوافق مع الهواتف والأيباد
 const storyImgEl = document.getElementById('story-media-img');
 if (storyImgEl) {
-    storyImgEl.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
+    storyImgEl.addEventListener('contextmenu', e => e.preventDefault());
+
+    // الإيقاف عند الضغط المطول
+    storyImgEl.addEventListener('pointerdown', (e) => {
+        isStoryPaused = true;
+        clearTimeout(storyTimer);
+        
+        // تجميد الشريط الحالي
+        const imgs = getActiveImages();
+        for (let i = 0; i < imgs.length; i++) {
+            const fill = document.getElementById(`story-progress-${i}`);
+            if (fill && i === currentStoryImageIndex) {
+                const computedWidth = window.getComputedStyle(fill).width;
+                fill.style.transition = 'none';
+                fill.style.width = computedWidth;
+            }
+        }
     });
 
-    storyImgEl.addEventListener('mousedown', pauseStory);
-    storyImgEl.addEventListener('touchstart', pauseStory);
+    // الاستئناف والتنقل عند رفع الإصبع أو النقر
+    storyImgEl.addEventListener('pointerup', (e) => {
+        if (!isStoryPaused) return;
+        isStoryPaused = false;
 
-    storyImgEl.addEventListener('mouseup', resumeOrTapStory);
-    storyImgEl.addEventListener('touchend', resumeOrTapStory);
-}
+        const rect = e.target.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
 
-function pauseStory(event) {
-    event.preventDefault();
-    isStoryPaused = true;
-    clearTimeout(storyTimer);
+        clearTimeout(storyTimer);
 
-    // تجميد عرض الشريط الحالي عند نقطة التوقف بالضبط
-    const imgs = getActiveImages();
-    for (let i = 0; i < imgs.length; i++) {
-        const fill = document.getElementById(`story-progress-${i}`);
-        if (fill && i === currentStoryImageIndex) {
-            const computedWidth = window.getComputedStyle(fill).width;
-            fill.style.transition = 'none';
-            fill.style.width = computedWidth;
+        if (clickX < width / 2) {
+            // اليسار: تقدم للصورة التالية
+            currentStoryImageIndex++;
+        } else {
+            // اليمين: عودة للصورة السابقة
+            if (currentStoryImageIndex > 0) {
+                currentStoryImageIndex--;
+            }
         }
-    }
+        playStoryImages();
+    });
 }
 
-function resumeOrTapStory(event) {
-    if (!isStoryPaused) return;
-    isStoryPaused = false;
-
-    const clientX = event.changedTouches ? event.changedTouches[0].clientX : event.clientX;
-    const rect = event.target.getBoundingClientRect();
-    const clickX = clientX - rect.left;
-    const width = rect.width;
-
-    clearTimeout(storyTimer);
-
-    if (clickX < width / 2) {
-        // النصف الأيسر: الانتقال للصورة التالية
-        currentStoryImageIndex++;
-    } else {
-        // النصف الأيمن: العودة للصورة السابقة
-        if (currentStoryImageIndex > 0) {
-            currentStoryImageIndex--;
-        }
-    }
-    playStoryImages();
-}
-
-// إغلاق نافذة الستوري
+// إغلاق الستوري
 function closeStory() {
     isStoryPaused = false;
     var videoEl = document.getElementById('story-media-video');
