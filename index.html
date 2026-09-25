@@ -3536,6 +3536,7 @@ function showFuturisticNotificationPrompt() {
 }
 
 // دالة إغلاق النافذة بسلاسة
+// دالة إغلاق النافذة بسلاسة
 function closeFuturisticBanner() {
     const banner = document.getElementById('notification-banner-2100');
     if (banner) {
@@ -3553,7 +3554,6 @@ function requestNotificationPermission() {
             // استخدام Firebase Messaging للحصول على Token
             const messaging = firebase.messaging();
             
-            // استبدل المفتاح أدناه بمفتاح VAPID الخاص بك من إعدادات Firebase Cloud Messaging
             messaging.getToken({ vapidKey: 'BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I' }).then((currentToken) => {
                 if (currentToken) {
                     // حفظ Token الهاتف في قاعدة البيانات بقسم fcmTokens
@@ -3562,17 +3562,45 @@ function requestNotificationPermission() {
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     console.log("تم تسجيل الهاتف للاستقبال بنجاح!");
+                    alert("تم تفعيل الإشعارات بنجاح! 🎉");
                 }
             }).catch((err) => {
                 console.log('Error getting token: ', err);
             });
+        } else {
+            alert("تم رفض إذن الإشعارات.");
         }
     });
 }
 
-// تشغيل النافذة العصرية عند فتح المتجر
+// إنشاء زر ثابت وبارز في واجهة المتجر بدلاً من النافذة التلقائية المحظورة
+function renderPermanentNotificationButton() {
+    // إذا كان المستخدم قد وافق مسبقاً، فلا داعي لإظهار الزر
+    if (Notification.permission === 'granted') {
+        return;
+    }
+
+    if (!document.getElementById('permanent-notif-container')) {
+        const containerHTML = `
+            <div id="permanent-notif-container" style="text-align: center; margin: 15px auto; padding: 10px; z-index: 9999; position: relative;">
+                <button id="permanent-notif-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                    🔔 تفعيل إشعارات متجر رانـدر
+                </button>
+            </div>
+        `;
+        // إدراج الزر في بداية الصفحة ليراه المستخدم ويزجره بالضغط عليه يدوياً
+        document.body.insertAdjacentHTML('afterbegin', containerHTML);
+        
+        // ربط الضغط على الزر مباشرة بطلب الإذن (نقرة مستخدم حقيقية 100% تتجاوز حظر الأندرويد)
+        document.getElementById('permanent-notif-btn').onclick = function() {
+            requestNotificationPermission();
+        };
+    }
+}
+
+// تشغيل وظيفة بناء الزر الثابت فور تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(showFuturisticNotificationPrompt, 2000);
+    renderPermanentNotificationButton();
 });
     
 </script>
