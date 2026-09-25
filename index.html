@@ -1897,9 +1897,9 @@ function addNewProduct() {
         document.getElementById('search-input').addEventListener('focus', function() {
             setTimeout(() => {
                 document.getElementById('search-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // تحريك الصفحة للأفل بمقدار بسيط (مثلاً 60 بكسل) لكي ينزل درجة واحدة
+                // تحريك الصفحة للأسفل بمقدار أكبر قليلاً لينزل درجتين إضافيتين
                 setTimeout(() => {
-                    window.scrollBy({ top: -60, behavior: 'smooth' });
+                    window.scrollBy({ top: -140, behavior: 'smooth' });
                 }, 200);
             }, 300);
         });
