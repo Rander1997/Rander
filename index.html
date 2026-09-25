@@ -2804,8 +2804,10 @@ let storiesData = [];
 let currentStoryItem = null;
 let currentStoryImageIndex = 0;
 let storyTimer = null;
+let progressInterval = null;
+let currentProgressPercent = 0;
 let isStoryPaused = false;
-const storyDuration = 5000; // مدة عرض كل صورة (5 ثوانٍ)
+const storyDuration = 5000; // 5 ثوانٍ لكل صورة
 
 // دالة جلب الستوريات من قاعدة البيانات والاستماع للتغييرات الفورية
 function loadStoreStories() {
@@ -2893,7 +2895,7 @@ function getActiveImages() {
     return [currentStoryItem.image || ''];
 }
 
-// بناء الأشرطة
+// بناء الأشرطة العلوية
 function initProgressBars() {
     const imgs = getActiveImages();
     const progressContainer = document.getElementById('story-progress-container');
@@ -2904,10 +2906,8 @@ function initProgressBars() {
     }
 }
 
-// تشغيل الصور والشريط
+// تشغيل الصور والتقدم الفعال للمحمول
 function playStoryImages() {
-    if (isStoryPaused) return;
-
     const imgs = getActiveImages();
     if (currentStoryImageIndex >= imgs.length) {
         closeStory();
@@ -2922,61 +2922,64 @@ function playStoryImages() {
         imgEl.style.aspectRatio = '9/16';
     }
 
+    // ضبط حالة الأشرطة (السابقة ممتلئة 100%، والقادمة 0%)
     for (let i = 0; i < imgs.length; i++) {
         const fill = document.getElementById(`story-progress-${i}`);
         if (fill) {
-            fill.style.transition = 'none';
             if (i < currentStoryImageIndex) {
                 fill.style.width = '100%';
-            } else if (i === currentStoryImageIndex) {
-                fill.style.width = '0%';
-                // استخدام requestAnimationFrame لضمان عمل الـ transition بسلاسة على الهواتف الصغيرة
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        if (!isStoryPaused) {
-                            fill.style.transition = `width ${storyDuration}ms linear`;
-                            fill.style.width = '100%';
-                        }
-                    });
-                });
-            } else {
+            } else if (i > currentStoryImageIndex) {
                 fill.style.width = '0%';
             }
         }
     }
 
+    // بدء محرك العداد المباشر لشريط الصورة الحالية
+    currentProgressPercent = 0;
+    const activeFill = document.getElementById(`story-progress-${currentStoryImageIndex}`);
+    
+    clearInterval(progressInterval);
     clearTimeout(storyTimer);
+
+    const updateInterval = 50; // التحديث كل 50 ملي ثانية لحركة سلسة جداً
+    const increment = (updateInterval / storyDuration) * 100;
+
+    progressInterval = setInterval(() => {
+        if (!isStoryPaused) {
+            currentProgressPercent += increment;
+            if (currentProgressPercent >= 100) {
+                currentProgressPercent = 100;
+                clearInterval(progressInterval);
+            }
+            if (activeFill) {
+                activeFill.style.width = currentProgressPercent + '%';
+            }
+        }
+    }, updateInterval);
+
+    // مؤقت الانتقال للصورة التالية
     storyTimer = setTimeout(() => {
         if (!isStoryPaused) {
+            clearInterval(progressInterval);
             currentStoryImageIndex++;
             playStoryImages();
         }
     }, storyDuration);
 }
 
-// التعامل مع النقر والضغط المتوافق مع الهواتف والأيباد
+// التعامل مع النقر والضغط المطول المتوافق تماماً مع الهواتف الذكية
 const storyImgEl = document.getElementById('story-media-img');
 if (storyImgEl) {
     storyImgEl.addEventListener('contextmenu', e => e.preventDefault());
 
-    // الإيقاف عند الضغط المطول
+    // إيقاف العداد عند الضغط (الإصبع أو الماوس)
     storyImgEl.addEventListener('pointerdown', (e) => {
         isStoryPaused = true;
         clearTimeout(storyTimer);
-        
-        // تجميد الشريط الحالي
-        const imgs = getActiveImages();
-        for (let i = 0; i < imgs.length; i++) {
-            const fill = document.getElementById(`story-progress-${i}`);
-            if (fill && i === currentStoryImageIndex) {
-                const computedWidth = window.getComputedStyle(fill).width;
-                fill.style.transition = 'none';
-                fill.style.width = computedWidth;
-            }
-        }
+        clearInterval(progressInterval);
     });
 
-    // الاستئناف والتنقل عند رفع الإصبع أو النقر
+    // استئناف أو التنقل بين الصور عند رفع الإصبع
     storyImgEl.addEventListener('pointerup', (e) => {
         if (!isStoryPaused) return;
         isStoryPaused = false;
@@ -2986,12 +2989,13 @@ if (storyImgEl) {
         const width = rect.width;
 
         clearTimeout(storyTimer);
+        clearInterval(progressInterval);
 
         if (clickX < width / 2) {
-            // اليسار: تقدم للصورة التالية
+            // اليسار: الانتقال للصورة التالية
             currentStoryImageIndex++;
         } else {
-            // اليمين: عودة للصورة السابقة
+            // اليمين: العودة للصورة السابقة
             if (currentStoryImageIndex > 0) {
                 currentStoryImageIndex--;
             }
@@ -3000,16 +3004,17 @@ if (storyImgEl) {
     });
 }
 
-// إغلاق الستوري
+// إغلاق نافذة الستوري
 function closeStory() {
     isStoryPaused = false;
+    clearInterval(progressInterval);
+    clearTimeout(storyTimer);
+    
     var videoEl = document.getElementById('story-media-video');
     if (videoEl) videoEl.pause();
     
     var modal = document.getElementById('story-modal');
     if (modal) modal.style.display = 'none';
-    
-    clearTimeout(storyTimer);
 }
 
 document.addEventListener("DOMContentLoaded", function() {
