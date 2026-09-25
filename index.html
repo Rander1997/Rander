@@ -3495,52 +3495,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // دالة طلب إذن الإشعارات وتخزين توكن الزبون
 // دالة إظهار نافذة سنة 2100 الفاخرة لطلب الإشعارات
-function showFuturisticNotificationPrompt() {
-    // إذا كان المستخدم قد وافق مسبقاً أو أغلق النافذة، فلا تظهرها
-    if (Notification.permission === 'granted' || localStorage.getItem('notif_prompt_closed') === 'true') {
-        return;
-    }
 
-    // إنشاء وبناء الواجهة الزجاجية العصرية إذا لم تكن موجودة
-    if (!document.getElementById('notification-banner-2100')) {
-        const bannerHTML = `
-            <div id="notification-banner-2100">
-                <div class="notif-content">
-                    <div class="notif-icon-box">⚡</div>
-                    <div class="notif-text">
-                        <h4>تفعيل الإشعارات الفورية</h4>
-                        <p>كن أول من يشاهد العروض والقصص الجديدة في متجر رانـدر .</p>
-                    </div>
-                </div>
-                <div class="notif-actions">
-                    <button class="notif-btn deny" id="notif-deny-btn">لاحقاً</button>
-                    <button class="notif-btn allow" id="notif-allow-btn">تفعيل الآن ✨</button>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', bannerHTML);
-    }
 
-    // إظهار النافذة فوراً دون تأخير لتجنب حظر المتصفح على الأندرويد
-    const banner = document.getElementById('notification-banner-2100');
-    if (banner) banner.classList.add('show');
 
-    // عند الضغط على زر الموافقة يتم استدعاء دالتك الأصلية للحصول على التوكن وتخزينه
-    document.getElementById('notif-allow-btn').onclick = function() {
-        closeFuturisticBanner();
-        requestNotificationPermission();
-    };
 
-    // عند الضغط على لاحقاً يتم إخفاء النافذة وحفظ الخيار
-    document.getElementById('notif-deny-btn').onclick = function() {
-        closeFuturisticBanner();
-        localStorage.setItem('notif_prompt_closed', 'true');
-    };
-}
-
-// دالة إغلاق النافذة بسلاسة
-// دالة إغلاق النافذة بسلاسة
-// دالة إغلاق النافذة بسلاسة
 // دالة إغلاق النافذة بسلاسة
 function closeFuturisticBanner() {
     const banner = document.getElementById('notification-banner-2100');
@@ -3557,47 +3515,36 @@ function requestNotificationPermission() {
         return;
     }
 
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            // إخفاء وحذف الزر فوراً
-            const btnContainer = document.getElementById('permanent-notif-container');
-            if (btnContainer) {
-                btnContainer.remove();
-            }
-
-            // محاولة جلب التوكن عبر فايربيس
-                // تسجيل الـ Service Worker بالمسار الصحيح للمجلد الفرعي أولاً
-    navigator.serviceWorker.register('/Rander/firebase-messaging-sw.js')
-    .then((registration) => {
-        const messaging = firebase.messaging();
+    // طلب الحصول على الـ Token بالطريقة التلقائية المباشرة
+Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+        console.log('Notification permission granted.');
         
-        return messaging.getToken({ 
-            vapidKey: 'BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I',
+        // استخدام التوكن التلقائي المرتبط بالمشروع دون الحاجة لمرر الـ VapidKey اليدوي المعقد
+        messaging.getToken({ 
             serviceWorkerRegistration: registration 
+        }).then((currentToken) => {
+            if (currentToken) {
+                // حفظ التوكن في قاعدة البيانات Firestore
+                db.collection("fcmTokens").doc(currentToken).set({
+                    token: currentToken,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert("تم حفظ الرمز في فايربيس بنجاح! 🚀");
+                }).catch((dbErr) => {
+                    alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
+                });
+            } else {
+                alert("لم يتم توليد رمز التوكن من المتصفح.");
+            }
+        }).catch((err) => {
+            console.log('An error occurred while retrieving token. ', err);
+            alert("خطأ في جلب الرمز: " + err.message);
         });
-    }).then((currentToken) => {
-        if (currentToken) {
-            // حفظ Token الهاتف في قاعدة البيانات بقسم fcmTokens
-            db.collection("fcmTokens").doc(currentToken).set({
-                token: currentToken,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("تم حفظ الرمز في فايربيس بنجاح! 🎉");
-            }).catch((dbErr) => {
-                alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
-            });
-        } else {
-            alert("لم يتم توليد رمز التوكن من المتصفح.");
-        }
-    }).catch((err) => {
-        console.log('Error getting token: ', err);
-        alert("خطأ في الاتصال بخدمة الإشعارات (Service Worker مفقود أو مفتاح VAPID غير صالح): " + err.message);
-    });
-        } else {
-            alert("تم رفض إذن الإشعارات من قبل المستخدم.");
-        }
-    });
-}
+    } else {
+        alert("تم رفض إذن الإشعارات من قبل المستخدم.");
+    }
+});
 
 // إنشاء زر ثابت وبارز في واجهة المتجر بدلاً من النافذة التلقائية المحظورة
 function renderPermanentNotificationButton() {
