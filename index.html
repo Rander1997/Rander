@@ -3495,13 +3495,54 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // دالة طلب إذن الإشعارات وتخزين توكن الزبون
 // دالة إظهار نافذة سنة 2100 الفاخرة لطلب الإشعارات
+// دالة إغلاق النافذة الزجاجية بسلاسة
+function closeFuturisticBanner() {
+    const banner = document.getElementById('notification-banner-2100');
+    if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => banner.remove(), 600);
+    }
+}
+
+// دالة موحدة مسؤولة عن أخذ الإذن وطلب الـ Token وحفظه في Firebase Firestore
+function requestNotificationPermission() {
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            console.log('Notification permission granted.');
+            
+            // استخدام التوكن التلقائي المرتبط بالمشروع
+            messaging.getToken({ 
+                serviceWorkerRegistration: registration 
+            }).then((currentToken) => {
+                if (currentToken) {
+                    // حفظ التوكن في قاعدة البيانات Firestore
+                    db.collection("fcmTokens").doc(currentToken).set({
+                        token: currentToken,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        alert("تم حفظ الرمز في فايربيس بنجاح! 🚀");
+                    }).catch((dbErr) => {
+                        alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
+                    });
+                } else {
+                    alert("لم يتم توليد رمز التوكن من المتصفح.");
+                }
+            }).catch((err) => {
+                console.log('An error occurred while retrieving token. ', err);
+                alert("خطأ في جلب الرمز: " + err.message);
+            });
+        } else {
+            alert("تم رفض إذن الإشعارات من قبل المستخدم.");
+        }
+    });
+}
+
+// عرض النافذة الزجاجية العصرية الاختيارية
 function showFuturisticNotificationPrompt() {
-    // إذا كان المستخدم قد وافق مسبقاً أو أغلق النافذة، فلا تظهرها
     if (Notification.permission === 'granted' || localStorage.getItem('notif_prompt_closed') === 'true') {
         return;
     }
 
-    // إنشاء وبناء الواجهة الزجاجية العصرية إذا لم تكن موجودة
     if (!document.getElementById('notification-banner-2100')) {
         const bannerHTML = `
             <div id="notification-banner-2100">
@@ -3521,71 +3562,22 @@ function showFuturisticNotificationPrompt() {
         document.body.insertAdjacentHTML('beforeend', bannerHTML);
     }
 
-    // إظهار النافذة فوراً دون تأخير لتجنب حظر المتصفح على الأندرويد
     const banner = document.getElementById('notification-banner-2100');
     if (banner) banner.classList.add('show');
 
-    // عند الضغط على زر الموافقة يتم استدعاء دالتك الأصلية للحصول على التوكن وتخزينه
     document.getElementById('notif-allow-btn').onclick = function() {
         closeFuturisticBanner();
         requestNotificationPermission();
     };
 
-    // عند الضغط على لاحقاً يتم إخفاء النافذة وحفظ الخيار
     document.getElementById('notif-deny-btn').onclick = function() {
         closeFuturisticBanner();
         localStorage.setItem('notif_prompt_closed', 'true');
     };
 }
 
-// دالة إغلاق النافذة بسلاسة
-// دالة إغلاق النافذة بسلاسة
-// دالة إغلاق النافذة بسلاسة
-// دالة إغلاق النافذة بسلاسة
-function closeFuturisticBanner() {
-    const banner = document.getElementById('notification-banner-2100');
-    if (banner) {
-        banner.classList.remove('show');
-        setTimeout(() => banner.remove(), 600);
-    }
-}
-
-// دالتك الأصلية المسؤولة عن أخذ الإذن وربط التوكن بـ Firebase
-// طلب الحصول على الـ Token بالطريقة التلقائية المباشرة
-Notification.requestPermission().then((permission) => {
-    if (permission === 'granted') {
-        console.log('Notification permission granted.');
-        
-        // استخدام التوكن التلقائي المرتبط بالمشروع دون الحاجة لمرر الـ VapidKey اليدوي المعقد
-        messaging.getToken({ 
-            serviceWorkerRegistration: registration 
-        }).then((currentToken) => {
-            if (currentToken) {
-                // حفظ التوكن في قاعدة البيانات Firestore
-                db.collection("fcmTokens").doc(currentToken).set({
-                    token: currentToken,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                    alert("تم حفظ الرمز في فايربيس بنجاح! 🚀");
-                }).catch((dbErr) => {
-                    alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
-                });
-            } else {
-                alert("لم يتم توليد رمز التوكن من المتصفح.");
-            }
-        }).catch((err) => {
-            console.log('An error occurred while retrieving token. ', err);
-            alert("خطأ في جلب الرمز: " + err.message);
-        });
-    } else {
-        alert("تم رفض إذن الإشعارات من قبل المستخدم.");
-    }
-});
-    
-
-// إنشاء زر ثابت وبارز في واجهة المتجر بدلاً من النافذة التلقائية المحظورة
+// إنشاء زر ثابت وبارز في واجهة المتجر كحل بديل وآمن تماماً ضد قيود الأندرويد
 function renderPermanentNotificationButton() {
-    // إذا كان المستخدم قد وافق مسبقاً، فلا داعي لإظهار الزر
     if (Notification.permission === 'granted') {
         return;
     }
@@ -3598,10 +3590,8 @@ function renderPermanentNotificationButton() {
                 </button>
             </div>
         `;
-        // إدراج الزر في بداية الصفحة
         document.body.insertAdjacentHTML('afterbegin', containerHTML);
         
-        // ربط الضغط على الزر مباشرة بطلب الإذن
         document.getElementById('permanent-notif-btn').onclick = function() {
             requestNotificationPermission();
         };
