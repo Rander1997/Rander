@@ -1,7 +1,6 @@
-const CACHE_NAME = 'rander-store-v2'; // قمنا بتحديث رقم الإصدار لإجبار المتصفح على التحديث
+const CACHE_NAME = 'rander-store-v3'; // رفعنا الإصدار هنا لإجبار المتصفح على التحديث
 const OFFLINE_URL = './offline.html';
 
-// تثبيت الـ Service Worker وتخزين صفحة عدم الاتصال مسبقاً
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -11,7 +10,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// تفعيل وتحديث الـ Cache وحذف النسخ القديمة
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -26,11 +24,9 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// استراتيجية التحميل
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   
-  // إذا كان الطلب عبارة عن صورة
   if (request.destination === 'image' || request.url.match(/\.(jpg|jpeg|png|gif|webp|svg)/)) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
@@ -46,7 +42,6 @@ self.addEventListener('fetch', (event) => {
       })
     );
   } else {
-    // باقي الطلبات العادية مع عرض صفحة الـ offline المخزنة مسبقاً عند انقطاع النت
     event.respondWith(
       caches.match(request).then((response) => {
         return response || fetch(request).catch(() => {
@@ -56,4 +51,3 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
-
