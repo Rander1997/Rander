@@ -2791,35 +2791,32 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
 
-        let storiesData = [];
+        // مصفوفة الستوريات المخزنة
+let storiesData = [];
+let currentStoryItem = null;
+let currentStoryImageIndex = 0;
+let storyTimer = null;
+const storyDuration = 5000; // مدة عرض كل صورة (5 ثوانٍ)
 
+// دالة جلب الستوريات من قاعدة البيانات والاستماع للتغييرات الفورية
 function loadStoreStories() {
-    // استخدام onSnapshot للاستماع الفوري للتغييرات (إضافة، تعديل، حذف)
     db.collection("stories").onSnapshot((snapshot) => {
         storiesData = [];
         snapshot.forEach((doc) => {
             storiesData.push({ id: doc.id, ...doc.data() });
         });
 
-        // تحديث الكاش المحلي بأحدث البيانات فوراً
+        // تحديث الكاش المحلي
         localStorage.setItem('rander_cached_stories', JSON.stringify(storiesData));
         
-        // إعادة رسم الستوريات في واجهة المتجر لحظياً
+        // إعادة رسم الستوريات في واجهة المتجر
         renderStories();
     }, (error) => {
         console.log("Error loading stories: ", error);
     });
 }
 
-// مصفوفة الستوريات المخزنة
-let storiesData = [];
-// متغيرات مشغل الستوري الحالي
-let currentStoryItem = null;
-let currentStoryImageIndex = 0;
-let storyTimer = null;
-let progressInterval = null;
-const storyDuration = 5000; // مدة عرض كل صورة (5 ثوانٍ)
-
+// رسم الستوريات في شريط العرض الرئيسي
 function renderStories() {
     var container = document.getElementById('stories-bar');
     if (!container) return;
@@ -2830,9 +2827,9 @@ function renderStories() {
     }
 
     container.innerHTML = storiesData.map(function(story) {
-        // نعتمد على أول صورة كصورة مصغرة للدائرة، مع دعم النظام القديم (story.image)
+        // دعم الصورة الأولى كصورة مصغرة دائرية (مع التوافق مع النظام القديم والجديد)
         const thumbImg = (story.images && story.images.length > 0) ? story.images[0] : (story.image || '');
-        return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
+        return '<div class="story-item" onclick="openStory(\'' + story.id + \')">' +
             '<div class="story-ring">' +
                 '<img class="story-img" src="' + thumbImg + '" alt="' + story.title + '">' +
             '</div>' +
@@ -2841,176 +2838,147 @@ function renderStories() {
     }).join('');
 }
 
-// دالة فتح الستوري بشكل تفاعلي مثل إنستغرام
+// فتح نافذة الستوري بالمقاييس والتصميم القديم مع دعم الصور المتعددة
 function openStory(storyId) {
-    currentStoryItem = storiesData.find(s => s.id === storyId);
+    currentStoryItem = storiesData.find(function(s) { return s.id === storyId; });
     if (!currentStoryItem) return;
 
-    // استخراج مصفوفة الصور (مع دعم النظام القديم في حال وُجدت صورة مفردة)
-    let imgs = [];
-    if (currentStoryItem.images && Array.isArray(currentStoryItem.images) && currentStoryItem.images.length > 0) {
-        imgs = currentStoryItem.images;
-    } else if (currentStoryItem.image) {
-        imgs = [currentStoryItem.image];
-    }
-
-    if (imgs.length === 0) return;
-
-    // التأكد من وجود حاوية العرض في الصفحة (Modal) أو إنشاؤها ديناميكياً
-    let modal = document.getElementById('story-modal-view');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'story-modal-view';
-        modal.className = 'story-container-modal';
-        modal.innerHTML = `
-            <div class="story-progress-bars" id="story-progress-container"></div>
-            <div class="story-header-info">
-                <span id="story-modal-title" style="color:#fff; font-weight:bold; font-size:14px;"></span>
-                <span id="story-modal-supplier" style="color:#8a99ad; font-size:12px; margin-right:8px;"></span>
-            </div>
-            <div class="story-media-area" onclick="handleStoryTap(event)">
-                <img id="story-modal-img" src="" alt="Story Image">
-            </div>
-            <button class="close-story-btn" onclick="closeStoryModal()">✕</button>
-        `;
-        document.body.appendChild(modal);
-    }
-
-    modal.style.display = 'flex';
-    document.getElementById('story-modal-title').innerText = currentStoryItem.title || '';
-    document.getElementById('story-modal-supplier').innerText = currentStoryItem.supplier ? '• ' + currentStoryItem.supplier : '';
-    
     currentStoryImageIndex = 0;
-    playStoryImages(imgs);
-}
 
-function playStoryImages(imgs) {
-    if (currentStoryImageIndex >= imgs.length) {
-        closeStoryModal();
-        return;
-    }
-
-    // بناء أشرطة التحميل العلوية
-    const progressContainer = document.getElementById('story-progress-container');
-    progressContainer.innerHTML = imgs.map((_, i) => 
-        `<div class="progress-bar"><div class="progress-fill" id="progress-fill-${i}"></div></div>`
-    ).join('');
-
-    // تعيين الصورة الحالية
-    document.getElementById('story-modal-img').src = imgs[currentStoryImageIndex];
-
-    // ملء الأشرطة السابقة بالكامل، والشريط الحالي تدريجياً
-    for (let i = 0; i < imgs.length; i++) {
-        const fill = document.getElementById(`progress-fill-${i}`);
-        if (i < currentStoryImageIndex) {
-            fill.style.transition = 'none';
-            fill.style.width = '100%';
-        } else if (i === currentStoryImageIndex) {
-            fill.style.transition = 'none';
-            fill.style.width = '0%';
-            setTimeout(() => {
-                fill.style.transition = `width ${storyDuration}ms linear`;
-                fill.style.width = '100%';
-            }, 50);
-        }
-    }
-
-    // المؤقت للانتقال للصورة التالية
-    clearTimeout(storyTimer);
-    storyTimer = setTimeout(() => {
-        currentStoryImageIndex++;
-        playStoryImages(imgs);
-    }, storyDuration);
-}
-
-// التفاعل باللمس يميناً ويساراً (مثل إنستغرام)
-function handleStoryTap(event) {
-    let imgs = currentStoryItem.images && currentStoryItem.images.length > 0 ? currentStoryItem.images : [currentStoryItem.image];
-    const screenWidth = window.innerWidth;
-    const clickX = event.clientX;
-
-    clearTimeout(storyTimer);
-
-    if (clickX < screenWidth / 2) {
-        // النصف الأيسر: الرجوع للصورة السابقة
-        if (currentStoryImageIndex > 0) {
-            currentStoryImageIndex--;
-        }
-    } else {
-        // النصف الأيمن: الانتقال للصورة التالية
-        currentStoryImageIndex++;
-    }
-    playStoryImages(imgs);
-}
-
-function closeStoryModal() {
-    const modal = document.getElementById('story-modal-view');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    clearTimeout(storyTimer);
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    loadStoreStories();
-});
-
-        function openStory(storyId) {
-    var story = storiesData.find(function(s) { return s.id === storyId; });
-    if (!story) return;
-
-    // عرض الصورة الطولية (قياس تيك توك/ريلز 9:16)
-    var imgEl = document.getElementById('story-media-img');
+    // التعامل مع الفيديو القديم إن وجد وإخفاؤه
     var videoEl = document.getElementById('story-media-video');
-    
     if (videoEl) {
         videoEl.style.display = 'none';
         videoEl.pause();
     }
 
-    if (imgEl) {
-        imgEl.style.display = 'block';
-        imgEl.src = story.image;
-        imgEl.style.objectFit = 'cover';
-        imgEl.style.aspectRatio = '9/16';
-    }
-
-    // عرض عنوان الستوري
+    // تعيين عنوان الستوري في البار السفلي القديم
     var nameEl = document.getElementById('story-product-name');
-    if (nameEl) nameEl.innerText = story.title;
+    if (nameEl) nameEl.innerText = currentStoryItem.title || '';
 
-    // عرض السعر المستقل الخاص بالستوري
+    // تعيين السعر المستقل الخاص بالستوري
     var priceEl = document.getElementById('story-product-price');
     if (priceEl) {
-        priceEl.innerText = (story.price ? Number(story.price).toLocaleString('ar-IQ') : '0') + ' د.ع';
+        priceEl.innerText = (currentStoryItem.price ? Number(currentStoryItem.price).toLocaleString('ar-IQ') : '0') + ' د.ع';
     }
 
-    // تفعيل زر "شراء الآن" لإضافته للسلة والانتقال إليها فوراً
+    // تفعيل زر "شراء الآن" تماماً كما كان في الكود القديم
     var buyBtn = document.getElementById('story-buy-btn');
     if (buyBtn) {
         buyBtn.innerText = "🛒 شراء الآن";
         buyBtn.onclick = function() {
             closeStory();
-            // إضافة المنتج المستقل للسلة بالسعر والعنوان المباشر
             if (typeof addToCart === 'function') {
-                addToCart(null, story.title, story.price);
+                addToCart(null, currentStoryItem.title, currentStoryItem.price);
             }
             if (typeof navGoCart === 'function') {
-                navGoCart(); // الانتقال المباشر لصفحة السلة
+                navGoCart();
             }
         };
     }
 
-    // إظهار نافذة المودال للستوري
+    // إظهار نافذة المودال القديمة
     var modal = document.getElementById('story-modal');
     if (modal) modal.style.display = 'flex';
+
+    playStoryImages();
 }
 
-        function closeStory() {
-            var videoEl = document.getElementById('story-media-video');
-            if (videoEl) videoEl.pause();
-            document.getElementById('story-modal').style.display = 'none';
+// دالة استخراج مصفوفة الصور الحالية
+function getActiveImages() {
+    if (currentStoryItem.images && Array.isArray(currentStoryItem.images) && currentStoryItem.images.length > 0) {
+        return currentStoryItem.images;
+    }
+    return [currentStoryItem.image || ''];
+}
+
+// تشغيل عرض الصور المتعددة مع أشرطة التقدم
+function playStoryImages() {
+    const imgs = getActiveImages();
+    if (currentStoryImageIndex >= imgs.length) {
+        closeStory();
+        return;
+    }
+
+    // بناء أشرطة التحميل العلوية بناءً على عدد الصور
+    const progressContainer = document.getElementById('story-progress-container');
+    if (progressContainer) {
+        progressContainer.innerHTML = imgs.map((_, i) => 
+            `<div class="story-progress-bar-track"><div class="story-progress-fill" id="story-progress-${i}"></div></div>`
+        ).join('');
+    }
+
+    // عرض الصورة الطولية الحالية (قياس 9:16)
+    var imgEl = document.getElementById('story-media-img');
+    if (imgEl) {
+        imgEl.style.display = 'block';
+        imgEl.src = imgs[currentStoryImageIndex];
+        imgEl.style.objectFit = 'cover';
+        imgEl.style.aspectRatio = '9/16';
+    }
+
+    // تلوين الأشرطة وتحريك الشريط النشط تدريجياً
+    for (let i = 0; i < imgs.length; i++) {
+        const fill = document.getElementById(`story-progress-${i}`);
+        if (fill) {
+            if (i < currentStoryImageIndex) {
+                fill.style.transition = 'none';
+                fill.style.width = '100%';
+            } else if (i === currentStoryImageIndex) {
+                fill.style.transition = 'none';
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.transition = `width ${storyDuration}ms linear`;
+                    fill.style.width = '100%';
+                }, 50);
+            }
         }
+    }
+
+    // المؤقت للانتقال للصورة التالية تلقائياً بعد انتهاء الوقت
+    clearTimeout(storyTimer);
+    storyTimer = setTimeout(() => {
+        currentStoryImageIndex++;
+        playStoryImages();
+    }, storyDuration);
+}
+
+// التفاعل باللمس يميناً ويساراً للانتقال بين الصور مثل إنستغرام
+function handleStoryTap(event) {
+    const imgs = getActiveImages();
+    const rect = event.target.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const width = rect.width;
+
+    clearTimeout(storyTimer);
+
+    if (clickX < width / 2) {
+        // النصف الأيسر: العودة للصورة السابقة
+        if (currentStoryImageIndex > 0) {
+            currentStoryImageIndex--;
+        }
+    } else {
+        // النصف الأيمن: الذهاب للصورة التالية
+        currentStoryImageIndex++;
+    }
+    playStoryImages();
+}
+
+// إغلاق نافذة الستوري
+function closeStory() {
+    var videoEl = document.getElementById('story-media-video');
+    if (videoEl) videoEl.pause();
+    
+    var modal = document.getElementById('story-modal');
+    if (modal) modal.style.display = 'none';
+    
+    clearTimeout(storyTimer);
+}
+
+// بدء تحميل الستوريات عند تحميل الصفحة
+document.addEventListener("DOMContentLoaded", function() {
+    loadStoreStories();
+});
 // ... الدوال القديمة الخاصة بمتجرك ...
 
 // دالة تبديل الوضع الليلي
