@@ -3518,24 +3518,21 @@ function showFuturisticNotificationPrompt() {
         document.body.insertAdjacentHTML('beforeend', bannerHTML);
     }
 
-    // إظهار النافذة بانيميشن سلس بعد فتح المتجر
-    setTimeout(() => {
-        const banner = document.getElementById('notification-banner-2100');
-        if (banner) banner.classList.add('show');
-    }, 1000);
+    // إظهار النافذة فوراً دون تأخير لتجنب حظر المتصفح على الأندرويد
+    const banner = document.getElementById('notification-banner-2100');
+    if (banner) banner.classList.add('show');
 
-    // عند الضغط على زر الموافقة يتم استدعاء دالتك الأصلية للحصول على التذن وتخزينه
-            document.getElementById('notif-allow-btn').addEventListener('click', function() {
+    // عند الضغط على زر الموافقة يتم استدعاء دالتك الأصلية للحصول على التوكن وتخزينه
+    document.getElementById('notif-allow-btn').onclick = function() {
         closeFuturisticBanner();
         requestNotificationPermission();
-    });
-
+    };
 
     // عند الضغط على لاحقاً يتم إخفاء النافذة وحفظ الخيار
-    document.getElementById('notif-deny-btn').addEventListener('click', function() {
+    document.getElementById('notif-deny-btn').onclick = function() {
         closeFuturisticBanner();
         localStorage.setItem('notif_prompt_closed', 'true');
-    });
+    };
 }
 
 // دالة إغلاق النافذة بسلاسة
