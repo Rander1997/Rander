@@ -2804,6 +2804,7 @@ let storiesData = [];
 let currentStoryItem = null;
 let currentStoryImageIndex = 0;
 let storyTimer = null;
+let isStoryPaused = false;
 const storyDuration = 5000; // مدة عرض كل صورة (5 ثوانٍ)
 
 // دالة جلب الستوريات من قاعدة البيانات والاستماع للتغييرات الفورية
@@ -2814,10 +2815,7 @@ function loadStoreStories() {
             storiesData.push({ id: doc.id, ...doc.data() });
         });
 
-        // تحديث الكاش المحلي
         localStorage.setItem('rander_cached_stories', JSON.stringify(storiesData));
-        
-        // إعادة رسم الستوريات في واجهة المتجر
         renderStories();
     }, (error) => {
         console.log("Error loading stories: ", error);
@@ -2835,7 +2833,6 @@ function renderStories() {
     }
 
     container.innerHTML = storiesData.map(function(story) {
-        // دعم الصورة الأولى كصورة مصغرة دائرية (مع التوافق مع النظام القديم والجديد)
         const thumbImg = (story.images && story.images.length > 0) ? story.images[0] : (story.image || '');
         return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
             '<div class="story-ring">' +
@@ -2846,31 +2843,28 @@ function renderStories() {
     }).join('');
 }
 
-// فتح نافذة الستوري بالمقاييس والتصميم القديم مع دعم الصور المتعددة
+// فتح نافذة الستوري
 function openStory(storyId) {
     currentStoryItem = storiesData.find(function(s) { return s.id === storyId; });
     if (!currentStoryItem) return;
 
     currentStoryImageIndex = 0;
+    isStoryPaused = false;
 
-    // التعامل مع الفيديو القديم إن وجد وإخفاؤه
     var videoEl = document.getElementById('story-media-video');
     if (videoEl) {
         videoEl.style.display = 'none';
         videoEl.pause();
     }
 
-    // تعيين عنوان الستوري في البار السفلي القديم
     var nameEl = document.getElementById('story-product-name');
     if (nameEl) nameEl.innerText = currentStoryItem.title || '';
 
-    // تعيين السعر المستقل الخاص بالستوري
     var priceEl = document.getElementById('story-product-price');
     if (priceEl) {
         priceEl.innerText = (currentStoryItem.price ? Number(currentStoryItem.price).toLocaleString('ar-IQ') : '0') + ' د.ع';
     }
 
-    // تفعيل زر "شراء الآن" تماماً كما كان في الكود القديم
     var buyBtn = document.getElementById('story-buy-btn');
     if (buyBtn) {
         buyBtn.innerText = "🛒 شراء الآن";
@@ -2885,14 +2879,14 @@ function openStory(storyId) {
         };
     }
 
-    // إظهار نافذة المودال القديمة
     var modal = document.getElementById('story-modal');
     if (modal) modal.style.display = 'flex';
 
+    // بناء الأشرطة مرة واحدة عند فتح الستوري
+    initProgressBars();
     playStoryImages();
 }
 
-// دالة استخراج مصفوفة الصور الحالية
 function getActiveImages() {
     if (currentStoryItem.images && Array.isArray(currentStoryItem.images) && currentStoryItem.images.length > 0) {
         return currentStoryItem.images;
@@ -2900,23 +2894,28 @@ function getActiveImages() {
     return [currentStoryItem.image || ''];
 }
 
-// تشغيل عرض الصور المتعددة مع أشرطة التقدم
-function playStoryImages() {
+// بناء الهيكل الأساسي لأشرطة التقدم حسب عدد الصور
+function initProgressBars() {
     const imgs = getActiveImages();
-    if (currentStoryImageIndex >= imgs.length) {
-        closeStory();
-        return;
-    }
-
-    // بناء أشرطة التحميل العلوية بناءً على عدد الصور
     const progressContainer = document.getElementById('story-progress-container');
     if (progressContainer) {
         progressContainer.innerHTML = imgs.map((_, i) => 
             `<div class="story-progress-bar-track"><div class="story-progress-fill" id="story-progress-${i}"></div></div>`
         ).join('');
     }
+}
 
-    // عرض الصورة الطولية الحالية (قياس 9:16)
+// تشغيل عرض الصور والتحكم بتحريك الشريط المتصل
+function playStoryImages() {
+    if (isStoryPaused) return;
+
+    const imgs = getActiveImages();
+    if (currentStoryImageIndex >= imgs.length) {
+        closeStory();
+        return;
+    }
+
+    // عرض الصورة الحالية
     var imgEl = document.getElementById('story-media-img');
     if (imgEl) {
         imgEl.style.display = 'block';
@@ -2925,55 +2924,95 @@ function playStoryImages() {
         imgEl.style.aspectRatio = '9/16';
     }
 
-    // تلوين الأشرطة وتحريك الشريط النشط تدريجياً
+    // تحديث حالة الأشرطة العلوية (السابقة ممتلئة، الحالية تتحرك، القادمة فارغة)
     for (let i = 0; i < imgs.length; i++) {
         const fill = document.getElementById(`story-progress-${i}`);
         if (fill) {
+            fill.style.transition = 'none';
             if (i < currentStoryImageIndex) {
-                fill.style.transition = 'none';
                 fill.style.width = '100%';
             } else if (i === currentStoryImageIndex) {
-                fill.style.transition = 'none';
                 fill.style.width = '0%';
+                // تشغيل حركة الامتلاء بشكل ناعم طوال مدة العرض
                 setTimeout(() => {
-                    fill.style.transition = `width ${storyDuration}ms linear`;
-                    fill.style.width = '100%';
+                    if (!isStoryPaused) {
+                        fill.style.transition = `width ${storyDuration}ms linear`;
+                        fill.style.width = '100%';
+                    }
                 }, 50);
+            } else {
+                fill.style.width = '0%';
             }
         }
     }
 
-    // المؤقت للانتقال للصورة التالية تلقائياً بعد انتهاء الوقت
+    // المؤقت للانتقال للصورة التالية تلقائياً
     clearTimeout(storyTimer);
     storyTimer = setTimeout(() => {
-        currentStoryImageIndex++;
-        playStoryImages();
+        if (!isStoryPaused) {
+            currentStoryImageIndex++;
+            playStoryImages();
+        }
     }, storyDuration);
 }
 
-// التفاعل باللمس يميناً ويساراً للانتقال بين الصور مثل إنستغرام
-function handleStoryTap(event) {
+// تفاعل اللمس والإيقاف المؤقت عند الضغط (Pause on Hold)
+const storyImgEl = document.getElementById('story-media-img');
+if (storyImgEl) {
+    storyImgEl.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    storyImgEl.addEventListener('mousedown', pauseStory);
+    storyImgEl.addEventListener('touchstart', pauseStory);
+
+    storyImgEl.addEventListener('mouseup', resumeOrTapStory);
+    storyImgEl.addEventListener('touchend', resumeOrTapStory);
+}
+
+function pauseStory(event) {
+    event.preventDefault();
+    isStoryPaused = true;
+    clearTimeout(storyTimer);
+
+    // تجميد عرض الشريط الحالي عند نقطة التوقف بالضبط
     const imgs = getActiveImages();
+    for (let i = 0; i < imgs.length; i++) {
+        const fill = document.getElementById(`story-progress-${i}`);
+        if (fill && i === currentStoryImageIndex) {
+            const computedWidth = window.getComputedStyle(fill).width;
+            fill.style.transition = 'none';
+            fill.style.width = computedWidth;
+        }
+    }
+}
+
+function resumeOrTapStory(event) {
+    if (!isStoryPaused) return;
+    isStoryPaused = false;
+
+    const clientX = event.changedTouches ? event.changedTouches[0].clientX : event.clientX;
     const rect = event.target.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
+    const clickX = clientX - rect.left;
     const width = rect.width;
 
     clearTimeout(storyTimer);
 
     if (clickX < width / 2) {
-        // النصف الأيسر: العودة للصورة السابقة
+        // النصف الأيسر: الانتقال للصورة التالية
+        currentStoryImageIndex++;
+    } else {
+        // النصف الأيمن: العودة للصورة السابقة
         if (currentStoryImageIndex > 0) {
             currentStoryImageIndex--;
         }
-    } else {
-        // النصف الأيمن: الذهاب للصورة التالية
-        currentStoryImageIndex++;
     }
     playStoryImages();
 }
 
 // إغلاق نافذة الستوري
 function closeStory() {
+    isStoryPaused = false;
     var videoEl = document.getElementById('story-media-video');
     if (videoEl) videoEl.pause();
     
@@ -2983,7 +3022,6 @@ function closeStory() {
     clearTimeout(storyTimer);
 }
 
-// بدء تحميل الستوريات عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function() {
     loadStoreStories();
 });
