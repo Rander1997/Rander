@@ -3510,6 +3510,12 @@ function requestNotificationPermission() {
         if (permission === 'granted') {
             console.log('Notification permission granted.');
             
+            // إخفاء وحذف زر التفعيل الثابت فور منح الإذن بنجاح
+            const permBtnContainer = document.getElementById('permanent-notif-container');
+            if (permBtnContainer) {
+                permBtnContainer.remove();
+            }
+            
             // استخدام التوكن التلقائي المرتبط بالمشروع
             messaging.getToken({ 
                 serviceWorkerRegistration: registration 
