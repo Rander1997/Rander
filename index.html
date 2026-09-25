@@ -1411,9 +1411,16 @@ button.btn[onclick*="sendOrder"]:hover {
 <!-- نافذة مشغّل القصة المنبثقة -->
 <div id="story-modal" class="story-modal">
     <div class="story-modal-content">
+        <!-- 🔴 أشرطة التقدم العلوية التي تم إضافتها لتعرض عدد الصور مثل إنستغرام -->
+        <div class="story-progress-bars" id="story-progress-container"></div>
+
         <span class="story-close-btn" onclick="closeStory()">&times;</span>
-        <img id="story-media-img" class="story-media" src="" alt="Story" style="display:none;">
-<video id="story-media-video" class="story-media" autoplay loop muted playsinline style="display:none;"></video>
+        
+        <!-- تم إضافة حدث النقر على الصورة لتتمكن من التنقل يميناً ويساراً -->
+        <img id="story-media-img" class="story-media" src="" alt="Story" style="display:none;" onclick="handleStoryTap(event)">
+        
+        <video id="story-media-video" class="story-media" autoplay loop muted playsinline style="display:none;"></video>
+        
         <div class="story-buy-bar">
             <div>
                 <strong id="story-product-name" style="font-size: 13px; display: block; color: #111;">اسم المنتج</strong>
