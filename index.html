@@ -962,7 +962,7 @@
 
 
         /* شريط القصص التفاعلي */
-        .stories-container {
+.stories-container {
     display: flex;
     gap: 12px;
     padding: 12px 15px;
@@ -2792,6 +2792,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
 
         // مصفوفة الستوريات المخزنة
+// مصفوفة الستوريات المخزنة (تم إزالة التكرار)
 let storiesData = [];
 let currentStoryItem = null;
 let currentStoryImageIndex = 0;
@@ -2829,7 +2830,7 @@ function renderStories() {
     container.innerHTML = storiesData.map(function(story) {
         // دعم الصورة الأولى كصورة مصغرة دائرية (مع التوافق مع النظام القديم والجديد)
         const thumbImg = (story.images && story.images.length > 0) ? story.images[0] : (story.image || '');
-        return '<div class="story-item" onclick="openStory(\'' + story.id + \')">' +
+        return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
             '<div class="story-ring">' +
                 '<img class="story-img" src="' + thumbImg + '" alt="' + story.title + '">' +
             '</div>' +
