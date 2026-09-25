@@ -2780,6 +2780,15 @@ function loadStoreStories() {
     });
 }
 
+// مصفوفة الستوريات المخزنة
+let storiesData = [];
+// متغيرات مشغل الستوري الحالي
+let currentStoryItem = null;
+let currentStoryImageIndex = 0;
+let storyTimer = null;
+let progressInterval = null;
+const storyDuration = 5000; // مدة عرض كل صورة (5 ثوانٍ)
+
 function renderStories() {
     var container = document.getElementById('stories-bar');
     if (!container) return;
@@ -2790,13 +2799,125 @@ function renderStories() {
     }
 
     container.innerHTML = storiesData.map(function(story) {
+        // نعتمد على أول صورة كصورة مصغرة للدائرة، مع دعم النظام القديم (story.image)
+        const thumbImg = (story.images && story.images.length > 0) ? story.images[0] : (story.image || '');
         return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
             '<div class="story-ring">' +
-                '<img class="story-img" src="' + story.image + '" alt="' + story.title + '">' +
+                '<img class="story-img" src="' + thumbImg + '" alt="' + story.title + '">' +
             '</div>' +
             '<span class="story-title">' + story.title + '</span>' +
         '</div>';
     }).join('');
+}
+
+// دالة فتح الستوري بشكل تفاعلي مثل إنستغرام
+function openStory(storyId) {
+    currentStoryItem = storiesData.find(s => s.id === storyId);
+    if (!currentStoryItem) return;
+
+    // استخراج مصفوفة الصور (مع دعم النظام القديم في حال وُجدت صورة مفردة)
+    let imgs = [];
+    if (currentStoryItem.images && Array.isArray(currentStoryItem.images) && currentStoryItem.images.length > 0) {
+        imgs = currentStoryItem.images;
+    } else if (currentStoryItem.image) {
+        imgs = [currentStoryItem.image];
+    }
+
+    if (imgs.length === 0) return;
+
+    // التأكد من وجود حاوية العرض في الصفحة (Modal) أو إنشاؤها ديناميكياً
+    let modal = document.getElementById('story-modal-view');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'story-modal-view';
+        modal.className = 'story-container-modal';
+        modal.innerHTML = `
+            <div class="story-progress-bars" id="story-progress-container"></div>
+            <div class="story-header-info">
+                <span id="story-modal-title" style="color:#fff; font-weight:bold; font-size:14px;"></span>
+                <span id="story-modal-supplier" style="color:#8a99ad; font-size:12px; margin-right:8px;"></span>
+            </div>
+            <div class="story-media-area" onclick="handleStoryTap(event)">
+                <img id="story-modal-img" src="" alt="Story Image">
+            </div>
+            <button class="close-story-btn" onclick="closeStoryModal()">✕</button>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    modal.style.display = 'flex';
+    document.getElementById('story-modal-title').innerText = currentStoryItem.title || '';
+    document.getElementById('story-modal-supplier').innerText = currentStoryItem.supplier ? '• ' + currentStoryItem.supplier : '';
+    
+    currentStoryImageIndex = 0;
+    playStoryImages(imgs);
+}
+
+function playStoryImages(imgs) {
+    if (currentStoryImageIndex >= imgs.length) {
+        closeStoryModal();
+        return;
+    }
+
+    // بناء أشرطة التحميل العلوية
+    const progressContainer = document.getElementById('story-progress-container');
+    progressContainer.innerHTML = imgs.map((_, i) => 
+        `<div class="progress-bar"><div class="progress-fill" id="progress-fill-${i}"></div></div>`
+    ).join('');
+
+    // تعيين الصورة الحالية
+    document.getElementById('story-modal-img').src = imgs[currentStoryImageIndex];
+
+    // ملء الأشرطة السابقة بالكامل، والشريط الحالي تدريجياً
+    for (let i = 0; i < imgs.length; i++) {
+        const fill = document.getElementById(`progress-fill-${i}`);
+        if (i < currentStoryImageIndex) {
+            fill.style.transition = 'none';
+            fill.style.width = '100%';
+        } else if (i === currentStoryImageIndex) {
+            fill.style.transition = 'none';
+            fill.style.width = '0%';
+            setTimeout(() => {
+                fill.style.transition = `width ${storyDuration}ms linear`;
+                fill.style.width = '100%';
+            }, 50);
+        }
+    }
+
+    // المؤقت للانتقال للصورة التالية
+    clearTimeout(storyTimer);
+    storyTimer = setTimeout(() => {
+        currentStoryImageIndex++;
+        playStoryImages(imgs);
+    }, storyDuration);
+}
+
+// التفاعل باللمس يميناً ويساراً (مثل إنستغرام)
+function handleStoryTap(event) {
+    let imgs = currentStoryItem.images && currentStoryItem.images.length > 0 ? currentStoryItem.images : [currentStoryItem.image];
+    const screenWidth = window.innerWidth;
+    const clickX = event.clientX;
+
+    clearTimeout(storyTimer);
+
+    if (clickX < screenWidth / 2) {
+        // النصف الأيسر: الرجوع للصورة السابقة
+        if (currentStoryImageIndex > 0) {
+            currentStoryImageIndex--;
+        }
+    } else {
+        // النصف الأيمن: الانتقال للصورة التالية
+        currentStoryImageIndex++;
+    }
+    playStoryImages(imgs);
+}
+
+function closeStoryModal() {
+    const modal = document.getElementById('story-modal-view');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    clearTimeout(storyTimer);
 }
 
 document.addEventListener("DOMContentLoaded", function() {
