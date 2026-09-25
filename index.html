@@ -3537,6 +3537,7 @@ function showFuturisticNotificationPrompt() {
 
 // دالة إغلاق النافذة بسلاسة
 // دالة إغلاق النافذة بسلاسة
+// دالة إغلاق النافذة بسلاسة
 function closeFuturisticBanner() {
     const banner = document.getElementById('notification-banner-2100');
     if (banner) {
@@ -3563,6 +3564,12 @@ function requestNotificationPermission() {
                     });
                     console.log("تم تسجيل الهاتف للاستقبال بنجاح!");
                     alert("تم تفعيل الإشعارات بنجاح! 🎉");
+                    
+                    // إخفاء وحذف زر التفعيل فوراً بعد النجاح
+                    const btnContainer = document.getElementById('permanent-notif-container');
+                    if (btnContainer) {
+                        btnContainer.remove();
+                    }
                 }
             }).catch((err) => {
                 console.log('Error getting token: ', err);
