@@ -1872,7 +1872,7 @@ function addNewProduct() {
                 .trim();
         }
 
-        function searchProducts() {
+                function searchProducts() {
             var query = normalizeText(document.getElementById('search-input').value);
             var visibleCount = 0;
 
@@ -1892,6 +1892,13 @@ function addNewProduct() {
                 noResults.style.display = (visibleCount === 0) ? 'block' : 'none';
             }
         }
+
+        // كود رفع الشاشة عند النقر على حقل البحث لتجنب تغطية الكيبورد في الهواتف
+        document.getElementById('search-input').addEventListener('focus', function() {
+            setTimeout(() => {
+                document.getElementById('search-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
 
         function openProductDetail(pId) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
