@@ -32,9 +32,13 @@ self.addEventListener('fetch', (event) => {
       })
     );
   } else {
-    // باقي الطلبات العادية
+    // باقي الطلبات العادية مع معالجة انقطاع الإنترنت وعرض صفحة offline
     event.respondWith(
-      caches.match(request).then((response) => response || fetch(request))
+      caches.match(request).then((response) => {
+        return response || fetch(request).catch(() => {
+          return caches.match('./offline.html');
+        });
+      })
     );
   }
 });
