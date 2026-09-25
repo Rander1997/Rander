@@ -1334,7 +1334,105 @@ button.btn[onclick*="sendOrder"]:hover {
     }
 }
 
+/* نافذة طلب الإشعارات - تصميم سنة 2100 */
+#notification-banner-2100 {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(150px);
+    width: 90%;
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.2);
+    border-radius: 24px;
+    padding: 24px;
+    z-index: 999999;
+    direction: rtl;
+    font-family: inherit;
+    color: #ffffff;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+    opacity: 0;
+}
 
+#notification-banner-2100.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.notif-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.notif-icon-box {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    flex-shrink: 0;
+}
+
+.notif-text h4 {
+    margin: 0 0 4px 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.notif-text p {
+    margin: 0;
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.notif-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.notif-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.notif-btn.allow {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.notif-btn.allow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+
+.notif-btn.deny {
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.notif-btn.deny:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
 
         
 </style>
@@ -3393,6 +3491,62 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // دالة طلب إذن الإشعارات وتخزين توكن الزبون
+// دالة إظهار نافذة سنة 2100 الفاخرة لطلب الإشعارات
+function showFuturisticNotificationPrompt() {
+    // إذا كان المستخدم قد وافق مسبقاً أو أغلق النافذة، فلا تظهرها
+    if (Notification.permission === 'granted' || localStorage.getItem('notif_prompt_closed') === 'true') {
+        return;
+    }
+
+    // إنشاء وبناء الواجهة الزجاجية العصرية إذا لم تكن موجودة
+    if (!document.getElementById('notification-banner-2100')) {
+        const bannerHTML = `
+            <div id="notification-banner-2100">
+                <div class="notif-content">
+                    <div class="notif-icon-box">⚡</div>
+                    <div class="notif-text">
+                        <h4>تفعيل إشعارات الستوري الفورية</h4>
+                        <p>كن أول من يشاهد العروض والقصص الجديدة في متجر راندر فور نشرها.</p>
+                    </div>
+                </div>
+                <div class="notif-actions">
+                    <button class="notif-btn deny" id="notif-deny-btn">لاحقاً</button>
+                    <button class="notif-btn allow" id="notif-allow-btn">تفعيل الآن ✨</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', bannerHTML);
+    }
+
+    // إظهار النافذة بانيميشن سلس بعد فتح المتجر
+    setTimeout(() => {
+        const banner = document.getElementById('notification-banner-2100');
+        if (banner) banner.classList.add('show');
+    }, 1000);
+
+    // عند الضغط على زر الموافقة يتم استدعاء دالتك الأصلية للحصول على التذن وتخزينه
+    document.getElementById('notif-allow-btn').addEventListener('click', function() {
+        closeFuturisticBanner();
+        requestNotificationPermission();
+    });
+
+    // عند الضغط على لاحقاً يتم إخفاء النافذة وحفظ الخيار
+    document.getElementById('notif-deny-btn').addEventListener('click', function() {
+        closeFuturisticBanner();
+        localStorage.setItem('notif_prompt_closed', 'true');
+    });
+}
+
+// دالة إغلاق النافذة بسلاسة
+function closeFuturisticBanner() {
+    const banner = document.getElementById('notification-banner-2100');
+    if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => banner.remove(), 600);
+    }
+}
+
+// دالتك الأصلية المسؤولة عن أخذ الإذن وربط التوكن بـ Firebase
 function requestNotificationPermission() {
     if (!('Notification' in window)) return;
 
@@ -3418,9 +3572,9 @@ function requestNotificationPermission() {
     });
 }
 
-// تشغيل طلب الإذن عند فتح المتجر
+// تشغيل النافذة العصرية عند فتح المتجر
 document.addEventListener("DOMContentLoaded", function() {
-    requestNotificationPermission();
+    setTimeout(showFuturisticNotificationPrompt, 2000);
 });
     
 </script>
