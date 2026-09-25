@@ -1,16 +1,32 @@
-const CACHE_NAME = 'rander-store-v1';
+const CACHE_NAME = 'rander-store-v2'; // قمنا بتحديث رقم الإصدار لإجبار المتصفح على التحديث
+const OFFLINE_URL = './offline.html';
 
-// تثبيت الـ Service Worker
+// تثبيت الـ Service Worker وتخزين صفحة عدم الاتصال مسبقاً
 self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.add(OFFLINE_URL);
+    })
+  );
   self.skipWaiting();
 });
 
-// تفعيل وتحديث الـ Cache
+// تفعيل وتحديث الـ Cache وحذف النسخ القديمة
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
-// استراتيجية التحميل: البحث في الذاكرة أولاً ثم الشبكة (Cache First for Images)
+// استراتيجية التحميل
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   
@@ -19,11 +35,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
-          // إذا كانت الصورة مخزنة سابقاً، اعرضها فوراً
           if (cachedResponse) {
             return cachedResponse;
           }
-          // إذا لم تكن مخزنة، جلبها من الإنترنت ثم تخزينها مستقبلاً
           return fetch(request).then((networkResponse) => {
             cache.put(request, networkResponse.clone());
             return networkResponse;
@@ -32,13 +46,14 @@ self.addEventListener('fetch', (event) => {
       })
     );
   } else {
-    // باقي الطلبات العادية مع معالجة انقطاع الإنترنت وعرض صفحة offline
+    // باقي الطلبات العادية مع عرض صفحة الـ offline المخزنة مسبقاً عند انقطاع النت
     event.respondWith(
       caches.match(request).then((response) => {
         return response || fetch(request).catch(() => {
-          return caches.match('./offline.html');
+          return caches.match(OFFLINE_URL);
         });
       })
     );
   }
 });
+
