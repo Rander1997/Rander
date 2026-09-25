@@ -3566,26 +3566,33 @@ function requestNotificationPermission() {
             }
 
             // محاولة جلب التوكن عبر فايربيس
-            const messaging = firebase.messaging();
-            
-            messaging.getToken({ vapidKey: 'BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I' }).then((currentToken) => {
-                if (currentToken) {
-                    // حفظ Token الهاتف في قاعدة البيانات بقسم fcmTokens
-                    db.collection("fcmTokens").doc(currentToken).set({
-                        token: currentToken,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
-                        alert("تم حفظ الرمز في فايربيس بنجاح! 🎉");
-                    }).catch((dbErr) => {
-                        alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
-                    });
-                } else {
-                    alert("لم يتم توليد رمز التوكن من المتصفح.");
-                }
-            }).catch((err) => {
-                console.log('Error getting token: ', err);
-                alert("خطأ في الاتصال بخدمة الإشعارات (Service Worker مفقود أو مفتاح VAPID غير صالح): " + err.message);
+                // تسجيل الـ Service Worker بالمسار الصحيح للمجلد الفرعي أولاً
+    navigator.serviceWorker.register('/Rander/firebase-messaging-sw.js')
+    .then((registration) => {
+        const messaging = firebase.messaging();
+        
+        return messaging.getToken({ 
+            vapidKey: 'BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I',
+            serviceWorkerRegistration: registration 
+        });
+    }).then((currentToken) => {
+        if (currentToken) {
+            // حفظ Token الهاتف في قاعدة البيانات بقسم fcmTokens
+            db.collection("fcmTokens").doc(currentToken).set({
+                token: currentToken,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("تم حفظ الرمز في فايربيس بنجاح! 🎉");
+            }).catch((dbErr) => {
+                alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
             });
+        } else {
+            alert("لم يتم توليد رمز التوكن من المتصفح.");
+        }
+    }).catch((err) => {
+        console.log('Error getting token: ', err);
+        alert("خطأ في الاتصال بخدمة الإشعارات (Service Worker مفقود أو مفتاح VAPID غير صالح): " + err.message);
+    });
         } else {
             alert("تم رفض إذن الإشعارات من قبل المستخدم.");
         }
@@ -3622,14 +3629,6 @@ document.addEventListener("DOMContentLoaded", function() {
     renderPermanentNotificationButton();
 });
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js')
-        .then(function(registration) {
-            console.log('ServiceWorker registered');
-        });
-    });
-}
     
 </script>
 
