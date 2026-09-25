@@ -654,16 +654,28 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
             });
         }
 
-        function saveStory() {
+                function saveStory() {
             const docId = document.getElementById('edit-story-id').value;
             const title = document.getElementById('s-title').value.trim();
             const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
             const supplier = document.getElementById('s-supplier').value.trim();
-            const image = document.getElementById('s-image').value.trim();
+            
+            // قراءة الصور وفصلها إلى مصفوفة وإزالة المسافات الفارغة
+            const imagesInput = document.getElementById('s-images').value.trim();
+            const images = imagesInput ? imagesInput.split(',').map(img => img.trim()).filter(img => img !== "") : [];
 
-            if (!title || !image || !price || !supplier) return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط الصورة الطولية!");
+            if (!title || images.length === 0 || !price || !supplier) {
+                return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط صورة واحدة على الأقل!");
+            }
 
-            const storyData = { title: title, price: price, supplier: supplier, image: image };
+            // نحفظ مصفوفة الصور بدلاً من صورة واحدة، مع الاحتفاظ بالتوافقية
+            const storyData = { 
+                title: title, 
+                price: price, 
+                supplier: supplier, 
+                images: images,
+                image: images[0] // كاحتياط للنسخ القديمة
+            };
 
             if (docId) {
                 db.collection("stories").doc(docId).update(storyData).then(() => {
