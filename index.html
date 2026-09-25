@@ -3525,9 +3525,12 @@ function showFuturisticNotificationPrompt() {
     }, 1000);
 
     // عند الضغط على زر الموافقة يتم استدعاء دالتك الأصلية للحصول على التذن وتخزينه
-    document.getElementById('notif-allow-btn').addEventListener('click', function() {
+        document.getElementById('notif-allow-btn').addEventListener('click', function() {
         closeFuturisticBanner();
-        requestNotificationPermission();
+        
+        setTimeout(function() {
+            requestNotificationPermission();
+        }, 300);
     });
 
     // عند الضغط على لاحقاً يتم إخفاء النافذة وحفظ الخيار
