@@ -3559,7 +3559,7 @@ function requestNotificationPermission() {
             const messaging = firebase.messaging();
             
             // استبدل المفتاح أدناه بمفتاح VAPID الخاص بك من إعدادات Firebase Cloud Messaging
-            messaging.getToken({ vapidKey: 'YOUR_VAPID_KEY' }).then((currentToken) => {
+            messaging.getToken({ vapidKey: 'BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I' }).then((currentToken) => {
                 if (currentToken) {
                     // حفظ Token الهاتف في قاعدة البيانات بقسم fcmTokens
                     db.collection("fcmTokens").doc(currentToken).set({
