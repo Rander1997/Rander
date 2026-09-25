@@ -1896,11 +1896,15 @@ function addNewProduct() {
         // كود رفع الشاشة عند النقر على حقل البحث لتجنب تغطية الكيبورد في الهواتف
         document.getElementById('search-input').addEventListener('focus', function() {
             setTimeout(() => {
-                document.getElementById('search-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // تحريك الصفحة للأسفل بمقدار أكبر قليلاً لينزل درجتين إضافيتين
-                setTimeout(() => {
-                    window.scrollBy({ top: -140, behavior: 'smooth' });
-                }, 200);
+                const searchBox = document.getElementById('search-box');
+                const boxRect = searchBox.getBoundingClientRect();
+                const absoluteTop = window.pageYOffset + boxRect.top;
+                
+                // الانتقال إلى الموضع مع ترك مسافة 80 بكسل من أعلى الشاشة (يمكنك تقليل الرقم أو زيادته حسب الرغبة)
+                window.scrollTo({
+                    top: absoluteTop - 80,
+                    behavior: 'smooth'
+                });
             }, 300);
         });
 
