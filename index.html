@@ -3392,7 +3392,36 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
+// دالة طلب إذن الإشعارات وتخزين توكن الزبون
+function requestNotificationPermission() {
+    if (!('Notification' in window)) return;
 
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            // استخدام Firebase Messaging للحصول على Token
+            const messaging = firebase.messaging();
+            
+            // استبدل المفتاح أدناه بمفتاح VAPID الخاص بك من إعدادات Firebase Cloud Messaging
+            messaging.getToken({ vapidKey: 'YOUR_VAPID_KEY' }).then((currentToken) => {
+                if (currentToken) {
+                    // حفظ Token الهاتف في قاعدة البيانات بقسم fcmTokens
+                    db.collection("fcmTokens").doc(currentToken).set({
+                        token: currentToken,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log("تم تسجيل الهاتف للاستقبال بنجاح!");
+                }
+            }).catch((err) => {
+                console.log('Error getting token: ', err);
+            });
+        }
+    });
+}
+
+// تشغيل طلب الإذن عند فتح المتجر
+document.addEventListener("DOMContentLoaded", function() {
+    requestNotificationPermission();
+});
     
 </script>
 
