@@ -3618,6 +3618,15 @@ function renderPermanentNotificationButton() {
 document.addEventListener("DOMContentLoaded", function() {
     renderPermanentNotificationButton();
 });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then(function(registration) {
+            console.log('ServiceWorker registered');
+        });
+    });
+}
     
 </script>
 
