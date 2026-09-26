@@ -3501,14 +3501,14 @@ function closeFuturisticBanner() {
     }
 }
 
-// دالة موحدة مسؤولة عن أخذ الإذن وطلب الـ Token وحفظه في Firebase Firestore
-function requestNotificationPermission() {
+// دالة موحدة مسؤولة عن أخذ الإذن وطلب الـ Token وحفظه في Firebase Firestore وإخفاء العناصر فوراً
+function requestNotificationPermission(buttonElement) {
     // 1. طلب إذن الإشعارات من المستخدم فوراً وبدون أي تأخير
     Notification.requestPermission().then((permission) => {
         if (permission === 'granted') {
             console.log('Notification permission granted.');
-            
-            // 2. تسجيل الـ Service Worker وجلب التوكن في الخلفية بهدوء
+
+            // 2. تسجيل الـ Service Worker وجلب التوكن وحفظه في الخلفية
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/Rander/firebase-messaging-sw.js')
                 .then((registration) => {
@@ -3525,20 +3525,22 @@ function requestNotificationPermission() {
                         });
                     }
                 })
-                .then(() => {
-                    console.log("Token saved successfully.");
-                })
                 .catch((err) => {
                     console.error('Background error:', err);
                 });
             }
 
-            // 3. إخفاء الزر فوراً وبشكل سلس جداً بعد الضغط على سماح
-            let btn = document.getElementById("notify-btn");
-            if (btn) {
-                btn.style.display = "none";
+            // 3. إخفاء الزر الثابت فوراً إن وجد
+            let permanentBtn = document.getElementById("permanent-notif-container");
+            if (permanentBtn) {
+                permanentBtn.style.display = "none";
             }
-            
+
+            // 4. إخفاء أي عنصر تم تمريره للدالة
+            if (buttonElement) {
+                buttonElement.style.display = "none";
+            }
+
         } else {
             console.log("Permission denied.");
         }
@@ -3593,16 +3595,15 @@ function renderPermanentNotificationButton() {
     if (!document.getElementById('permanent-notif-container')) {
         const containerHTML = `
             <div id="permanent-notif-container" style="text-align: center; margin: 15px auto; padding: 10px; z-index: 9999; position: relative;">
-        
-<button id="permanent-notif-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                <button id="permanent-notif-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
                     🔔 تفعيل إشعارات متجر رانـدر
                 </button>
             </div>
         `;
         document.body.insertAdjacentHTML('afterbegin', containerHTML);
         
-        document.getElementById('permanent-notif-btn').onclick = function() {
-            requestNotificationPermission();
+        document.getElementById('permanent-notif-btn').onclick = function(e) {
+            requestNotificationPermission(document.getElementById('permanent-notif-container'));
         };
     }
 }
