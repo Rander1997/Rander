@@ -2,20 +2,20 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA53KoefZuP2DkgzHXpHDNlB23DVuK503I",
+    apiKey: "AIzaSyA53KoefZuP2DkgzHXpHDNlB23DvUK503I",
     authDomain: "rander-43b8f.firebaseapp.com",
     projectId: "rander-43b8f",
     storageBucket: "rander-43b8f.firebasestorage.app",
     messagingSenderId: "45881930163",
     appId: "1:45881930163:web:985cc23d7dac31c957dbc6",
     measurementId: "G-EJGNEBYPR3"
-  };
+};
 
 firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
-// استقبال الإشعارات في الخلفية مع تخصيص اهتزاز فريد وتنبيه جذاب
+// استقبال الإشعارات في الخلفية
 messaging.onBackgroundMessage(function(payload) {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
@@ -33,7 +33,7 @@ messaging.onBackgroundMessage(function(payload) {
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// عند النقر على الإشعار في الهاتف، يتم فتح المتجر مباشرة
+// عند النقر على الإشعار في الهاتف
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     event.waitUntil(
