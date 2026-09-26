@@ -3506,40 +3506,49 @@ function closeFuturisticBanner() {
 
 // دالة موحدة مسؤولة عن أخذ الإذن وطلب الـ Token وحفظه في Firebase Firestore
 function requestNotificationPermission() {
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('Notification permission granted.');
-            
-            // إخفاء وحذف زر التفعيل الثابت فور منح الإذن بنجاح
-            const permBtnContainer = document.getElementById('permanent-notif-container');
-            if (permBtnContainer) {
-                permBtnContainer.remove();
+    // 1. التحقق أولاً مما إذا كان المتصفح يدعم الخدمة
+    if (!('serviceWorker' in navigator)) {
+        alert("متصفحك لا يدعم الإشعارات.");
+        return;
+    }
+
+    // 2. تسجيل الخدمة أولاً ثم جلب التوكن
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then((registration) => {
+        console.log('Service Worker is active:', registration);
+
+        // 3. طلب الإذن من المستخدم
+        return Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+
+                // إخفاء زر التفعيل فوراً
+                const permBtnContainer = document.getElementById('permanent-notif-container');
+                if (permBtnContainer) permBtnContainer.remove();
+
+                // 4. توليد التوكن باستخدام التسجيل الناجح
+                return messaging.getToken({ serviceWorkerRegistration: registration });
+            } else {
+                throw new Error("تم رفض إذن الإشعارات من قبل المستخدم.");
             }
-            
-            // استخدام التوكن التلقائي المرتبط بالمشروع
-            messaging.getToken({ 
-                serviceWorkerRegistration: registration 
-            }).then((currentToken) => {
-                if (currentToken) {
-                    // حفظ التوكن في قاعدة البيانات Firestore
-                    db.collection("fcmTokens").doc(currentToken).set({
-                        token: currentToken,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
-                        alert("تم حفظ الرمز في فايربيس بنجاح! 🚀");
-                    }).catch((dbErr) => {
-                        alert("خطأ في حفظ الرمز بقاعدة البيانات: " + dbErr.message);
-                    });
-                } else {
-                    alert("لم يتم توليد رمز التوكن من المتصفح.");
-                }
-            }).catch((err) => {
-                console.log('An error occurred while retrieving token. ', err);
-                alert("خطأ في جلب الرمز: " + err.message);
+        });
+    })
+    .then((currentToken) => {
+        if (currentToken) {
+            // 5. حفظ التوكن في فايربيس
+            return db.collection("fcmTokens").doc(currentToken).set({
+                token: currentToken,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("تم حفظ الرمز في فايربيس بنجاح! 🚀");
             });
         } else {
-            alert("تم رفض إذن الإشعارات من قبل المستخدم.");
+            alert("لم يتم توليد رمز التوكن من المتصفح.");
         }
+    })
+    .catch((err) => {
+        console.error('Error during notification setup: ', err);
+        alert("خطأ: " + err.message);
     });
 }
 
