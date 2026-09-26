@@ -3513,7 +3513,7 @@ function requestNotificationPermission() {
     }
 
     // 2. تسجيل الخدمة أولاً ثم جلب التوكن
-    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    navigator.serviceWorker.register('./firebase-messaging-sw.js')
     .then((registration) => {
         console.log('Service Worker is active:', registration);
 
