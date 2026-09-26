@@ -3516,9 +3516,10 @@ function requestNotificationPermission() {
             if (permission === 'granted') {
                 console.log('Notification permission granted.');
                 
-                // توليد التوكن بشكل نظيف وآمن بدون نصوص خاطئة
+                // استخدام مفتاح الـ VAPID الحقيقي الذي قمت بنسخه
                 return messaging.getToken({ 
-                    serviceWorkerRegistration: registration 
+                    serviceWorkerRegistration: registration,
+                    vapidKey: "BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I" 
                 });
             } else {
                 throw new Error("تم رفض إذن الإشعارات من قبل المستخدم في المتصفح.");
@@ -3540,15 +3541,8 @@ function requestNotificationPermission() {
     })
     .catch((err) => {
         console.error('Detailed Error:', err);
-        
         let errorMsg = err.message || JSON.stringify(err);
-        if (errorMsg.includes("API key not valid")) {
-            alert("خطأ API Key: مفتاح الربط غير صالح أو أن المشروع لا يسمح بهذا الطلب.");
-        } else if (errorMsg.includes("messaging/permission-blocked")) {
-            alert("خطأ إذن: تم حظر الإشعارات مسبقاً من إعدادات المتصفح.");
-        } else {
-            alert("خطأ تفصيلي غير متوقع: " + errorMsg);
-        }
+        alert("خطأ تفصيلي: " + errorMsg);
     });
 }
 
