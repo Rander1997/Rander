@@ -2,7 +2,7 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA53KoefZuP2DkgzHXpHDNlB23DvUK503I",
+    apiKey: "AIzaSyA53KoefZuP2DkgzHXpHDNlb23DvUK503I",
     authDomain: "rander-43b8f.firebaseapp.com",
     projectId: "rander-43b8f",
     storageBucket: "rander-43b8f.firebasestorage.app",
