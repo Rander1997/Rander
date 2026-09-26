@@ -3508,7 +3508,7 @@ function requestNotificationPermission() {
         return;
     }
 
-    navigator.serviceWorker.register('./firebase-messaging-sw.js')  // أو المسار الصحيح لديك
+    navigator.serviceWorker.register('./firebase-messaging-sw.js')
     .then((registration) => {
         console.log('Service Worker registered successfully:', registration);
         
@@ -3516,10 +3516,9 @@ function requestNotificationPermission() {
             if (permission === 'granted') {
                 console.log('Notification permission granted.');
                 
-                // محاولة توليد التوكن
+                // توليد التوكن بشكل نظيف وآمن بدون نصوص خاطئة
                 return messaging.getToken({ 
-                    serviceWorkerRegistration: registration,
-                    vapidKey: "ضع هنا مفتاح الـ VAPID الخاص بك إذا احتجت له، أو اتركه فارغاً" 
+                    serviceWorkerRegistration: registration 
                 });
             } else {
                 throw new Error("تم رفض إذن الإشعارات من قبل المستخدم في المتصفح.");
@@ -3540,7 +3539,6 @@ function requestNotificationPermission() {
         }
     })
     .catch((err) => {
-        // هنا يتم التقاط الخطأ الحقيقي وعرضه لك بالتفصيل على الشاشة
         console.error('Detailed Error:', err);
         
         let errorMsg = err.message || JSON.stringify(err);
