@@ -22,12 +22,12 @@ messaging.onBackgroundMessage(function(payload) {
     const notificationTitle = payload.notification.title || "متجر راندر";
     const notificationOptions = {
         body: payload.notification.body || "يوجد قصة جديدة بانتظارك!",
-        icon: '/icon.png', 
-        badge: '/badge.png', 
+        icon: '/Rander/icon.png', 
+        badge: '/Rander/badge.png', 
         vibrate: [200, 100, 200, 100, 400], 
         tag: 'story-notification', 
         requireInteraction: true, 
-        data: { url: payload.notification.click_action || '/' }
+        data: { url: payload.notification.click_action || '/Rander/' }
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
