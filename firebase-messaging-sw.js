@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js');
 
 const firebaseConfig = {
     apiKey: "AIzaSyA53KoefZuP2DkgzHXpHDNlB23DVuK503I",
@@ -22,12 +22,11 @@ messaging.onBackgroundMessage(function(payload) {
     const notificationTitle = payload.notification.title || "متجر راندر";
     const notificationOptions = {
         body: payload.notification.body || "يوجد قصة جديدة بانتظارك!",
-        icon: '/icon.png', // تأكد من مسار الأيقونة لديك
-        badge: '/badge.png', // أيقونة صغيرة تظهر في شريط الإشعارات
-        // نمط اهتزاز فريد ومميز (نبضتان قصيرتان ثم نبضة طويلة لجذب الانتباه)
+        icon: '/icon.png', 
+        badge: '/badge.png', 
         vibrate: [200, 100, 200, 100, 400], 
-        tag: 'story-notification', // لكي لا تتراكم الإشعارات وتستبدل ببعضها
-        requireInteraction: true, // يبقى الإشعار ظاهراً حتى يتفاعل معه الزبون
+        tag: 'story-notification', 
+        requireInteraction: true, 
         data: { url: payload.notification.click_action || '/' }
     };
 
