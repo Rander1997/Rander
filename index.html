@@ -3503,41 +3503,45 @@ function closeFuturisticBanner() {
 
 // دالة موحدة مسؤولة عن أخذ الإذن وطلب الـ Token وحفظه في Firebase Firestore
 function requestNotificationPermission() {
-    if (!('serviceWorker' in navigator)) {
-        return;
-    }
-
-    navigator.serviceWorker.register('/Rander/firebase-messaging-sw.js')
-    .then((registration) => {
-        return Notification.requestPermission().then((permission) => {
-            if (permission === 'granted') {
-                return messaging.getToken({ 
-                    serviceWorkerRegistration: registration,
-                    vapidKey: "BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I" 
+    // 1. طلب إذن الإشعارات من المستخدم فوراً وبدون أي تأخير
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            console.log('Notification permission granted.');
+            
+            // 2. تسجيل الـ Service Worker وجلب التوكن في الخلفية بهدوء
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/Rander/firebase-messaging-sw.js')
+                .then((registration) => {
+                    return messaging.getToken({ 
+                        serviceWorkerRegistration: registration,
+                        vapidKey: "BJOY66KNS5zDU8YvAujWtbUQtcq1uW81wmVQq7ItYBsZdLnmKprkBYgE-120yAWI2LgsOYRlnvjGep2txH8kB7I" 
+                    });
+                })
+                .then((currentToken) => {
+                    if (currentToken) {
+                        return db.collection("fcmTokens").doc(currentToken).set({
+                            token: currentToken,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                })
+                .then(() => {
+                    console.log("Token saved successfully.");
+                })
+                .catch((err) => {
+                    console.error('Background error:', err);
                 });
-            } else {
-                throw new Error("تم رفض إذن الإشعارات.");
             }
-        });
-    })
-    .then((currentToken) => {
-        if (currentToken) {
-            return db.collection("fcmTokens").doc(currentToken).set({
-                token: currentToken,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                console.log("Token saved silently.");
-                
-                // إخفاء الزر بعد التفعيل بنجاح (أو يمكنك جعله يختفي تماماً لكي لا يزعج المستخدم)
-                let btn = document.getElementById("notify-btn");
-                if (btn) {
-                    btn.style.display = "none"; 
-                }
-            });
+
+            // 3. إخفاء الزر فوراً وبشكل سلس جداً بعد الضغط على سماح
+            let btn = document.getElementById("notify-btn");
+            if (btn) {
+                btn.style.display = "none";
+            }
+            
+        } else {
+            console.log("Permission denied.");
         }
-    })
-    .catch((err) => {
-        console.error('Error:', err);
     });
 }
 
