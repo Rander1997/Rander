@@ -3589,11 +3589,10 @@ function renderPermanentNotificationButton() {
     if (!document.getElementById('permanent-notif-container')) {
         const containerHTML = `
             <div id="permanent-notif-container" style="text-align: center; margin: 15px auto; padding: 10px; z-index: 9999; position: relative;">
-                <!-- ضع هنا كود الزر الأصلي تماماً كما كان في تصميم متجرك القديم -->
-<button class="تنسيقاتك_القديمة_هنا" onclick="requestNotificationPermission()">
-    <!-- النص أو الأيقونة القديمة -->
-    تفعيل إشعارات متجر راندر
-</button>
+        
+<button id="permanent-notif-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                    🔔 تفعيل إشعارات متجر رانـدر
+                </button>
             </div>
         `;
         document.body.insertAdjacentHTML('afterbegin', containerHTML);
