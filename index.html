@@ -3508,7 +3508,7 @@ function requestNotificationPermission() {
         return;
     }
 
-    navigator.serviceWorker.register('./firebase-messaging-sw.sw.js') // أو المسار الصحيح لديك
+    navigator.serviceWorker.register('./firebase-messaging-sw.js')  // أو المسار الصحيح لديك
     .then((registration) => {
         console.log('Service Worker registered successfully:', registration);
         
