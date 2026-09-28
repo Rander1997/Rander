@@ -2044,28 +2044,58 @@ function addNewProduct() {
             }, 300);
         });
 
-        function openProductDetail(pId) {
+        function openProductModal(identifier) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
-
-    // 1. نبحث أولاً في المصفوفة المحلية، وإذا لم نجدها، نجلبها مباشرة من فايربيس
-    let product = productsData[pId];
+    
+    // 1. نبحث أولاً في المصفوفة المحلية إما بالـ id أو بالـ slug
+    let product = null;
+    if (productsData[identifier]) {
+        product = productsData[identifier];
+    } else {
+        // البحث داخل قيم المصفوفة بالـ slug أو الـ id
+        product = Object.values(productsData).find(p => 
+            p.id === identifier || p.slug === identifier
+        );
+    }
 
     if (!product) {
-        // إذا كان المنتج جديداً ومضافاً من لوحة الأدمن، نقوم بجلب بياناته من فايربيس بالـ ID
-        db.collection("products").doc(pId).get().then((doc) => {
-            if (doc.exists) {
+        // 2. إذا لم يكن موجوداً محلياً، نقوم بالبحث في فايربيس (سواء كان المدخل slug أو id)
+        // نحاول أولاً البحث بالـ slug إذا لم يكن معرف مستند عادي
+        db.collection("products").where("slug", "==", identifier).get().then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+                let doc = querySnapshot.docs[0];
                 let data = doc.data();
                 product = {
                     id: doc.id,
+                    slug: data.slug || "",
                     name: data.name,
                     price: Number(data.price) || 0,
-                    desc: data.description || data.desc || "لا يوجد وصف متاح.",
+                    desc: data.description || data.desc || "لا يوجد وصف متاحة",
                     images: data.images && data.images.length > 0 ? data.images : [data.image]
                 };
                 displayProductModal(product);
             } else {
-                alert("عذراً، هذا المنتج غير موجود.");
+                // إذا لم يوجد بالـ slug، نجرب البحث مباشرة بالطريقة القديمة باعتباره document ID
+                db.collection("products").doc(identifier).get().then((doc) => {
+                    if (doc.exists) {
+                        let data = doc.data();
+                        product = {
+                            id: doc.id,
+                            slug: data.slug || "",
+                            name: data.name,
+                            price: Number(data.price) || 0,
+                            desc: data.description || data.desc || "لا يوجد وصف متاحة",
+                            images: data.images && data.images.length > 0 ? data.images : [data.image]
+                        };
+                        displayProductModal(product);
+                    } else {
+                        alert("عذراً، هذا المنتج غير موجود");
+                    }
+                });
             }
+        }).catch(err => {
+            console.error("خطأ في جلب المنتج:", err);
+            alert("حدث خطأ أثناء جلب تفاصيل المنتج");
         });
         return;
     }
