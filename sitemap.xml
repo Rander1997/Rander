@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <!-- الصفحة الرئيسية -->
   <url>
        <loc>https://rander1997.github.io/Rander/</loc>
-       <lastmod>2026-09-28T22:34:07+00:00</lastmod>
        <priority>1.0000</priority>
   </url>
-
-  <!-- روابط المنتجات -->
   <url>
        <loc>https://rander1997.github.io/Rander/?product=0f7imfFcgyfh1TRLozlM</loc>
        <priority>0.8000</priority>
@@ -349,5 +344,4 @@
        <loc>https://rander1997.github.io/Rander/?product=zWDeUNhdE9W1ZcjZ7cXi</loc>
        <priority>0.8000</priority>
   </url>
-
 </urlset>
