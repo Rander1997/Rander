@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://i.imgur.com/ZMtVEDi.png">
 
-    <title>لوحة إدارة متجر راندر | Rander Admin</title>
+    <title>لوحة ألإدارة | Rander Admin</title>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -30,6 +30,15 @@
           firebase.initializeApp(firebaseConfig);
       }
       const db = firebase.firestore();
+
+      // دالة مساهمة لتوليد الـ Slug بشكل نظيف يدعم العربية والإنجليزية
+      function generateSlug(text) {
+          if (!text) return '';
+          return text.toString().toLowerCase().trim()
+              .replace(/\s+/g, '-')           // استبدال المسافات بشرطات
+              .replace(/[^\w\-أ-ي]+/g, '')    // الحفاظ على الحروف العربية والإنجليزية والشرطات
+              .replace(/\-\-+/g, '-');        // منع تكرار الشرطات
+      }
     </script>
 
     <style>
@@ -141,9 +150,9 @@
 
     <!-- شاشة تسجيل الدخول للأدمن -->
     <div id="login-screen">
-        <h2>🔐 تطبيق أدمن راندر</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">أدخل رمز المرور للتحكم الكامل</p>
-        <input type="password" id="admin-password" placeholder="رمز المرور" class="form-input">
+        <h2>🔐  </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 13px;">هاااا شتريد؟</p>
+        <input type="password" id="admin-password" placeholder="هههههههههههه" class="form-input">
         <button class="btn" onclick="checkAdminLogin()">دخول لوحة التحكم</button>
     </div>
 
@@ -199,23 +208,24 @@
                     <select id="p-category" class="form-input" required>
                         <option value="">-- اختر التصنيف المناسب --</option>
                     </select>
+
                     <!-- حقل شارة المنتج الاختيارية -->
-<div style="margin-bottom: 15px;">
-    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">نص الشارة (اختياري - مثل: جديد، تخفيض)</label>
-    <input type="text" id="p-badge-text" placeholder="اتركه فارغاً إذا لا تريد شارة" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
-</div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">نص الشارة (اختياري - مثل: جديد، تخفيض)</label>
+                        <input type="text" id="p-badge-text" placeholder="اتركه فارغاً إذا لا تريد شارة" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    </div>
 
-<!-- حقل اختيار لون الشارة -->
-<div style="margin-bottom: 15px;">
-    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">لون الشارة</label>
-    <input type="color" id="p-badge-color" value="#28a745" class="form-input" style="width: 100%; height: 40px; padding: 2px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
-</div>
+                    <!-- حقل اختيار لون الشارة -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">لون الشارة</label>
+                        <input type="color" id="p-badge-color" value="#28a745" class="form-input" style="width: 100%; height: 40px; padding: 2px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+                    </div>
 
-<!-- حقل ترتيب العرض في الرئيسية -->
-<div style="margin-bottom: 15px;">
-    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض في الرئيسية (اختياري - الأقل يظهر أولاً)</label>
-    <input type="number" id="p-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
-</div>
+                    <!-- حقل ترتيب العرض في الرئيسية -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض في الرئيسية (اختياري - الأقل يظهر أولاً)</label>
+                        <input type="number" id="p-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
+                    </div>
                     
                     <button type="submit" id="save-btn" class="btn btn-success">نشر المنتج في المتجر 🚀</button>
                     <button type="button" id="cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetProductForm()">إلغاء التعديل</button>
@@ -295,10 +305,10 @@
                     </select>
 
                     <!-- حقل ترتيب القسم (رئيسي أو فرعي) -->
-<div style="margin-bottom: 15px;">
-    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض (اختياري - الأقل يظهر أولاً)</label>
-    <input type="number" id="cat-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
-</div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض (اختياري - الأقل يظهر أولاً)</label>
+                        <input type="number" id="cat-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
+                    </div>
 
                     <button type="submit" id="cat-save-btn" class="btn btn-success">إضافة القسم 🚀</button>
                     <button type="button" id="cat-cancel-btn" class="btn" style="background:#64748b; margin-top:8px; display:none;" onclick="resetCategoryForm()">إلغاء التعديل</button>
@@ -481,6 +491,9 @@
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
                     document.getElementById('p-category').value = p.category ? p.category.trim() : '';
+                    document.getElementById('p-badge-text').value = p.badgeText || '';
+                    document.getElementById('p-badge-color').value = p.badgeColor || '#28a745';
+                    document.getElementById('p-order').value = p.displayOrder !== undefined ? p.displayOrder : 0;
 
                     const container = document.getElementById('variants-container');
                     container.innerHTML = '';
@@ -539,27 +552,28 @@
                 }
             });
 
-                // جلب قيم الشارة الجديدة
-    const badgeText = document.getElementById('p-badge-text').value.trim();
-    const badgeColor = document.getElementById('p-badge-color').value;
+            const badgeText = document.getElementById('p-badge-text').value.trim();
+            const badgeColor = document.getElementById('p-badge-color').value;
+            const productOrder = Number(document.getElementById('p-order').value) || 0;
             
-const productOrder = Number(document.getElementById('p-order').value) || 0;
-            
-    const productData = {
-    name: name,
-    slug: name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, ''), // <--- أضف هذا السطر هنا
-    price: price,
-    supplier: supplier,
-    description: description,
-    desc: desc,
-    category: category,
-    images: imagesArray,
-    image: mainImg,
-    variants: variants,
-    badgeText: badgeText,
-    badgeColor: badgeColor,
-    displayOrder: productOrder,
-};
+            // توليد الـ slug التلقائي للمنتج
+            const productSlug = generateSlug(name);
+
+            const productData = {
+                name: name,
+                slug: productSlug,
+                price: price,
+                supplier: supplier,
+                description: description,
+                desc: description,
+                category: category,
+                images: imagesArray,
+                image: mainImage,
+                variants: variants,
+                badgeText: badgeText,
+                badgeColor: badgeColor,
+                displayOrder: productOrder,
+            };
 
             if (docId) {
                 db.collection("products").doc(docId).update(productData).then(() => {
@@ -608,9 +622,10 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
                 return;
             }
             stories.forEach((s) => {
+                let mainStoryImg = s.images && s.images.length > 0 ? s.images[0] : (s.image || '');
                 tbody.innerHTML += `
                     <tr>
-                        <td><img src="${s.image}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
+                        <td><img src="${mainStoryImg}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
                         <td>
                             <b>${s.title}</b><br>
                             <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
@@ -640,11 +655,13 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
             db.collection("stories").doc(id).get().then((doc) => {
                 if (doc.exists) {
                     let s = doc.data();
+                    let imagesStr = s.images && Array.isArray(s.images) ? s.images.join(', ') : (s.image || '');
+
                     document.getElementById('edit-story-id').value = id;
                     document.getElementById('s-title').value = s.title || '';
                     document.getElementById('s-price').value = s.price || '';
                     document.getElementById('s-supplier').value = s.supplier || '';
-                    document.getElementById('s-image').value = s.image || '';
+                    document.getElementById('s-images').value = imagesStr;
 
                     document.getElementById('story-form-title').innerText = "✏️ تعديل الستوري";
                     document.getElementById('story-save-btn').innerText = "حفظ التعديلات";
@@ -655,55 +672,55 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
             });
         }
 
-                function saveStory() {
-    const docId = document.getElementById('edit-story-id').value;
-    const title = document.getElementById('s-title').value.trim();
-    const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
-    const supplier = document.getElementById('s-supplier').value.trim();
-    
-    // قراءة الصور وفصلها إلى مصفوفة وإزالة المسافات الفارغة
-    const imagesInput = document.getElementById('s-images').value.trim();
-    const images = imagesInput ? imagesInput.split(',').map(img => img.trim()).filter(img => img !== "") : [];
-
-    if (!title || images.length === 0 || !price || !supplier) {
-        return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط صورة واحدة على الأقل!");
-    }
-
-    // نحفظ مصفوفة الصور بدلاً من صورة واحدة، مع الاحتفاظ بالتوافقية
-    const storyData = { 
-        title: title, 
-        price: price, 
-        supplier: supplier, 
-        images: images,
-        image: images[0] // كاحتياط للنسخ القديمة
-    };
-
-    if (docId) {
-        db.collection("stories").doc(docId).update(storyData).then(() => {
-            alert("تم تعديل الستوري بنجاح 🛠️");
-            resetStoryForm();
-            loadAdminStories();
-        }).catch(err => alert("خطأ: " + err.message));
-    } else {
-        storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        db.collection("stories").add(storyData).then((docRef) => {
+        function saveStory() {
+            const docId = document.getElementById('edit-story-id').value;
+            const title = document.getElementById('s-title').value.trim();
+            const price = parseInt(document.getElementById('s-price').value.replace(/[^0-9]/g, '')) || 0;
+            const supplier = document.getElementById('s-supplier').value.trim();
             
-            // إضافة مستند إشعار في قاعدة البيانات ليتم رصده وإرساله لهواتف الزبائن
-            db.collection("notifications").add({
-                title: "قصة جديدة في المتجر! 📱",
-                body: "تم نشر قصة جديدة بعنوان: " + title,
-                storyId: docRef.id,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(err => console.log("Notification error:", err));
+            const imagesInput = document.getElementById('s-images').value.trim();
+            const images = imagesInput ? imagesInput.split(',').map(img => img.trim()).filter(img => img !== "") : [];
 
-            alert("📸 تم نشر الستوري بنجاح وإرسال الإشعار!");
-            resetStoryForm();
-            loadAdminStories();
-        }).catch(error => {
-            alert("❌ خطأ أثناء النشر: " + error.message);
-        });
-    }
-}
+            if (!title || images.length === 0 || !price || !supplier) {
+                return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط صورة واحدة على الأقل!");
+            }
+
+            // توليد الـ slug التلقائي للستوري
+            const storySlug = generateSlug(title);
+
+            const storyData = { 
+                title: title, 
+                slug: storySlug,
+                price: price, 
+                supplier: supplier, 
+                images: images,
+                image: images[0]
+            };
+
+            if (docId) {
+                db.collection("stories").doc(docId).update(storyData).then(() => {
+                    alert("تم تعديل الستوري بنجاح 🛠️");
+                    resetStoryForm();
+                    loadAdminStories();
+                }).catch(err => alert("خطأ: " + err.message));
+            } else {
+                storyData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("stories").add(storyData).then((docRef) => {
+                    db.collection("notifications").add({
+                        title: "قصة جديدة في المتجر! 📱",
+                        body: "تم نشر قصة جديدة بعنوان: " + title,
+                        storyId: docRef.id,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).catch(err => console.log("Notification error:", err));
+
+                    alert("📸 تم نشر الستوري بنجاح وإرسال الإشعار!");
+                    resetStoryForm();
+                    loadAdminStories();
+                }).catch(error => {
+                    alert("❌ خطأ أثناء النشر: " + error.message);
+                });
+            }
+        }
 
         function resetStoryForm() {
             document.getElementById('story-form').reset();
@@ -803,6 +820,7 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
                     let cat = doc.data();
                     document.getElementById('edit-cat-id').value = id;
                     document.getElementById('cat-name').value = cat.name || '';
+                    document.getElementById('cat-order').value = cat.order !== undefined ? cat.order : 0;
                     
                     updateCategoryParentSelect(id);
                     document.getElementById('cat-parent').value = cat.parentId || '';
@@ -816,36 +834,40 @@ const productOrder = Number(document.getElementById('p-order').value) || 0;
             });
         }
 
-    function saveCategory() {
-    const docId = document.getElementById('edit-cat-id').value;
-    const name = document.getElementById('cat-name').value.trim();
-    const parentId = document.getElementById('cat-parent').value;
-    const catOrder = Number(document.getElementById('cat-order').value) || 0;
+        function saveCategory() {
+            const docId = document.getElementById('edit-cat-id').value;
+            const name = document.getElementById('cat-name').value.trim();
+            const parentId = document.getElementById('cat-parent').value;
+            const catOrder = Number(document.getElementById('cat-order').value) || 0;
 
-    if (!name) return alert("يرجى إدخال اسم القسم!");
+            if (!name) return alert("يرجى إدخال اسم القسم!");
 
-    const catData = { 
-        name: name, 
-        parentId: parentId || "", 
-        order: catOrder 
-    };
+            // توليد الـ slug التلقائي للقسم
+            const categorySlug = generateSlug(name);
 
-    if (docId) {
-        if (docId === parentId) return alert("❌ لا يمكن جعل القسم أب لنفسه!");
-        db.collection("categories").doc(docId).update(catData).then(() => {
-            alert("📁 تم تعديل القسم بنجاح!");
-            resetCategoryForm();
-            loadAdminCategories();
-        }).catch(err => alert("❌ خطأ: " + err.message));
-    } else {
-        catData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        db.collection("categories").add(catData).then(() => {
-            alert("📁 تم إضافة القسم بنجاح!");
-            resetCategoryForm();
-            loadAdminCategories();
-        }).catch(err => alert("❌ خطأ: " + err.message));
-    }
-}
+            const catData = { 
+                name: name, 
+                slug: categorySlug,
+                parentId: parentId || "", 
+                order: catOrder 
+            };
+
+            if (docId) {
+                if (docId === parentId) return alert("❌ لا يمكن جعل القسم أب لنفسه!");
+                db.collection("categories").doc(docId).update(catData).then(() => {
+                    alert("📁 تم تعديل القسم بنجاح!");
+                    resetCategoryForm();
+                    loadAdminCategories();
+                }).catch(err => alert("❌ خطأ: " + err.message));
+            } else {
+                catData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("categories").add(catData).then(() => {
+                    alert("📁 تم إضافة القسم بنجاح!");
+                    resetCategoryForm();
+                    loadAdminCategories();
+                }).catch(err => alert("❌ خطأ: " + err.message));
+            }
+        }
 
         function resetCategoryForm() {
             document.getElementById('category-form').reset();
