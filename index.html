@@ -2044,33 +2044,30 @@ function addNewProduct() {
             }, 300);
         });
 
-        function openProductDetail(pId) {
+        function openProductDetail(productSlug) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
 
-    // 1. نبحث أولاً في المصفوفة المحلية، وإذا لم نجدها، نجلبها مباشرة من فايربيس
-    let product = productsData[pId];
-
-    if (!product) {
-        // إذا كان المنتج جديداً ومضافاً من لوحة الأدمن، نقوم بجلب بياناته من فايربيس بالـ ID
-        db.collection("products").doc(pId).get().then((doc) => {
-            if (doc.exists) {
-                let data = doc.data();
-                product = {
-                    id: doc.id,
-                    name: data.name,
-                    price: Number(data.price) || 0,
-                    desc: data.description || data.desc || "لا يوجد وصف متاح.",
-                    images: data.images && data.images.length > 0 ? data.images : [data.image]
-                };
-                displayProductModal(product);
-            } else {
-                alert("عذراً، هذا المنتج غير موجود.");
-            }
-        });
-        return;
-    }
-
-    displayProductModal(product);
+    // البحث في فايربيس عن المنتج باستخدام حقل الـ slug الجديد
+    db.collection("products").where("slug", "==", productSlug).get().then((querySnapshot) => {
+        if (!querySnapshot.empty) {
+            let doc = querySnapshot.docs[0];
+            let data = doc.data();
+            let product = {
+                id: doc.id,
+                name: data.name,
+                slug: data.slug,
+                price: Number(data.price) || 0,
+                desc: data.description || data.desc || "لا يوجد وصف متاح.",
+                images: data.images && data.images.length > 0 ? data.images : [data.image],
+                ...data
+            };
+            displayProductModal(product);
+        } else {
+            alert("عذراً، هذا المنتج غير موجود.");
+        }
+    }).catch((error) => {
+        console.error("خطأ في جلب المنتج:", error);
+    });
 }
 
 // قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
