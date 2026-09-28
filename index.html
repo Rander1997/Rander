@@ -3241,8 +3241,8 @@ function renderProductsList(productsArray, gridElement) {
         card.innerHTML = `
             ${badgeHtml}
             <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-            <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
-            <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
+<img src="${mainImg}" class="product-image" onclick="openProductDetail('${product.slug}')">
+<div class="product-title" onclick="openProductDetail('${product.slug}')" style="cursor:pointer;">${product.name}</div>
             
             <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
             
