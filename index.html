@@ -1489,7 +1489,7 @@ button.btn[onclick*="sendOrder"]:hover {
             <p style="margin: 10px 0; font-size: 14px; color: var(--text-secondary);">متجر إلكتروني يوفر لك أحدث المنتجات والعروض مع خدمة توصيل سريعة وبسيطة.</p>
             <hr style="border: 0.5px solid var(--border-color, #eee); margin: 12px 0;">
             <h4>تواصل معنا</h4>
-            <p style="margin-top: 8px;"><a href="https://wa.me/9647862253180" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold; font-size: 15px;">💬 تواصل عبر الواتساب</a></p>
+            <p style="margin-top: 8px;"><a href="https://wa.me/9647742440666" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold; font-size: 15px;">💬 تواصل عبر الواتساب</a></p>
             <button onclick="document.getElementById('app-info-modal').style.display='none'" style="margin-top: 15px; padding: 8px 20px; border: none; background: var(--accent, #1d4ed8); color: #fff; border-radius: 8px; font-weight: bold;">إغلاق</button>
         </div>
     </div>
@@ -1757,7 +1757,7 @@ button.btn[onclick*="sendOrder"]:hover {
         <div style="margin-bottom: 15px; text-align: right;">
             <label id="wallet-label-text" style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">رقم المحفظة المحول لها:</label>
             <div style="display: flex; gap: 8px;">
-                <input type="text" id="wallet-number-input" value="07862253180" readonly style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f1f5f9; text-align: center; font-weight: bold;">
+                <input type="text" id="wallet-number-input" value="07742440666" readonly style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f1f5f9; text-align: center; font-weight: bold;">
                 <button onclick="copyWalletNumber()" style="background: #0ea5e9; color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold;">نسخ</button>
             </div>
         </div>
@@ -2622,13 +2622,13 @@ function openPaymentModal(method) {
 iconEl.innerHTML = '<img src="https://i.imgur.com/Heerq69.png" alt="ZainCash" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #6b21a8; border: 2px solid #e2e8f0; display: block; margin: 0 auto;">';
         titleEl.innerText = "الدفع عبر زين كاش (ZainCash)";
         walletLabel.innerText = "رقم محفظة زين كاش المحول لها:";
-        walletInput.value = "07862253180";
+        walletInput.value = "07742440666";
         qrImg.src = "https://i.imgur.com/VQLDvBa.jpeg";
     } else if (method === 'SuperQi') {
         iconEl.innerHTML = '<img src="https://i.imgur.com/8JRBrqG.png" alt="SuperQi" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #eab308; border: 2px solid #e2e8f0; display: block; margin: 0 auto;">';
         titleEl.innerText = "الدفع عبر SuperQi";
         walletLabel.innerText = "رقم محفظة SuperQi المحول لها:";
-        walletInput.value = "07862253180";
+        walletInput.value = "07742440666";
         qrImg.src = "https://i.imgur.com/IqsUEHg.jpeg";
     }
 
@@ -2725,7 +2725,7 @@ itemList += (i + 1) + ". " + (item.name || item.title) + optionText + supplierTe
     if(document.getElementById('address')) localStorage.setItem('saved_address', document.getElementById('address').value);
     if(document.getElementById('city')) localStorage.setItem('saved_city', document.getElementById('city').value);
 
-    var waUrl = "https://wa.me/9647862253180?text=" + encodeURIComponent(message);
+    var waUrl = "https://wa.me/9647742440666?text=" + encodeURIComponent(message);
     window.open(waUrl, '_blank');
 
             } catch (err) {
