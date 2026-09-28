@@ -2126,6 +2126,9 @@ function generateSitemapText() {
         win.document.write(`<pre style="direction:ltr; text-align:left; font-size:16px;">${xmlOutput}</pre>`);
     });
 }
+
+// ضعه هنا في السطر الأخير تماماً لكي يعمل بمجرد تحميل الصفحة
+generateSitemapText();
     
 // قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
 function displayProductModal(product) {
