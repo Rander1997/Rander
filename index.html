@@ -2044,51 +2044,28 @@ function addNewProduct() {
             }, 300);
         });
 
-        function openProductDetail(pId) {
+        Function openProductDetail(pId) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
 
-    console.log("القيم المستلمة عند النقر (pId):", pId);
-
-    // 1. نبحث أولاً في المصفوفة المحلية
+    // 1. نبحث أولاً في المصفوفة المحلية، وإذا لم نجدها، نجلبها مباشرة من فايربيس
     let product = productsData[pId];
 
     if (!product) {
-        // 2. البحث في فايربيس باستخدام الـ slug
-        db.collection("products").where("slug", "==", pId).get().then((querySnapshot) => {
-            if (!querySnapshot.empty) {
-                let doc = querySnapshot.docs[0];
+        // إذا كان المنتج جديداً ومضافاً من لوحة الأدمن، نقوم بجلب بياناته من فايربيس بالـ ID
+        db.collection("products").doc(pId).get().then((doc) => {
+            if (doc.exists) {
                 let data = doc.data();
-                let prod = {
+                product = {
                     id: doc.id,
                     name: data.name,
-                    slug: data.slug,
                     price: Number(data.price) || 0,
                     desc: data.description || data.desc || "لا يوجد وصف متاح.",
-                    images: data.images && data.images.length > 0 ? data.images : [data.image],
-                    ...data
+                    images: data.images && data.images.length > 0 ? data.images : [data.image]
                 };
-                displayProductModal(prod);
+                displayProductModal(product);
             } else {
-                // 3. البحث بالـ Document ID العشوائي
-                db.collection("products").doc(pId).get().then((doc) => {
-                    if (doc.exists) {
-                        let data = doc.data();
-                        let prod = {
-                            id: doc.id,
-                            name: data.name,
-                            price: Number(data.price) || 0,
-                            desc: data.description || data.desc || "لا يوجد وصف متاح.",
-                            images: data.images && data.images.length > 0 ? data.images : [data.image]
-                        };
-                        displayProductModal(prod);
-                    } else {
-                        console.error("المنتج غير موجود في قاعدة البيانات بهذا المعرف:", pId);
-                        alert("عذراً، هذا المنتج غير موجود.");
-                    }
-                }).catch(err => console.error("خطأ في جلب الـ ID:", err));
+                alert("عذراً، هذا المنتج غير موجود.");
             }
-        }).catch((error) => {
-            console.error("خطأ في البحث عن الـ slug:", error);
         });
         return;
     }
