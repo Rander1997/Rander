@@ -2109,7 +2109,8 @@ function addNewProduct() {
 function updateProductUrl(product) {
     const slugOrId = product.slug || product.id;
     const newUrl = `${window.location.origin}${window.location.pathname}?product=${slugOrId}`;
-    window.history.pushState({path: newUrl}, '', newUrl);
+    // استخدام replaceState بدلاً من pushState لكي لا يتم حفظه كسجل دائم عند التحديث
+    window.history.replaceState({path: newUrl}, '', newUrl);
 }
 
 // قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
