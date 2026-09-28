@@ -3441,7 +3441,7 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
     });
 }
 
-    function renderRecommendations(currentProductId) {
+    function renderRecommendations(currentIdentifier) {
     let recContainer = document.getElementById('detail-recommendations');
     if (!recContainer) return;
     recContainer.innerHTML = '';
@@ -3450,8 +3450,11 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
     db.collection("products").limit(4).get().then((snapshot) => {
         snapshot.forEach((doc) => {
             let pId = doc.id;
-            if (pId !== currentProductId) {
-                let p = doc.data();
+            let p = doc.data();
+            let pSlug = p.slug || pId; // استخدام الـ slug كأولوية
+
+            // استبعاد المنتج الحالي سواء طابق الـ id أو الـ slug
+            if (pId !== currentIdentifier && pSlug !== currentIdentifier) {
                 let img = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
                 
                 let card = document.createElement('div');
@@ -3462,12 +3465,17 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
                     <div style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
                     <div style="font-size:11px; color:var(--accent); font-weight:bold;">${Number(p.price).toLocaleString('ar-IQ')} د.ع</div>
                 `;
+                
+                // تحديث حدث النقر ليستدعي openProductModal بالـ slug الجديد
                 card.onclick = function() {
-                    openProductDetail(pId); // الانتقال للمنتج المقترح فور النقر عليه
+                    openProductModal(pSlug); 
                 };
+                
                 recContainer.appendChild(card);
             }
         });
+    }).catch(err => {
+        console.error("خطأ في جلب العناصر المقترحة:", err);
     });
 }
 
