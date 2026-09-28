@@ -2060,7 +2060,6 @@ function addNewProduct() {
 
     if (!product) {
         // 2. إذا لم يكن موجوداً محلياً، نقوم بالبحث في فايربيس (سواء كان المدخل slug أو id)
-        // نحاول أولاً البحث بالـ slug إذا لم يكن معرف مستند عادي
         db.collection("products").where("slug", "==", identifier).get().then((querySnapshot) => {
             if (!querySnapshot.empty) {
                 let doc = querySnapshot.docs[0];
@@ -2073,6 +2072,7 @@ function addNewProduct() {
                     desc: data.description || data.desc || "لا يوجد وصف متاحة",
                     images: data.images && data.images.length > 0 ? data.images : [data.image]
                 };
+                updateProductUrl(product); // تحديث الرابط
                 displayProductModal(product);
             } else {
                 // إذا لم يوجد بالـ slug، نجرب البحث مباشرة بالطريقة القديمة باعتباره document ID
@@ -2087,6 +2087,7 @@ function addNewProduct() {
                             desc: data.description || data.desc || "لا يوجد وصف متاحة",
                             images: data.images && data.images.length > 0 ? data.images : [data.image]
                         };
+                        updateProductUrl(product); // تحديث الرابط
                         displayProductModal(product);
                     } else {
                         alert("عذراً، هذا المنتج غير موجود");
@@ -2100,7 +2101,15 @@ function addNewProduct() {
         return;
     }
 
+    updateProductUrl(product); // تحديث الرابط
     displayProductModal(product);
+}
+
+// دالة مساعدة لتحديث الرابط في شريط العنوان بنظافة
+function updateProductUrl(product) {
+    const slugOrId = product.slug || product.id;
+    const newUrl = `${window.location.origin}${window.location.pathname}?product=${slugOrId}`;
+    window.history.pushState({path: newUrl}, '', newUrl);
 }
 
 // قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
