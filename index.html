@@ -2047,11 +2047,13 @@ function addNewProduct() {
         function openProductDetail(pId) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
 
+    console.log("القيم المستلمة عند النقر (pId):", pId);
+
     // 1. نبحث أولاً في المصفوفة المحلية
     let product = productsData[pId];
 
     if (!product) {
-        // 2. إذا لم نجدها محلياً، نجرب البحث في فايربيس أولاً باستخدام الـ slug (في حال كان المُرسل slug جديد)
+        // 2. البحث في فايربيس باستخدام الـ slug
         db.collection("products").where("slug", "==", pId).get().then((querySnapshot) => {
             if (!querySnapshot.empty) {
                 let doc = querySnapshot.docs[0];
@@ -2067,7 +2069,7 @@ function addNewProduct() {
                 };
                 displayProductModal(prod);
             } else {
-                // 3. خطة بديلة أخيرة: إذا لم يوجد كـ slug، نبحث به كـ Document ID عادي (للمنتجات القديمة)
+                // 3. البحث بالـ Document ID العشوائي
                 db.collection("products").doc(pId).get().then((doc) => {
                     if (doc.exists) {
                         let data = doc.data();
@@ -2080,12 +2082,13 @@ function addNewProduct() {
                         };
                         displayProductModal(prod);
                     } else {
+                        console.error("المنتج غير موجود في قاعدة البيانات بهذا المعرف:", pId);
                         alert("عذراً، هذا المنتج غير موجود.");
                     }
-                });
+                }).catch(err => console.error("خطأ في جلب الـ ID:", err));
             }
         }).catch((error) => {
-            console.error("خطأ في جلب المنتج:", error);
+            console.error("خطأ في البحث عن الـ slug:", error);
         });
         return;
     }
