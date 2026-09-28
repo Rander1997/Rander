@@ -3240,9 +3240,10 @@ function renderProductsList(productsArray, gridElement) {
         return timeB - timeA;
     });
 
-    // الاحتفاظ بالمنتجات الثابتة أو تنظيف القديمة حسب رغبتك، هنا سنضمن عدم التكرار
+    // الاحتفاظ بالمنتجات الثابتة أو تنظيف القديمة لعدم التكرار
     productsArray.forEach(product => {
         let productId = product.id;
+        let productSlug = product.slug || productId; // استخدام الـ slug كأولوية أو الـ id كبديل
         
         // إذا كان المنتج موجوداً مسبقاً على الشاشة، لا نعيد رسمه لمنع الوميض
         if (document.querySelector(`[data-id="${productId}"]`)) return;
@@ -3250,7 +3251,15 @@ function renderProductsList(productsArray, gridElement) {
         let card = document.createElement('div');
         card.className = 'product-card';
         card.setAttribute('data-id', productId);
+        card.setAttribute('data-slug', productSlug);
         card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
+
+        // تفعيل النقر على البطاقة بالكامل لفتح تفاصيل المنتج باستخدام الـ slug أو الـ id
+        card.onclick = function(e) {
+            // منع تداخل الأحداث إذا تم النقر على زر السلة أو خيارات المتغيرات
+            if (e.target.closest('button') || e.target.closest('select')) return;
+            openProductModal(productSlug);
+        };
 
         let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
         let basePrice = Number(product.price) || 0;
@@ -3262,7 +3271,6 @@ function renderProductsList(productsArray, gridElement) {
                 let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
                 let groupItems = group.items || group.options || [];
 
-                // تقليص العرض (الامتداد الأفقي) إلى النصف لتصبح القائمة ضيقة وغير عريضة، مع ثبات محاذاة كلمة "اختر"
                 variantsHtml += `
                     <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 5px; gap: 6px;">
                         <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left; width: 42px;">اختر:</span>
@@ -3288,15 +3296,15 @@ function renderProductsList(productsArray, gridElement) {
         // --- توليد شارة المنتج الديناميكية حسب ما تم إدخاله من لوحة التحكم ---
         let badgeHtml = '';
         if (product.badgeText && product.badgeText.trim() !== '') {
-            let bColor = product.badgeColor || '#10b981'; // اللون الافتراضي (أخضر) إذا لم يتم تحديد لون
+            let bColor = product.badgeColor || '#10b981'; 
             badgeHtml = `<span class="badge" style="background-color: ${bColor}; color: #fff;">${product.badgeText}</span>`;
         }
 
         card.innerHTML = `
             ${badgeHtml}
             <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-            <img src="${mainImg}" class="product-image" onclick="openProductDetail('${productId}')">
-            <div class="product-title" onclick="openProductDetail('${productId}')" style="cursor:pointer;">${product.name}</div>
+            <img src="${mainImg}" class="product-image" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">
+            <div class="product-title" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">${product.name}</div>
             
             <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
             
