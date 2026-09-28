@@ -2229,6 +2229,7 @@ function displayProductModal(product) {
 }
 
 // دالة إغلاق النافذة مع إيقاف مؤقت تقليب الصور التلقائي
+// دالة إغلاق النافذة مع إيقاف مؤقت تقليب الصور التلقائي وتطهير الرابط
 function closeDetailModal() {
     var modal = document.getElementById('detail-modal');
     if (modal) {
@@ -2237,6 +2238,10 @@ function closeDetailModal() {
     if (window._autoSlideInterval) {
         clearInterval(window._autoSlideInterval);
     }
+    
+    // إعادة الرابط لوضعه الطبيعي ونظفه عند الإغلاق
+    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
 }
 
         function addToCartDirect(productName, unitPrice) {
