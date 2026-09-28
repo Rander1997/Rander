@@ -2949,12 +2949,17 @@ let currentProgressPercent = 0;
 let isStoryPaused = false;
 const storyDuration = 5000; // 5 ثوانٍ لكل صورة
 
-// دالة جلب الستوريات من قاعدة البيانات والاستماع للتغييرات الفورية
+// دالة جلب الستوريات من قاعدة البيانات والاستماع للتغييرات الفورية (مع دعم الـ slug)
 function loadStoreStories() {
     db.collection("stories").onSnapshot((snapshot) => {
         storiesData = [];
         snapshot.forEach((doc) => {
-            storiesData.push({ id: doc.id, ...doc.data() });
+            let data = doc.data();
+            storiesData.push({ 
+                id: doc.id, 
+                slug: data.slug || "", 
+                ...data 
+            });
         });
 
         localStorage.setItem('rander_cached_stories', JSON.stringify(storiesData));
@@ -2976,18 +2981,22 @@ function renderStories() {
 
     container.innerHTML = storiesData.map(function(story) {
         const thumbImg = (story.images && story.images.length > 0) ? story.images[0] : (story.image || '');
-        return '<div class="story-item" onclick="openStory(\'' + story.id + '\')">' +
+        // استخدام الـ slug كأولوية للتعرف على الستوري، أو الـ id كبديل
+        const identifier = story.slug || story.id;
+        return '<div class="story-item" onclick="openStory(\'' + identifier + '\')">' +
             '<div class="story-ring">' +
-                '<img class="story-img" src="' + thumbImg + '" alt="' + story.title + '">' +
+                '<img class="story-img" src="' + thumbImg + '" alt="' + (story.title || '') + '">' +
             '</div>' +
-            '<span class="story-title">' + story.title + '</span>' +
+            '<span class="story-title">' + (story.title || '') + '</span>' +
         '</div>';
     }).join('');
 }
 
-// فتح نافذة الستوري
-function openStory(storyId) {
-    currentStoryItem = storiesData.find(function(s) { return s.id === storyId; });
+// فتح نافذة الستوري (تدعم البحث بالـ id أو الـ slug)
+function openStory(identifier) {
+    currentStoryItem = storiesData.find(function(s) { 
+        return s.id === identifier || s.slug === identifier; 
+    });
     if (!currentStoryItem) return;
 
     currentStoryImageIndex = 0;
