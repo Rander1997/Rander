@@ -546,19 +546,20 @@
 const productOrder = Number(document.getElementById('p-order').value) || 0;
             
     const productData = {
-        name: name,
-        price: price,
-        supplier: supplier,
-        description: description,
-        desc: description,
-        category: category,
-        images: imagesArray,
-        image: mainImage,
-        variants: variants,
-        badgeText: badgeText,   // تم الإضافة بنجاح
-        badgeColor: badgeColor,
-        displayOrder: productOrder,
-    };
+    name: name,
+    slug: name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, ''), // <--- أضف هذا السطر هنا
+    price: price,
+    supplier: supplier,
+    description: description,
+    desc: desc,
+    category: category,
+    images: imagesArray,
+    image: mainImg,
+    variants: variants,
+    badgeText: badgeText,
+    badgeColor: badgeColor,
+    displayOrder: productOrder,
+};
 
             if (docId) {
                 db.collection("products").doc(docId).update(productData).then(() => {
