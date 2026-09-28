@@ -3664,6 +3664,64 @@ document.addEventListener("DOMContentLoaded", function() {
     renderPermanentNotificationButton();
 });
 
+
+    // دالة لتوليد رابط المشاركة النظيف باستخدام الـ slug
+function getShareableLink(type, item) {
+    const identifier = item.slug || item.id;
+    const baseUrl = window.location.origin + window.location.pathname;
+    
+    if (type === 'product') {
+        return `${baseUrl}?product=${identifier}`;
+    } else if (type === 'story') {
+        return `${baseUrl}?story=${identifier}`;
+    }
+    return baseUrl;
+}
+
+// دالة نسخ الرابط مع رسالة تنبيه للمستخدم
+function shareItemLink(type, item) {
+    const link = getShareableLink(type, item);
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(() => {
+            alert("تم نسخ رابط المشاركة بنجاح! 📋");
+        }).catch(err => {
+            console.error("فشل نسخ الرابط: ", err);
+        });
+    } else {
+        // طريقة احتياطية للمتصفحات القديمة
+        const tempInput = document.createElement('input');
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert("تم نسخ رابط المشاركة بنجاح! 📋");
+    }
+}
+
+// كود فحص الروابط المباشرة للـ slug عند فتح الصفحة
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productSlug = urlParams.get('product');
+    const storySlug = urlParams.get('story');
+
+    if (productSlug) {
+        setTimeout(() => {
+            if (typeof openProductModal === 'function') {
+                openProductModal(productSlug);
+            }
+        }, 1000);
+    }
+
+    if (storySlug) {
+        setTimeout(() => {
+            if (typeof openStory === 'function') {
+                openStory(storySlug);
+            }
+        }, 1000);
+    }
+});
     
 </script>
 
