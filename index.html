@@ -3197,10 +3197,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 // حزمة متغيرات خاصة بالمتجر لتجنب تضارب الـ let في النطاق العام
 // حزمة بيانات المتجر العامة
 // المتغيرات القديمة التي طلبت إعادتها
+// المتغيرات القديمة للتحكم بالصفحات
 let lastVisibleProduct = null;
 let isLoadingProducts = false;
 
-// 1. التحميل الأولي لأول 20 منتجاً مع الترتيب الثابت
+// 1. التحميل الأولي لأول 20 منتجاً بالتصميم القديم
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
@@ -3229,21 +3230,16 @@ function loadCloudProducts() {
 
           productsGrid.innerHTML = ""; // تفريغ الشبكة
 
-          // عرض المنتجات مباشرة
-          firebaseProducts.forEach(product => {
-              let title = product.name || product.title || 'منتج بدون عنوان';
-              let price = product.price || '';
-              let image = product.image || product.imageUrl || product.img || '';
-
-              let cardHTML = `
-                  <div class="product-card" style="background: var(--bg-card, #fff); border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; justify-content: space-between;">
-                      ${image ? `<img src="${image}" alt="${title}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : ''}
-                      <h3 style="font-size: 14px; margin: 5px 0; color: var(--text-primary, #333);">${title}</h3>
-                      <p style="font-weight: bold; color: var(--accent-color, #000); margin: 5px 0;">${price}</p>
-                  </div>
-              `;
-              productsGrid.insertAdjacentHTML('beforeend', cardHTML);
-          });
+          // استخدام دالة العرض القديمة الخاصة بمتجرك لضمان نفس التصميم
+          if (typeof renderProductsList === 'function') {
+              renderProductsList(firebaseProducts, productsGrid);
+          } else {
+              firebaseProducts.forEach(product => {
+                  if (typeof appendProductCard === 'function') {
+                      appendProductCard(product);
+                  }
+              });
+          }
 
           let loadingIndicator = document.getElementById('loading-indicator');
           if (querySnapshot.size < 20 && loadingIndicator) {
@@ -3254,7 +3250,7 @@ function loadCloudProducts() {
       .catch(err => console.log("خطأ في جلب المنتجات: ", err));
 }
 
-// 2. تحميل المزيد عند التمرير أو الطلب
+// 2. تحميل المزيد تدريجياً بالتصميم القديم
 function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
@@ -3288,19 +3284,13 @@ function loadMoreProducts() {
               let product = doc.data();
               product.id = doc.id;
 
-              let title = product.name || product.title || 'منتج بدون عنوان';
-              let price = product.price || '';
-              let image = product.image || product.imageUrl || product.img || '';
-
               if (productsGrid) {
-                  let cardHTML = `
-                      <div class="product-card" style="background: var(--bg-card, #fff); border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; justify-content: space-between;">
-                          ${image ? `<img src="${image}" alt="${title}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : ''}
-                          <h3 style="font-size: 14px; margin: 5px 0; color: var(--text-primary, #333);">${title}</h3>
-                          <p style="font-weight: bold; color: var(--accent-color, #000); margin: 5px 0;">${price}</p>
-                      </div>
-                  `;
-                  productsGrid.insertAdjacentHTML('beforeend', cardHTML);
+                  // الاعتماد على دوال متجرك الأصلية لإنشاء البطاقات بالتصميم القديم
+                  if (typeof createProductCardHTML === 'function') {
+                      productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+                  } else if (typeof appendProductCard === 'function') {
+                      appendProductCard(product);
+                  }
               }
           });
       })
@@ -3311,7 +3301,7 @@ function loadMoreProducts() {
       });
 }
 
-// 3. مراقب التمرير
+// 3. مراقب التمرير التلقائي
 window.addEventListener('scroll', () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
