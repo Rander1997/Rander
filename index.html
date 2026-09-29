@@ -3193,10 +3193,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 // المتغيرات القديمة للتحكم بالصفحات
+// المتغيرات الخاصة بالتحميل اللانهائي (Lazy Loading)
 let lastVisibleProduct = null;
 let isLoadingProducts = false;
 
-// 1. التحميل الأولي لأول 20 منتجاً بالتصميم القديم
+// 1. التحميل الأولي لأول 20 منتجاً
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
@@ -3223,19 +3224,11 @@ function loadCloudProducts() {
               firebaseProducts.push(prodData);
           });
 
-          productsGrid.innerHTML = ""; // تفريغ الشبكة
+          productsGrid.innerHTML = ""; // تفريغ الشبكة للبدء بنظافة
 
-          // استخدام دالة العرض القديمة الخاصة بمتجرك لضمان نفس التصميم
+          // عرض المنتجات باستخدام دالة العرض الموحدة
           if (typeof renderProductsList === 'function') {
               renderProductsList(firebaseProducts, productsGrid);
-          } else {
-              firebaseProducts.forEach(product => {
-                  if (typeof appendProductCard === 'function') {
-                      appendProductCard(product);
-                  } else if (typeof createProductCardHTML === 'function') {
-                      productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-                  }
-              });
           }
 
           let loadingIndicator = document.getElementById('loading-indicator');
@@ -3247,13 +3240,16 @@ function loadCloudProducts() {
       .catch(err => console.log("خطأ في جلب المنتجات: ", err));
 }
 
-// 2. تحميل المزيد تدريجياً بالتصميم القديم
+// 2. تحميل المزيد من المنتجات تدريجياً عند التمرير
 function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
 
     let loadingIndicator = document.getElementById('loading-indicator');
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+        loadingIndicator.innerHTML = '⏳ جاري تحميل المزيد...';
+    }
 
     let productsGrid = document.getElementById('main-products-grid');
 
@@ -3277,7 +3273,6 @@ function loadMoreProducts() {
 
           lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
 
-          // تجميع منتجات الدفعة الجديدة وإرسالها لدالة العرض القديمة لضمان تطابق التصميم 100%
           let batchProducts = [];
           querySnapshot.forEach((doc) => {
               let product = doc.data();
@@ -3285,25 +3280,8 @@ function loadMoreProducts() {
               batchProducts.push(product);
           });
 
-          if (productsGrid) {
-              if (typeof renderProductsList === 'function') {
-                  // إذا كانت دالة العرض تدعم إضافة عنصر واحد أو مصفوفة جديدة
-                  batchProducts.forEach(product => {
-                      if (typeof createProductCardHTML === 'function') {
-                          productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-                      } else if (typeof appendProductCard === 'function') {
-                          appendProductCard(product);
-                      }
-                  });
-              } else {
-                  batchProducts.forEach(product => {
-                      if (typeof createProductCardHTML === 'function') {
-                          productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-                      } else if (typeof appendProductCard === 'function') {
-                          appendProductCard(product);
-                      }
-                  });
-              }
+          if (productsGrid && typeof renderProductsList === 'function') {
+              renderProductsList(batchProducts, productsGrid);
           }
       })
       .catch((error) => {
@@ -3313,16 +3291,12 @@ function loadMoreProducts() {
       });
 }
 
-// 3. مراقب التمرير التلقائي
+// 3. مراقب التمرير السلس (Scroll Event Listener)
 window.addEventListener('scroll', () => {
+    // التحقق إذا اقترب المستخدم من نهاية الصفحة بـ 500 بكسل
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
     }
-});
-
-// 4. التشغيل الفوري عند تحميل الصفحة
-document.addEventListener("DOMContentLoaded", () => {
-    loadCloudProducts();
 });
 
     
