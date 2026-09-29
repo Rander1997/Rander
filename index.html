@@ -3220,6 +3220,44 @@ function loadCloudProducts() {
 }
 
 // 2. تحميل المزيد باستخدام نفس الترتيب لضمان عمل startAfter بدقة
+// 1. التحميل الأولي (بأبسط وأضمن طريقة لضمان ظهور المنتجات فوراً)
+function loadCloudProducts() {
+    let productsGrid = document.getElementById('main-products-grid');
+    if (!productsGrid) return;
+
+    db.collection("products")
+      .limit(20)
+      .get()
+      .then((querySnapshot) => {
+          let firebaseProducts = [];
+          
+          if (!querySnapshot.empty) {
+              lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+          }
+
+          querySnapshot.forEach((doc) => {
+              firebaseProducts.push({ id: doc.id, ...doc.data() });
+          });
+
+          if (firebaseProducts.length > 0) {
+              // التأكد من وجود دالة العرض الأصلية لديك
+              if (typeof renderProductsList === 'function') {
+                  renderProductsList(firebaseProducts, productsGrid);
+              } else {
+                  // طريقة بديلة للعرض المباشر إن لم تكن الدالة موجودة
+                  productsGrid.innerHTML = "";
+                  firebaseProducts.forEach(product => {
+                      if (typeof createProductCardHTML === 'function') {
+                          productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+                      }
+                  });
+              }
+          }
+      })
+      .catch(err => console.log("Error loading initial products: ", err));
+}
+
+// 2. تحميل المزيد بسلاسة تامة عند النزول للأسفل
 function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
@@ -3230,7 +3268,6 @@ function loadMoreProducts() {
     let productsGrid = document.getElementById('main-products-grid');
 
     db.collection("products")
-      .orderBy(firebase.firestore.FieldPath.documentId(), 'desc')
       .startAfter(lastVisibleProduct)
       .limit(20)
       .get()
@@ -3254,10 +3291,12 @@ function loadMoreProducts() {
               let product = doc.data();
               product.id = doc.id;
               
-              if (productsGrid && typeof createProductCardHTML === 'function') {
-                  productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-              } else if (productsGrid && typeof appendProductCard === 'function') {
-                  appendProductCard(product);
+              if (productsGrid) {
+                  if (typeof createProductCardHTML === 'function') {
+                      productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+                  } else if (typeof appendProductCard === 'function') {
+                      appendProductCard(product);
+                  }
               }
           });
       })
@@ -3268,6 +3307,7 @@ function loadMoreProducts() {
       });
 }
 
+// 3. مراقب التمرير لجلب الدفعات التالية تلقائياً
 window.addEventListener('scroll', () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
