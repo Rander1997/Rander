@@ -246,28 +246,49 @@
             scrollbar-width: none;
         }
 
-        .categories-container {
-            display: inline-flex;
-            gap: 10px;
-            padding: 0 16px;
-        }
+        /* حاوية الأقسام العامة */
+.categories-container, #subcategories-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 10px 16px;
+    scrollbar-width: none; /* إخفاء شريط التمرير لمتصفحات فايرفوكس */
+}
 
-        .category-chip {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+.categories-container::-webkit-scrollbar, 
+#subcategories-container::-webkit-scrollbar {
+    display: none; /* إخفاء شريط التمرير لمتصفحات كروم وسفاري */
+}
 
-        .category-chip.active {
-            background: var(--accent);
-            color: #ffffff;
-            border-color: var(--accent);
-        }
+/* أزرار الأقسام (Chip) بقياسات ومسافات مثالية لا تخرج عنها الكتابة */
+.category-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 18px; /* مساحات داخلية مريحة لجميع الأحجام */
+    border-radius: 22px;
+    font-size: 14px; /* حجم خط واضح ومقروء تماماً على الهاتف والآيباد */
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap; /* منع انقسام النص أو خروجه خارج الزر */
+    flex-shrink: 0;
+    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* التأثير الجميل: تأثير التحويم والارتفاع للأعلى بسلاسة */
+.category-chip:hover {
+    transform: translateY(-3px);
+}
+
+/* الزر النشط (Active): يرتفع للأعلى قليلاً مع اللون الأزرق المميز */
+.category-chip.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    transform: translateY(-3px); /* تأثير الارتفاع للأعلى عند التحديد */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* لمسة جمالية بارزة */
+}
 
         /* ==========================================================
    RANDER — PREMIUM HOMEPAGE PRODUCT GRID & CARDS REDESIGN
@@ -2314,7 +2335,7 @@ function closeDetailModal() {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
-    // 🌟 التفعيل الدقيق للزر الملموس وحده مع تأثيره الأصلي
+    // إزالة الـ active من جميع الأزرار وتفعيله للزر الملموس وحده فقط
     if (btnElement) {
         document.querySelectorAll('.category-chip').forEach(function(btn) { 
             btn.classList.remove('active'); 
@@ -2342,7 +2363,7 @@ function closeDetailModal() {
 
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
-    // ترتيب الأقسام الفرعية حسب الـ order والتاريخ
+    // ترتيب الأقسام الفرعية تصاعدياً
     [...subCategories].sort((a, b) => {
         let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
         let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
