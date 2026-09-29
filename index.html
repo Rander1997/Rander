@@ -2320,10 +2320,13 @@ function closeDetailModal() {
 
     const selectedVal = categoryIdentifier ? categoryIdentifier.trim().toLowerCase() : '';
 
+    // 1. إذا اختار المستخدم "الكل"
     if (selectedVal === 'all' || selectedVal === 'الكل') {
-        document.querySelectorAll('.product-card').forEach(card => card.style.display = 'flex');
         var subContainer = document.getElementById('subcategories-container');
         if (subContainer) subContainer.style.display = 'none';
+        
+        // استدعاء دالة التحميل السحابي الأصلية لكل المنتجات
+        loadCloudProducts();
         return;
     }
 
@@ -2334,7 +2337,20 @@ function closeDetailModal() {
     );
 
     let categoryId = categoryObj ? categoryObj.id : categoryIdentifier;
-    let targetCategoryName = categoryObj ? categoryObj.name.trim().toLowerCase() : selectedVal;
+    let targetCategoryName = categoryObj ? categoryObj.name : categoryIdentifier;
+
+    // التحقق مما إذا كان القسم عبارة عن "قسم فرعي" أو "قسم رئيسي"
+    let isSubCategory = categoryObj && categoryObj.parentId && categoryObj.parentId !== "";
+
+    if (isSubCategory) {
+        // إذا كان قسماً فرعياً، نجلب المنتجات بالقسم الرئيسي والفرعي معاً
+        let parentCat = categoriesData.find(c => c.id === categoryObj.parentId);
+        let parentName = parentCat ? parentCat.name : null;
+        loadProductsByCategory(parentName, categoryObj.name);
+    } else {
+        // إذا كان قسماً رئيسياً
+        loadProductsByCategory(targetCategoryName, null);
+    }
 
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
@@ -2348,38 +2364,12 @@ function closeDetailModal() {
         return timeB - timeA;
     });
 
-    let validCategoryIdentifiers = [targetCategoryName, selectedVal, categoryId ? categoryId.toLowerCase() : ''];
-    if (categoryObj && categoryObj.slug) validCategoryIdentifiers.push(categoryObj.slug.toLowerCase());
-    
-    if (subCategories.length > 0) {
-        subCategories.forEach(sub => {
-            validCategoryIdentifiers.push(sub.id.toLowerCase());
-            if (sub.slug) validCategoryIdentifiers.push(sub.slug.toLowerCase());
-            if (sub.name) validCategoryIdentifiers.push(sub.name.trim().toLowerCase());
-        });
-    }
-
-    let hasProducts = false;
-
-    document.querySelectorAll('.product-card').forEach(card => {
-        let productCat = card.getAttribute('data-category'); 
-        productCat = productCat ? productCat.trim().toLowerCase() : '';
-        let matches = validCategoryIdentifiers.includes(productCat);
-        card.style.display = matches ? 'flex' : 'none';
-        if (matches) hasProducts = true;
-    });
-
-    if (!hasProducts) {
-        if (noResults) noResults.style.display = 'block';
-    }
-
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
     if (subCategories.length > 0) {
         subContainer.style.display = 'flex';
         
-        // 🌟 التعديل هنا: تفعيل زر "الكل في هذا القسم" إذا كان القادم هو القسم الرئيسي أو تم الضغط عليه مباشرة
         let isMainParentClick = (btnElement && !btnElement.closest('#subcategories-container'));
         let isReturningToAll = (selectedVal === categoryId.toLowerCase());
         let allSubActive = (isMainParentClick || isReturningToAll) ? 'active' : '';
