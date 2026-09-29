@@ -1684,6 +1684,10 @@ button.btn[onclick*="sendOrder"]:hover {
         </div>
 
         <div class="products-grid" id="main-products-grid">
+            <!-- مؤشر التحميل الخاص بـ جلب المزيد من المنتجات -->
+<div id="loading-indicator" style="text-align: center; padding: 20px; display: none; color: var(--text-primary); font-weight: 600;">
+    ⏳ جاري تحميل المزيد من المنتجات...
+</div>
             
             
     </main>
@@ -3771,17 +3775,29 @@ function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
 
+    // إظهار عبارة التحميل للمستخدم فور الوصول لأسفل الصفحة
+    let loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
+
     let productsGrid = document.getElementById('main-products-grid');
 
     db.collection("products")
       .orderBy("createdAt", "desc")
       .startAfter(lastVisibleProduct) // البدء بعد آخر منتج ظاهر
-      .limit(20) // جلب 20 منتجاً إضافياً
+      .limit(20) // جلب 20 منتجاً زوجياً إضافياً
       .get()
       .then((querySnapshot) => {
           isLoadingProducts = false;
+          
+          // إخفاء عبارة التحميل بعد جلب البيانات
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+
           if (querySnapshot.empty) {
               lastVisibleProduct = null; // انتهت جميع المنتجات
+              if (loadingIndicator) {
+                  loadingIndicator.style.display = 'block';
+                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+              }
               return;
           }
 
@@ -3791,7 +3807,7 @@ function loadMoreProducts() {
               let product = doc.data();
               product.id = doc.id;
               
-              // 🌟 إنشاء بطاقة المنتج الجديدة وإضافتها مباشرة لشبكة المنتجات
+              // إضافة الـ 20 منتجاً الجديدة بجانب المنتجات القديمة
               if (productsGrid && typeof createProductCardHTML === 'function') {
                   productsGrid.innerHTML += createProductCardHTML(product);
               } else if (productsGrid && typeof appendProductCard === 'function') {
@@ -3801,11 +3817,12 @@ function loadMoreProducts() {
       })
       .catch((error) => {
           isLoadingProducts = false;
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
           console.log("Error loading more products: ", error);
       });
 }
 
-// مراقبة التمرير لتفعيل التحميل التلقائي عند الوصول لأسفل الصفحة
+// مراقبة التمرير: عندما يقترب المستخدم من نهاية الصفحة بـ 500 بكسل، يتم جلب الـ 20 التالية تلقائياً
 window.addEventListener('scroll', () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
