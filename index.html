@@ -3780,7 +3780,6 @@ function loadMoreProducts() {
 
     let productsGrid = document.getElementById('main-products-grid');
 
-    // تم إزالة orderBy مؤقتاً لتجنب أي مشاكل في الفهرسة ولضمان جلب المنتجات فوراً
     db.collection("products")
       .startAfter(lastVisibleProduct)
       .limit(20)
@@ -3815,7 +3814,7 @@ function loadMoreProducts() {
       .catch((error) => {
           isLoadingProducts = false;
           if (loadingIndicator) loadingIndicator.style.display = 'none';
-          alert("خطأ في الجلب: " + error.message);
+          console.log("Error: ", error);
       });
 }
 
