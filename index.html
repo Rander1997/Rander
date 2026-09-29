@@ -3194,11 +3194,93 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 // المتغيرات القديمة للتحكم بالصفحات
 // المتغيرات الخاصة بالتحميل اللانهائي (Lazy Loading)
+// المتغيرات العامة الجديدة لتتبع القسم الحالي والأقسام الفرعية
+let currentCategory = null;
+let currentSubCategory = null;
 let lastVisibleProduct = null;
 let isLoadingProducts = false;
 
-// 1. التحميل الأولي لأول 20 منتجاً
+// دالة جديدة مخصصة لجلب منتجات قسم معين فور الضغط عليه (رئيسي أو فرعي)
+function loadProductsByCategory(category, subCategory = null) {
+    currentCategory = category;
+    currentSubCategory = subCategory;
+    lastVisibleProduct = null;
+    isLoadingProducts = false;
+
+    let productsGrid = document.getElementById('main-products-grid');
+    if (!productsGrid) return;
+
+    productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 30px;">⏳ جاري تحميل المنتجات...</div>';
+
+    if (typeof db === 'undefined') {
+        console.log("قاعدة بيانات فايربيس غير متوفرة");
+        return;
+    }
+
+    let query = db.collection("products");
+
+    if (subCategory) {
+        query = query.where("subCategory", "==", subCategory);
+    } else if (category) {
+        query = query.where("category", "==", category);
+    }
+
+    query.orderBy(firebase.firestore.FieldPath.documentId())
+         .limit(20)
+         .get()
+         .then((querySnapshot) => {
+             let firebaseProducts = [];
+             
+             if (!querySnapshot.empty) {
+                 lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+             }
+
+             querySnapshot.forEach((doc) => {
+                 let prodData = doc.data();
+                 prodData.id = doc.id;
+                 firebaseProducts.push(prodData);
+             });
+
+             productsGrid.innerHTML = ""; // تفريغ الشبكة للبدء بنظافة
+
+             if (firebaseProducts.length === 0) {
+                 productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">لا توجد منتجات في هذا القسم حالياً 🛍️</div>';
+                 let loadingIndicator = document.getElementById('loading-indicator');
+                 if (loadingIndicator) {
+                     loadingIndicator.style.display = 'block';
+                     loadingIndicator.innerHTML = '✨ لا توجد منتجات أخرى';
+                 }
+                 return;
+             }
+
+             // عرض المنتجات باستخدام دالة العرض الموحدة
+             if (typeof renderProductsList === 'function') {
+                 renderProductsList(firebaseProducts, productsGrid);
+             }
+
+             let loadingIndicator = document.getElementById('loading-indicator');
+             if (loadingIndicator) {
+                 if (querySnapshot.size < 20) {
+                     loadingIndicator.style.display = 'block';
+                     loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+                 } else {
+                     loadingIndicator.style.display = 'none';
+                 }
+             }
+         })
+         .catch(err => {
+             console.log("خطأ في جلب منتجات القسم: ", err);
+             productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">حدث خطأ أثناء تحميل المنتجات</div>';
+         });
+}
+
+
+// 1. التحميل الأولي لأول 20 منتجاً (للصفحة الرئيسية أو الافتراضية)
 function loadCloudProducts() {
+    currentCategory = null;
+    currentSubCategory = null;
+    lastVisibleProduct = null;
+    
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
@@ -3232,15 +3314,19 @@ function loadCloudProducts() {
           }
 
           let loadingIndicator = document.getElementById('loading-indicator');
-          if (querySnapshot.size < 20 && loadingIndicator) {
-              loadingIndicator.style.display = 'block';
-              loadingIndicator.innerHTML = ' وصلت إلى نهاية المنتجات';
+          if (loadingIndicator) {
+              if (querySnapshot.size < 20) {
+                  loadingIndicator.style.display = 'block';
+                  loadingIndicator.innerHTML = ' وصلت إلى نهاية المنتجات';
+              } else {
+                  loadingIndicator.style.display = 'none';
+              }
           }
       })
       .catch(err => console.log("خطأ في جلب المنتجات: ", err));
 }
 
-// 2. تحميل المزيد من المنتجات تدريجياً عند التمرير
+// 2. تحميل المزيد من المنتجات تدريجياً عند التمرير (مدعوم للأقسام والصفحة الرئيسية تلقائياً)
 function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
@@ -3253,42 +3339,55 @@ function loadMoreProducts() {
 
     let productsGrid = document.getElementById('main-products-grid');
 
-    db.collection("products")
-      .orderBy(firebase.firestore.FieldPath.documentId())
-      .startAfter(lastVisibleProduct)
-      .limit(20)
-      .get()
-      .then((querySnapshot) => {
-          isLoadingProducts = false;
-          if (loadingIndicator) loadingIndicator.style.display = 'none';
+    let query = db.collection("products");
 
-          if (querySnapshot.empty) {
-              lastVisibleProduct = null;
-              if (loadingIndicator) {
-                  loadingIndicator.style.display = 'block';
-                  loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
-              }
-              return;
-          }
+    // التحقق مما إذا كنا نتصفح قسماً معيناً لتطبيق الفلترة أثناء التمرير
+    if (currentSubCategory) {
+        query = query.where("subCategory", "==", currentSubCategory);
+    } else if (currentCategory) {
+        query = query.where("category", "==", currentCategory);
+    }
 
-          lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+    query.orderBy(firebase.firestore.FieldPath.documentId())
+         .startAfter(lastVisibleProduct)
+         .limit(20)
+         .get()
+         .then((querySnapshot) => {
+             isLoadingProducts = false;
+             if (loadingIndicator) loadingIndicator.style.display = 'none';
 
-          let batchProducts = [];
-          querySnapshot.forEach((doc) => {
-              let product = doc.data();
-              product.id = doc.id;
-              batchProducts.push(product);
-          });
+             if (querySnapshot.empty) {
+                 lastVisibleProduct = null;
+                 if (loadingIndicator) {
+                     loadingIndicator.style.display = 'block';
+                     loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
+                 }
+                 return;
+             }
 
-          if (productsGrid && typeof renderProductsList === 'function') {
-              renderProductsList(batchProducts, productsGrid);
-          }
-      })
-      .catch((error) => {
-          isLoadingProducts = false;
-          if (loadingIndicator) loadingIndicator.style.display = 'none';
-          console.log("خطأ في جلب المزيد: ", error);
-      });
+             lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+             let batchProducts = [];
+             querySnapshot.forEach((doc) => {
+                 let product = doc.data();
+                 product.id = doc.id;
+                 batchProducts.push(product);
+             });
+
+             if (productsGrid && typeof renderProductsList === 'function') {
+                 renderProductsList(batchProducts, productsGrid);
+             }
+
+             if (querySnapshot.size < 20 && loadingIndicator) {
+                 loadingIndicator.style.display = 'block';
+                 loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
+             }
+         })
+         .catch((error) => {
+             isLoadingProducts = false;
+             if (loadingIndicator) loadingIndicator.style.display = 'none';
+             console.log("خطأ في جلب المزيد: ", error);
+         });
 }
 
 // 3. مراقب التمرير السلس (Scroll Event Listener)
