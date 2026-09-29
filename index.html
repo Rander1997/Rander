@@ -3192,18 +3192,19 @@ let lastVisibleProduct = null;
 let isLoadingProducts = false;
 
 // 1. التحميل الأولي لأول 20 منتجاً
+// 1. التحميل الأولي مع ترتيب موحد وثابت بمعرف المستند
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
     db.collection("products")
+      .orderBy(firebase.firestore.FieldPath.documentId(), 'desc')
       .limit(20)
       .get()
       .then((querySnapshot) => {
           let firebaseProducts = [];
           
           if (!querySnapshot.empty) {
-              // حفظ آخر منتج بدقة لتبدأ الدفعة القادمة من بعده
               lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
           }
 
@@ -3218,7 +3219,7 @@ function loadCloudProducts() {
       .catch(err => console.log("Error loading initial products: ", err));
 }
 
-// 2. تحميل المزيد بسلاسة تامة (20 تلو الأخرى)
+// 2. تحميل المزيد باستخدام نفس الترتيب لضمان عمل startAfter بدقة
 function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
@@ -3229,6 +3230,7 @@ function loadMoreProducts() {
     let productsGrid = document.getElementById('main-products-grid');
 
     db.collection("products")
+      .orderBy(firebase.firestore.FieldPath.documentId(), 'desc')
       .startAfter(lastVisibleProduct)
       .limit(20)
       .get()
@@ -3252,15 +3254,10 @@ function loadMoreProducts() {
               let product = doc.data();
               product.id = doc.id;
               
-              if (productsGrid) {
-                  let cardHTML = "";
-                  if (typeof createProductCardHTML === 'function') {
-                      cardHTML = createProductCardHTML(product);
-                      // 🌟 الحل الاحترافي: إرفاق الكارد الجديد في نهاية الحاوية دون التأثير على البقية
-                      productsGrid.insertAdjacentHTML('beforeend', cardHTML);
-                  } else if (typeof appendProductCard === 'function') {
-                      appendProductCard(product);
-                  }
+              if (productsGrid && typeof createProductCardHTML === 'function') {
+                  productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+              } else if (productsGrid && typeof appendProductCard === 'function') {
+                  appendProductCard(product);
               }
           });
       })
@@ -3270,6 +3267,12 @@ function loadMoreProducts() {
           console.log("Error loading more products: ", error);
       });
 }
+
+window.addEventListener('scroll', () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        loadMoreProducts();
+    }
+});
 
 // دالة مساعدة لتنظيف وترتيب عرض المنتجات بدون تكرار
 function renderProductsList(productsArray, gridElement) {
