@@ -1684,10 +1684,16 @@ button.btn[onclick*="sendOrder"]:hover {
         </div>
 
         <div class="products-grid" id="main-products-grid">
-            <!-- مؤشر التحميل الخاص بـ جلب المزيد من المنتجات -->
+    <!-- المنتجات ستظهر هنا -->
+</div>
+
+<!-- مؤشر التحميل الخاص بـ جلب المزيد من المنتجات -->
 <div id="loading-indicator" style="text-align: center; padding: 20px; display: none; color: var(--text-primary); font-weight: 600;">
     ⏳ جاري تحميل المزيد من المنتجات...
 </div>
+
+<!-- زر تحميل المزيد المؤقت لاختبار الجلب -->
+<button id="load-more-btn" onclick="loadMoreProducts()" style="display: block; width: 100%; padding: 15px; margin: 20px 0; background: #000; color: #fff; text-align: center; border: none; border-radius: 8px; font-size: 16px;">تحميل المزيد من المنتجات</button>
             
             
     </main>
