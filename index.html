@@ -3231,7 +3231,7 @@ function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
-    // 1. العرض الفوري من الذاكرة المحلية إن وجدت لمنع أي وميض أو تأخير[span_0](start_span)[span_0](end_span)
+    // 1. العرض الفوري من الذاكرة المحلية إن وجدت
     let cachedProducts = localStorage.getItem('rander_cloud_products_cache');
     if (cachedProducts) {
         try {
@@ -3240,11 +3240,12 @@ function loadCloudProducts() {
         } catch(e) {}
     }
 
-    // 2. الجلب من فايربيس مع تحديد 20 منتجاً زوجياً للسرعة
-    db.collection("products").orderBy("createdAt", "desc").limit(20).get().then((querySnapshot) => {
+    // 2. الجلب من فايربيس مع حفظ آخر منتج لكي يعمل التحميل التلقائي بعده
+    db.collection("products").limit(20).get().then((querySnapshot) => {
         let firebaseProducts = [];
         
         if (!querySnapshot.empty) {
+            // 🌟 هذه هي النقطة الأساسية: حفظ آخر منتج ظاهر لتستكمل دالة loadMoreProducts من بعده
             lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
         }
 
