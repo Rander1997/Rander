@@ -3238,7 +3238,7 @@ function loadMoreProducts() {
           if (loadingIndicator) loadingIndicator.style.display = 'none';
 
           if (querySnapshot.empty) {
-              lastVisibleProduct = null; // إيقاف التمرير عند انتهاء جميع المنتجات
+              lastVisibleProduct = null;
               if (loadingIndicator) {
                   loadingIndicator.style.display = 'block';
                   loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
@@ -3246,17 +3246,21 @@ function loadMoreProducts() {
               return;
           }
 
-          // تحديث مؤشر آخر منتج للدفعة الحالية
           lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
 
           querySnapshot.forEach((doc) => {
               let product = doc.data();
               product.id = doc.id;
               
-              if (productsGrid && typeof createProductCardHTML === 'function') {
-                  productsGrid.innerHTML += createProductCardHTML(product);
-              } else if (productsGrid && typeof appendProductCard === 'function') {
-                  appendProductCard(product);
+              if (productsGrid) {
+                  let cardHTML = "";
+                  if (typeof createProductCardHTML === 'function') {
+                      cardHTML = createProductCardHTML(product);
+                      // 🌟 الحل الاحترافي: إرفاق الكارد الجديد في نهاية الحاوية دون التأثير على البقية
+                      productsGrid.insertAdjacentHTML('beforeend', cardHTML);
+                  } else if (typeof appendProductCard === 'function') {
+                      appendProductCard(product);
+                  }
               }
           });
       })
@@ -3266,13 +3270,6 @@ function loadMoreProducts() {
           console.log("Error loading more products: ", error);
       });
 }
-
-// 3. مراقب التمرير لجلب الدفعات تلقائياً عند النزول للأسفل
-window.addEventListener('scroll', () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        loadMoreProducts();
-    }
-});
 
 // دالة مساعدة لتنظيف وترتيب عرض المنتجات بدون تكرار
 function renderProductsList(productsArray, gridElement) {
