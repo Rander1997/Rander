@@ -3236,11 +3236,10 @@ function loadCloudProducts() {
         } catch(e) {}
     }
 
-    // 2. الجلب من فايربيس مع تحديد 15 منتجاً للسرعة
-    db.collection("products").limit(15).get().then((querySnapshot) => {
+    // 2. الجلب من فايربيس مع تحديد 20 منتجاً زوجياً للسرعة
+    db.collection("products").orderBy("createdAt", "desc").limit(20).get().then((querySnapshot) => {
         let firebaseProducts = [];
         
-        // 🌟 حفظ آخر منتج لكي نعرف من أين نبدأ عند التمرير للأسفل
         if (!querySnapshot.empty) {
             lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
         }
@@ -3772,10 +3771,12 @@ function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
 
+    let productsGrid = document.getElementById('main-products-grid');
+
     db.collection("products")
-      .orderBy("createdAt", "desc") // يجب أن يتطابق مع طريقة الترتيب في دالتك الأساسية
-      .startAfter(lastVisibleProduct) // البدء بعد آخر منتج ظاهر حالياً
-      .limit(15) // جلب الـ 15 منتجاً التالية
+      .orderBy("createdAt", "desc")
+      .startAfter(lastVisibleProduct) // البدء بعد آخر منتج ظاهر
+      .limit(20) // جلب 20 منتجاً إضافياً
       .get()
       .then((querySnapshot) => {
           isLoadingProducts = false;
@@ -3784,14 +3785,18 @@ function loadMoreProducts() {
               return;
           }
 
-          // تحديث مؤشر آخر منتج
           lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
 
           querySnapshot.forEach((doc) => {
               let product = doc.data();
               product.id = doc.id;
-              // دالة إضافة المنتج إلى الشاشة (تأكد أن اسمها appendProductCard أو استبدلها بالدالة لديك)
-              appendProductCard(product); 
+              
+              // 🌟 إنشاء بطاقة المنتج الجديدة وإضافتها مباشرة لشبكة المنتجات
+              if (productsGrid && typeof createProductCardHTML === 'function') {
+                  productsGrid.innerHTML += createProductCardHTML(product);
+              } else if (productsGrid && typeof appendProductCard === 'function') {
+                  appendProductCard(product);
+              }
           });
       })
       .catch((error) => {
@@ -3800,7 +3805,7 @@ function loadMoreProducts() {
       });
 }
 
-// مراقبة التمرير: عندما يقترب المستخدم من نهاية الصفحة، يتم جلب المنتجات الجديدة تلقائياً
+// مراقبة التمرير لتفعيل التحميل التلقائي عند الوصول لأسفل الصفحة
 window.addEventListener('scroll', () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
