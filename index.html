@@ -3191,12 +3191,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 
-// متغيرات عامة لإدارة العرض المحلي
-// متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
-// متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
-// حزمة متغيرات خاصة بالمتجر لتجنب تضارب الـ let في النطاق العام
-// حزمة بيانات المتجر العامة
-// المتغيرات القديمة التي طلبت إعادتها
+
 // المتغيرات القديمة للتحكم بالصفحات
 let lastVisibleProduct = null;
 let isLoadingProducts = false;
@@ -3237,6 +3232,8 @@ function loadCloudProducts() {
               firebaseProducts.forEach(product => {
                   if (typeof appendProductCard === 'function') {
                       appendProductCard(product);
+                  } else if (typeof createProductCardHTML === 'function') {
+                      productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
                   }
               });
           }
@@ -3280,19 +3277,34 @@ function loadMoreProducts() {
 
           lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
 
+          // تجميع منتجات الدفعة الجديدة وإرسالها لدالة العرض القديمة لضمان تطابق التصميم 100%
+          let batchProducts = [];
           querySnapshot.forEach((doc) => {
               let product = doc.data();
               product.id = doc.id;
-
-              if (productsGrid) {
-                  // الاعتماد على دوال متجرك الأصلية لإنشاء البطاقات بالتصميم القديم
-                  if (typeof createProductCardHTML === 'function') {
-                      productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-                  } else if (typeof appendProductCard === 'function') {
-                      appendProductCard(product);
-                  }
-              }
+              batchProducts.push(product);
           });
+
+          if (productsGrid) {
+              if (typeof renderProductsList === 'function') {
+                  // إذا كانت دالة العرض تدعم إضافة عنصر واحد أو مصفوفة جديدة
+                  batchProducts.forEach(product => {
+                      if (typeof createProductCardHTML === 'function') {
+                          productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+                      } else if (typeof appendProductCard === 'function') {
+                          appendProductCard(product);
+                      }
+                  });
+              } else {
+                  batchProducts.forEach(product => {
+                      if (typeof createProductCardHTML === 'function') {
+                          productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+                      } else if (typeof appendProductCard === 'function') {
+                          appendProductCard(product);
+                      }
+                  });
+              }
+          }
       })
       .catch((error) => {
           isLoadingProducts = false;
