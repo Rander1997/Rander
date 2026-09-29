@@ -3823,11 +3823,6 @@ function loadMoreProducts() {
 }
 
 // مراقبة التمرير: عندما يقترب المستخدم من نهاية الصفحة بـ 500 بكسل، يتم جلب الـ 20 التالية تلقائياً
-window.addEventListener('scroll', () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        loadMoreProducts();
-    }
-});
 
     window.addEventListener('scroll', () => {
     // حساب المسافة المتبقية للوصول إلى نهاية الصفحة
