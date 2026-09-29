@@ -2333,9 +2333,8 @@ function closeDetailModal() {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
-    // 🌟 1. إدارة الألوان بدقة: إزالة الـ active من جميع الأزرار وتفعيله للزر الملموس فقط فوراً
+    // 🌟 1. إزالة الـ active من جميع الأزرار وتفعيله للزر الملموس وحده فقط
     if (btnElement) {
-        // إزالة الـ active من أزرار الشريط الرئيسي والفرعي معا لضمان عدم وجود ازدواجية
         document.querySelectorAll('.category-chip').forEach(function(btn) { 
             btn.classList.remove('active'); 
         });
@@ -2397,14 +2396,13 @@ function closeDetailModal() {
         if (noResults) noResults.style.display = 'block';
     }
 
-    // 🌟 2. إدارة شريط الأقسام الفرعية بمنطق مستقر يمنع القفز والتخريبط
+    // 🌟 2. بناء الأقسام الفرعية مع تمرير المعرف (id) الصحيح للتحقق من الزر النشط بدقة
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
     if (subCategories.length > 0) {
         subContainer.style.display = 'flex';
         
-        // التحقق إن كان الضغط تم على القسم الرئيسي لنعطي الـ active لزر "الكل في هذا القسم"
         let isMainParentClick = (btnElement && !btnElement.closest('#subcategories-container'));
         let allSubActive = isMainParentClick ? 'active' : '';
         
@@ -2412,8 +2410,8 @@ function closeDetailModal() {
         
         subCategories.forEach(sub => {
             let subKey = sub.slug || sub.id;
-            // التحقق هل هذا الزر الفرعي هو الذي تم النقر عليه حالياً
-            let isThisSubActive = (btnElement && btnElement.innerText.trim() === sub.name.trim()) ? 'active' : '';
+            // التحقق الدقيق عبر الـ id أو الـ slug أو مطابقة المعرف الحالي للمنع الكامل لأي تداخل
+            let isThisSubActive = (selectedVal === sub.id.toLowerCase() || (sub.slug && selectedVal === sub.slug.toLowerCase())) ? 'active' : '';
             subHtml += `<button class="category-chip ${isThisSubActive}" onclick="filterCategory('${subKey}', this)">${sub.name}</button>`;
         });
         subContainer.innerHTML = subHtml;
@@ -2427,7 +2425,7 @@ function closeDetailModal() {
             let subHtml = `<button class="category-chip" onclick="filterCategory('${parentId}', this)">الكل</button>`;
             siblingCategories.forEach(sub => {
                 let subKey = sub.slug || sub.id;
-                let isActive = (sub.id === currentCat.id || sub.slug === currentCat.slug || (btnElement && btnElement.innerText.trim() === sub.name.trim())) ? 'active' : '';
+                let isActive = (selectedVal === sub.id.toLowerCase() || (sub.slug && selectedVal === sub.slug.toLowerCase())) ? 'active' : '';
                 subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${subKey}', this)">${sub.name}</button>`;
             });
             subContainer.innerHTML = subHtml;
