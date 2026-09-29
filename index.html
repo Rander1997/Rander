@@ -3192,11 +3192,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 // متغيرات عامة لإدارة العرض المحلي
+// متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
 let allCloudProducts = [];
 let currentDisplayCount = 0;
 const pageSize = 20;
 
-// 1. التحميل الأولي (جلب المنتجات وتخزينها محلياً لعرض أول 20)
+// 1. التحميل الأولي: جلب كل المنتجات وتخزينها محلياً لعرض الدفعة الأولى
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
@@ -3219,12 +3220,11 @@ function loadCloudProducts() {
       .catch(err => console.log("Error loading products: ", err));
 }
 
-// 2. تحميل الدفعة التالية (20 منتجاً إضافياً في كل مرة)
+// 2. تحميل الدفعة التالية (20 منتجاً إضافياً في كل مرة عند النزول أو الضغط)
 function loadMoreProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     let loadingIndicator = document.getElementById('loading-indicator');
 
-    // إذا تم عرض كل المنتجات بالفعل
     if (currentDisplayCount >= allCloudProducts.length) {
         if (loadingIndicator) {
             loadingIndicator.style.display = 'block';
@@ -3233,7 +3233,7 @@ function loadMoreProducts() {
         return;
     }
 
-    // اخذ الـ 20 منتجاً التالية من المصفوفة المخزنة
+    // جلب الـ 20 منتجاً التالية من المصفوفة المخزنة محلياً
     let nextBatch = allCloudProducts.slice(currentDisplayCount, currentDisplayCount + pageSize);
     currentDisplayCount += nextBatch.length;
 
@@ -3247,14 +3247,13 @@ function loadMoreProducts() {
         });
     }
 
-    // إظهار رسالة النهاية إذا وصلنا لآخر منتج
     if (currentDisplayCount >= allCloudProducts.length && loadingIndicator) {
         loadingIndicator.style.display = 'block';
         loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
     }
 }
 
-// 3. مراقب التمرير لجلب الدفعة التالية تلقائياً عند النزول للأسفل
+// 3. مراقب التمرير التلقائي لجلب الدفعات تدريجياً
 window.addEventListener('scroll', () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
