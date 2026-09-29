@@ -3199,18 +3199,20 @@ let isLoadingProducts = false;
 
 // 1. التحميل الأولي لأول 20 منتجاً
 // 1. التحميل الأولي مع ترتيب موحد وثابت بمعرف المستند
+// 1. التحميل الأولي لأول 20 منتجاً مع ترتيب ثابت بمعرف المستند
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
     db.collection("products")
-      .orderBy(firebase.firestore.FieldPath.documentId(), 'desc')
+      .orderBy(firebase.firestore.FieldPath.documentId()) // 🌟 ترتيب ثابت ومضمون لتفعيل الباجينيشن
       .limit(20)
       .get()
       .then((querySnapshot) => {
           let firebaseProducts = [];
           
           if (!querySnapshot.empty) {
+              // حفظ آخر منتج بدقة لتبدأ الدفعة القادمة من بعده
               lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
           }
 
@@ -3221,54 +3223,73 @@ function loadCloudProducts() {
           if (firebaseProducts.length > 0) {
               renderProductsList(firebaseProducts, productsGrid);
           }
+          
+          // إذا كان عدد المنتجات أقل من 20 منذ البداية
+          let loadingIndicator = document.getElementById('loading-indicator');
+          if (querySnapshot.size < 20 && loadingIndicator) {
+              loadingIndicator.style.display = 'block';
+              loadingIndicator.innerHTML = '✨ تم عرض جميع المنتجات';
+          }
       })
       .catch(err => console.log("Error loading initial products: ", err));
 }
 
-// 2. تحميل المزيد باستخدام نفس الترتيب لضمان عمل startAfter بدقة
-// 1. التحميل الأولي (بأبسط وأضمن طريقة لضمان ظهور المنتجات فوراً)
-// 1. التحميل الأولي مع ترتيب ثابت ومعرف واضح
-// جلب كل منتجات المتجر دفعة واحدة وعرضها بسلاسة
-function loadCloudProducts() {
+// 2. تحميل الدفعة التالية (20 منتجاً إضافياً) عند النزول أو الضغط
+function loadMoreProducts() {
+    if (isLoadingProducts || !lastVisibleProduct) return;
+    isLoadingProducts = true;
+
+    let loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
+
     let productsGrid = document.getElementById('main-products-grid');
-    if (!productsGrid) return;
 
     db.collection("products")
+      .orderBy(firebase.firestore.FieldPath.documentId()) // نفس الترتيب الثابت تماماً
+      .startAfter(lastVisibleProduct) // 🌟 البدء من بعد آخر منتج تم عرضه
+      .limit(20)
       .get()
       .then((querySnapshot) => {
-          let firebaseProducts = [];
+          isLoadingProducts = false;
           
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+          if (querySnapshot.empty) {
+              lastVisibleProduct = null;
+              if (loadingIndicator) {
+                  loadingIndicator.style.display = 'block';
+                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+              }
+              return;
+          }
+
+          // تحديث مؤشر آخر منتج للدفعة الجديدة
+          lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+
           querySnapshot.forEach((doc) => {
-              firebaseProducts.push({ id: doc.id, ...doc.data() });
+              let product = doc.data();
+              product.id = doc.id;
+              
+              if (productsGrid && typeof createProductCardHTML === 'function') {
+                  productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+              } else if (productsGrid && typeof appendProductCard === 'function') {
+                  appendProductCard(product);
+              }
           });
-
-          if (firebaseProducts.length > 0) {
-              // تخزينها مؤقتاً وعرضها بالكامل
-              renderProductsList(firebaseProducts, productsGrid);
-          }
-          
-          // إخفاء مؤشر التحميل أو رسالة النهاية لأن كل المنتجات ظهرت
-          let loadingIndicator = document.getElementById('loading-indicator');
-          if (loadingIndicator) {
-              loadingIndicator.style.display = 'block';
-              loadingIndicator.innerHTML = '✨ تم عرض جميع منتجات المتجر بنجاح';
-          }
       })
-      .catch(err => console.log("Error loading products: ", err));
+      .catch((error) => {
+          isLoadingProducts = false;
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+          console.log("Error loading more products: ", error);
+      });
 }
 
-// إلغاء الحاجة لدالة تحميل المزيد المعقدة وتجنب أي أخطاء
-function loadMoreProducts() {
-    // تم جلب كافة المنتجات مسبقاً
-    let loadingIndicator = document.getElementById('loading-indicator');
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'block';
-        loadingIndicator.innerHTML = '✨ تم عرض جميع منتجات المتجر بنجاح';
+// 3. مراقب التمرير التلقائي (اختياري، يعمل بالتوازي مع زر التحميل)
+window.addEventListener('scroll', () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        loadMoreProducts();
     }
-}
-
-// إلغاء مستمع التمرير المعقد لضمان استقرار الصفحة على الأيباد
-window.removeEventListener('scroll', loadMoreProducts);
+});
 
     
 
