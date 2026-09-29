@@ -3193,6 +3193,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 // متغيرات عامة لإدارة العرض المحلي
 // متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
+// متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
 let allCloudProducts = [];
 let currentDisplayCount = 0;
 const pageSize = 20;
@@ -3258,6 +3259,11 @@ window.addEventListener('scroll', () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
     }
+});
+
+// 🌟 التشغيل التلقائي فور تحميل الصفحة لضمان جلب المنتجات وعرضها
+document.addEventListener("DOMContentLoaded", () => {
+    loadCloudProducts();
 });
 
     
