@@ -3772,19 +3772,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // دالة لجلب المنتجات التالية عندما ينزل المستخدم لأسفل الصفحة
 function loadMoreProducts() {
-    console.log("1. تم استدعى دالة تحميل المزيد بنجاح.");
+    alert("1. ممتاز! التمرير يعمل وتم استدعاء الدالة.");
     
     if (isLoadingProducts) {
-        console.log("توقف: عملية تحميل أخرى قيد التنفيذ حالياً.");
+        alert("توقف: عملية تحميل أخرى تعمل حالياً.");
         return;
     }
     if (!lastVisibleProduct) {
-        console.log("توقف: المتغير lastVisibleProduct فارغ، لا يوجد منتجات بعدها أو لم يتم حفظه.");
+        alert("توقف: المتغير lastVisibleProduct فارغ (لم يتم حفظ آخر منتج بشكل صحيح).");
         return;
     }
 
     isLoadingProducts = true;
-    console.log("2. جاري الاتصال بقاعدة البيانات لجلب الدفعة التالية...");
+    alert("2. جاري الاتصال بقاعدة البيانات لجلب الدفعة التالية...");
 
     db.collection("products")
       .orderBy("createdAt", "desc")
@@ -3793,21 +3793,16 @@ function loadMoreProducts() {
       .get()
       .then((querySnapshot) => {
           isLoadingProducts = false;
-          console.log("3. تم استجابة فايربيس بنجاح. عدد المنتجات القادمة:", querySnapshot.size);
+          alert("3. استجاب فايربيس! عدد المنتجات الجديدة: " + querySnapshot.size);
 
           if (querySnapshot.empty) {
-              console.log("4. تنبيه: قاعدة البيانات خالية من منتجات إضافية (انتهت المنتجات).");
+              alert("✨ وصلت إلى نهاية المنتجات في قاعدة البيانات.");
               lastVisibleProduct = null;
-              let loadingIndicator = document.getElementById('loading-indicator');
-              if (loadingIndicator) {
-                  loadingIndicator.style.display = 'block';
-                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
-              }
               return;
           }
 
           lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
-          console.log("5. تم تحديث lastVisibleProduct بنجاح، وجاري رسم المنتجات الجديدة...");
+          alert("4. تم جلب المنتجات وجاري رسمها على الشاشة...");
 
           querySnapshot.forEach((doc) => {
               let product = doc.data();
@@ -3819,13 +3814,13 @@ function loadMoreProducts() {
               } else if (productsGrid && typeof appendProductCard === 'function') {
                   appendProductCard(product);
               } else {
-                  console.log("خطأ: دالة الرسم أو حاوية المنتجات غير موجودة!");
+                  alert("⚠️ تنبيه: حاوية المنتجات أو دالة الرسم غير موجودة!");
               }
           });
       })
       .catch((error) => {
           isLoadingProducts = false;
-          console.log("❌ خطأ قادم من فايربيس (Firebase Error):", error.message);
+          alert("❌ خطأ من فايربيس: " + error.message);
       });
 }
 
