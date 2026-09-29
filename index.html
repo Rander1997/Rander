@@ -3227,11 +3227,13 @@ function loadCloudProducts() {
 
 // 2. تحميل المزيد باستخدام نفس الترتيب لضمان عمل startAfter بدقة
 // 1. التحميل الأولي (بأبسط وأضمن طريقة لضمان ظهور المنتجات فوراً)
+// 1. التحميل الأولي مع ترتيب ثابت ومعرف واضح
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
     db.collection("products")
+      .orderBy("__name__") // ترتيب ثابت ومضمون 100% في فايربيس يعتمد على معرّف الوثيقة
       .limit(20)
       .get()
       .then((querySnapshot) => {
@@ -3246,24 +3248,13 @@ function loadCloudProducts() {
           });
 
           if (firebaseProducts.length > 0) {
-              // التأكد من وجود دالة العرض الأصلية لديك
-              if (typeof renderProductsList === 'function') {
-                  renderProductsList(firebaseProducts, productsGrid);
-              } else {
-                  // طريقة بديلة للعرض المباشر إن لم تكن الدالة موجودة
-                  productsGrid.innerHTML = "";
-                  firebaseProducts.forEach(product => {
-                      if (typeof createProductCardHTML === 'function') {
-                          productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-                      }
-                  });
-              }
+              renderProductsList(firebaseProducts, productsGrid);
           }
       })
       .catch(err => console.log("Error loading initial products: ", err));
 }
 
-// 2. تحميل المزيد بسلاسة تامة عند النزول للأسفل
+// 2. تحميل المزيد باستخدام نفس الترتيب الثابت
 function loadMoreProducts() {
     if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
@@ -3274,6 +3265,7 @@ function loadMoreProducts() {
     let productsGrid = document.getElementById('main-products-grid');
 
     db.collection("products")
+      .orderBy("__name__") // يجب أن يكون نفس الترتيب تماماً ليعمل startAfter بشكل صحيح
       .startAfter(lastVisibleProduct)
       .limit(20)
       .get()
@@ -3297,12 +3289,10 @@ function loadMoreProducts() {
               let product = doc.data();
               product.id = doc.id;
               
-              if (productsGrid) {
-                  if (typeof createProductCardHTML === 'function') {
-                      productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
-                  } else if (typeof appendProductCard === 'function') {
-                      appendProductCard(product);
-                  }
+              if (productsGrid && typeof createProductCardHTML === 'function') {
+                  productsGrid.insertAdjacentHTML('beforeend', createProductCardHTML(product));
+              } else if (productsGrid && typeof appendProductCard === 'function') {
+                  appendProductCard(product);
               }
           });
       })
@@ -3312,13 +3302,6 @@ function loadMoreProducts() {
           console.log("Error loading more products: ", error);
       });
 }
-
-// 3. مراقب التمرير لجلب الدفعات التالية تلقائياً
-window.addEventListener('scroll', () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        loadMoreProducts();
-    }
-});
     
 
 // دالة مساعدة لتنظيف وترتيب عرض المنتجات بدون تكرار
