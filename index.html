@@ -3772,70 +3772,62 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // دالة لجلب المنتجات التالية عندما ينزل المستخدم لأسفل الصفحة
 function loadMoreProducts() {
-    alert("1. ممتاز! التمرير يعمل وتم استدعاء الدالة.");
-    
-    if (isLoadingProducts) {
-        alert("توقف: عملية تحميل أخرى تعمل حالياً.");
-        return;
-    }
-    if (!lastVisibleProduct) {
-        alert("توقف: المتغير lastVisibleProduct فارغ (لم يتم حفظ آخر منتج بشكل صحيح).");
-        return;
-    }
-
+    if (isLoadingProducts || !lastVisibleProduct) return;
     isLoadingProducts = true;
-    alert("2. جاري الاتصال بقاعدة البيانات لجلب الدفعة التالية...");
 
+    let loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
+
+    let productsGrid = document.getElementById('main-products-grid');
+
+    // تم إزالة orderBy مؤقتاً لتجنب أي مشاكل في الفهرسة ولضمان جلب المنتجات فوراً
     db.collection("products")
-      .orderBy("createdAt", "desc")
       .startAfter(lastVisibleProduct)
       .limit(20)
       .get()
       .then((querySnapshot) => {
           isLoadingProducts = false;
-          alert("3. استجاب فايربيس! عدد المنتجات الجديدة: " + querySnapshot.size);
+          
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
 
           if (querySnapshot.empty) {
-              alert("✨ وصلت إلى نهاية المنتجات في قاعدة البيانات.");
               lastVisibleProduct = null;
+              if (loadingIndicator) {
+                  loadingIndicator.style.display = 'block';
+                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+              }
               return;
           }
 
           lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
-          alert("4. تم جلب المنتجات وجاري رسمها على الشاشة...");
 
           querySnapshot.forEach((doc) => {
               let product = doc.data();
               product.id = doc.id;
               
-              let productsGrid = document.getElementById('main-products-grid');
               if (productsGrid && typeof createProductCardHTML === 'function') {
                   productsGrid.innerHTML += createProductCardHTML(product);
               } else if (productsGrid && typeof appendProductCard === 'function') {
                   appendProductCard(product);
-              } else {
-                  alert("⚠️ تنبيه: حاوية المنتجات أو دالة الرسم غير موجودة!");
               }
           });
       })
       .catch((error) => {
           isLoadingProducts = false;
-          alert("❌ خطأ من فايربيس: " + error.message);
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+          alert("خطأ في الجلب: " + error.message);
       });
 }
 
-// مراقبة التمرير: عندما يقترب المستخدم من نهاية الصفحة بـ 500 بكسل، يتم جلب الـ 20 التالية تلقائياً
-
-    window.addEventListener('scroll', () => {
-    // حساب المسافة المتبقية للوصول إلى نهاية الصفحة
-    const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const currentScroll = window.scrollY;
-
-    // إذا بقي أقل من 300 بكسل للوصول للنهاية، قم بجلب المزيد
-    if ((scrollableHeight - currentScroll) <= 300) {
+window.addEventListener('scroll', () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         loadMoreProducts();
     }
 });
+
+
+
+    
     
     
 </script>
