@@ -2310,30 +2310,11 @@ function closeDetailModal() {
             saveFavsToStorage();
         }
 
-        function syncFavoritesUI() {
-            if (typeof favoritesArray === 'undefined') return;
-            document.querySelectorAll('.product-card').forEach(function(card) {
-                var pId = card.getAttribute('data-id');
-                var favBtn = card.querySelector('.fav-btn');
-                if (favBtn) favBtn.innerText = favoritesArray.includes(pId) ? "❤️" : "🤍";
-            });
-        }
-
-        function showFavorites(btnElement) {
-            setActiveNav(btnElement);
-            if (typeof favoritesArray === 'undefined') favoritesArray = [];
-            var heading = document.getElementById('section-heading');
-            if (heading) heading.innerText = "❤️ المفضلة";
-            document.querySelectorAll('.product-card').forEach(function(card) {
-                card.style.display = favoritesArray.includes(card.getAttribute('data-id')) ? 'flex' : 'none';
-            });
-        }
-
         function filterCategory(categoryIdentifier, btnElement) {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
-    // 🌟 1. إزالة الـ active من جميع الأزرار وتفعيله للزر الملموس وحده فقط
+    // 🌟 التفعيل الدقيق للزر الملموس وحده مع تأثيره الأصلي
     if (btnElement) {
         document.querySelectorAll('.category-chip').forEach(function(btn) { 
             btn.classList.remove('active'); 
@@ -2361,7 +2342,7 @@ function closeDetailModal() {
 
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
-    // ترتيب الأقسام الفرعية تصاعدياً
+    // ترتيب الأقسام الفرعية حسب الـ order والتاريخ
     [...subCategories].sort((a, b) => {
         let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
         let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
@@ -2396,7 +2377,6 @@ function closeDetailModal() {
         if (noResults) noResults.style.display = 'block';
     }
 
-    // 🌟 2. بناء الأقسام الفرعية مع تمرير المعرف (id) الصحيح للتحقق من الزر النشط بدقة
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
@@ -2410,7 +2390,6 @@ function closeDetailModal() {
         
         subCategories.forEach(sub => {
             let subKey = sub.slug || sub.id;
-            // التحقق الدقيق عبر الـ id أو الـ slug أو مطابقة المعرف الحالي للمنع الكامل لأي تداخل
             let isThisSubActive = (selectedVal === sub.id.toLowerCase() || (sub.slug && selectedVal === sub.slug.toLowerCase())) ? 'active' : '';
             subHtml += `<button class="category-chip ${isThisSubActive}" onclick="filterCategory('${subKey}', this)">${sub.name}</button>`;
         });
