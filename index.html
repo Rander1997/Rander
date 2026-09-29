@@ -2404,14 +2404,16 @@ function closeDetailModal() {
     if (subCategories.length > 0) {
         subContainer.style.display = 'flex';
         
+        // 🌟 التعديل هنا: تفعيل زر "الكل في هذا القسم" إذا كان القادم هو القسم الرئيسي أو تم الضغط عليه مباشرة
         let isMainParentClick = (btnElement && !btnElement.closest('#subcategories-container'));
-        let allSubActive = isMainParentClick ? 'active' : '';
+        let isReturningToAll = (selectedVal === categoryId.toLowerCase());
+        let allSubActive = (isMainParentClick || isReturningToAll) ? 'active' : '';
         
         let subHtml = `<button class="category-chip ${allSubActive}" onclick="filterCategory('${categoryId}', this)">الكل في هذا القسم</button>`;
         
         subCategories.forEach(sub => {
             let subKey = sub.slug || sub.id;
-            let isThisSubActive = (selectedVal === sub.id.toLowerCase() || (sub.slug && selectedVal === sub.slug.toLowerCase())) ? 'active' : '';
+            let isThisSubActive = (!isReturningToAll && (selectedVal === sub.id.toLowerCase() || (sub.slug && selectedVal === sub.slug.toLowerCase()))) ? 'active' : '';
             subHtml += `<button class="category-chip ${isThisSubActive}" onclick="filterCategory('${subKey}', this)">${sub.name}</button>`;
         });
         subContainer.innerHTML = subHtml;
