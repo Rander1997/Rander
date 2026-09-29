@@ -3193,9 +3193,10 @@ let isLoadingProducts = false;
 // دالة جديدة مخصصة لجلب منتجات قسم معين فور الضغط عليه (رئيسي أو فرعي)
 // دالة جلب منتجات القسم أو القسم الفرعي (أول 20 منتجاً مع تهيئة التمرير اللانهائي)
 // دالة جلب منتجات القسم أو القسم الفرعي بدقة لضمان ظهور 20 منتجاً كاملاً
-function loadProductsByCategory(category, subCategory = null) {
-    currentCategory = category;
-    currentSubCategory = subCategory;
+// دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة تامة حسب القسم أو القسم الفرعي
+function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null) {
+    currentCategory = categoryIdentifier;
+    currentSubCategory = subCategoryIdentifier;
     lastVisibleProduct = null;
     isLoadingProducts = false;
 
@@ -3209,97 +3210,115 @@ function loadProductsByCategory(category, subCategory = null) {
         return;
     }
 
-    let query = db.collection("products");
+    // الخطوة 1: البحث عن كائن القسم الحالي في مصفوفة الكاش (categoriesData) لمعرفة الـ ID والاسم والـ Slug
+    let targetCatObj = null;
+    let targetSubObj = null;
 
-    // التحقق من نوع الفلترة (قسم فرعي أم رئيسي) وتطبيقها بمرونة
-    if (subCategory && subCategory.trim() !== "") {
-        // البحث بالقسم الفرعي (نبحث في حقل subCategory أو category حسب تخزينك)
-        query = query.where("subCategory", "==", subCategory);
-    } else if (category && category.trim() !== "") {
-        // البحث بالقسم الرئيسي
-        query = query.where("category", "==", category);
+    if (typeof categoriesData !== 'undefined' && categoriesData.length > 0) {
+        if (subCategoryIdentifier) {
+            targetSubObj = categoriesData.find(c => 
+                c.id === subCategoryIdentifier || 
+                (c.slug && c.slug.toLowerCase() === subCategoryIdentifier.toLowerCase()) || 
+                (c.name && c.name.trim().toLowerCase() === subCategoryIdentifier.trim().toLowerCase())
+            );
+        }
+        if (categoryIdentifier) {
+            targetCatObj = categoriesData.find(c => 
+                c.id === categoryIdentifier || 
+                (c.slug && c.slug.toLowerCase() === categoryIdentifier.toLowerCase()) || 
+                (c.name && c.name.trim().toLowerCase() === categoryIdentifier.trim().toLowerCase())
+            );
+        }
     }
 
-    // جلب أول 20 منتجاً للقسم المختار
-    query.orderBy(firebase.firestore.FieldPath.documentId())
-         .limit(20)
-         .get()
-         .then((querySnapshot) => {
-             let firebaseProducts = [];
-             
-             if (!querySnapshot.empty) {
-                 lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
-             }
+    // تحديد القيم التي سنبحث بها في فايربيس (سواء الـ ID أو الاسم النصي)
+    let searchCategoryValue = targetCatObj ? targetCatObj.name : categoryIdentifier;
+    let searchCategoryId = targetCatObj ? targetCatObj.id : null;
 
-             querySnapshot.forEach((doc) => {
-                 let prodData = doc.data();
-                 prodData.id = doc.id;
-                 firebaseProducts.push(prodData);
-             });
+    let searchSubValue = targetSubObj ? targetSubObj.name : subCategoryIdentifier;
+    let searchSubId = targetSubObj ? targetSubObj.id : null;
 
-             productsGrid.innerHTML = ""; // تفريغ الشبكة
-
-             // إذا لم تطابق قاعدة البيانات الحقل النصي، نجرب البحث باستخدام الكائنات المخزنة (categoriesData)
-             if (firebaseProducts.length === 0 && category) {
-                 fallbackLoadByCategoryName(category, subCategory, productsGrid);
-                 return;
-             }
-
-             if (firebaseProducts.length === 0) {
-                 productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">لا توجد منتجات في هذا القسم حالياً 🛍️</div>';
-                 let loadingIndicator = document.getElementById('loading-indicator');
-                 if (loadingIndicator) {
-                     loadingIndicator.style.display = 'block';
-                     loadingIndicator.innerHTML = '✨ لا توجد منتجات أخرى';
-                 }
-                 return;
-             }
-
-             // عرض المنتجات بالكامل (حتى 20 منتجاً دفعة واحدة)
-             if (typeof renderProductsList === 'function') {
-                 renderProductsList(firebaseProducts, productsGrid);
-             }
-
-             let loadingIndicator = document.getElementById('loading-indicator');
-             if (loadingIndicator) {
-                 if (querySnapshot.size < 20) {
-                     loadingIndicator.style.display = 'block';
-                     loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
-                 } else {
-                     loadingIndicator.style.display = 'none';
-                 }
-             }
-         })
-         .catch(err => {
-             console.log("خطأ في جلب منتجات القسم: ", err);
-             productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">حدث خطأ أثناء تحميل منتجات القسم</div>';
-         });
-}
-
-// دالة احتياطية لضمان مطابقة اسم القسم أو الـ ID الخاص به في حال اختلاف طريقة التخزين
-function fallbackLoadByCategoryName(categoryName, subCategoryName, productsGrid) {
-    db.collection("products").limit(100).get().then((snapshot) => {
+    // الخطوة 2: جلب جميع المنتجات محلياً وتصفيتها بذكاء لضمان عدم ضياع أي منتج بسبب اختلاف طريقة تخزين الـ ID أو النص
+    db.collection("products").get().then((snapshot) => {
         let matchedProducts = [];
+
         snapshot.forEach((doc) => {
             let prod = doc.data();
             prod.id = doc.id;
-            let pCat = (prod.category || "").trim().toLowerCase();
-            let targetCat = categoryName.trim().toLowerCase();
-            
-            if (pCat === targetCat || pCat.includes(targetCat)) {
-                matchedProducts.push(prod);
+
+            let prodCat = (prod.category || "").trim().toLowerCase();
+            let prodSubCat = (prod.subCategory || "").trim().toLowerCase();
+
+            if (subCategoryIdentifier && targetSubObj) {
+                // إذا كنا نبحث في قسم فرعي
+                let matchSub = (prodSubCat === targetSubObj.name.trim().toLowerCase()) || 
+                               (prodSubCat === targetSubObj.id.toLowerCase()) ||
+                               (prodCat === targetSubObj.id.toLowerCase());
+                if (matchSub) {
+                    matchedProducts.push(prod);
+                }
+            } else if (categoryIdentifier && targetCatObj) {
+                // إذا كنا نبحث في قسم رئيسي (نحضر منتجات القسم الرئيسي + منتجات أقسامه الفرعية لتظهر بالكامل)
+                let isDirectCategory = (prodCat === targetCatObj.name.trim().toLowerCase()) || 
+                                       (prodCat === targetCatObj.id.toLowerCase());
+                
+                // التحقق هل المنتج ينتمي لأقسام فرعية تابعة لهذا القسم الرئيسي
+                let isChildSubCategory = false;
+                if (typeof categoriesData !== 'undefined') {
+                    let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id);
+                    isChildSubCategory = childSubs.some(sub => 
+                        prodSubCat === sub.name.trim().toLowerCase() || 
+                        prodSubCat === sub.id.toLowerCase() ||
+                        prodCat === sub.id.toLowerCase()
+                    );
+                }
+
+                if (isDirectCategory || isChildSubCategory) {
+                    matchedProducts.push(prod);
+                }
+            } else {
+                // بحث احتياطي نصي مباشر
+                if (prodCat.includes((categoryIdentifier || "").trim().toLowerCase())) {
+                    matchedProducts.push(prod);
+                }
             }
         });
 
-        if (matchedProducts.length > 0) {
-            // أخذ أول 20 منتجاً فقط كدفعة أولى
-            let firstBatch = matchedProducts.slice(0, 20);
-            if (typeof renderProductsList === 'function') {
-                renderProductsList(firstBatch, productsGrid);
+        productsGrid.innerHTML = ""; // تفريغ الشبكة
+
+        if (matchedProducts.length === 0) {
+            productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">لا توجد منتجات في هذا القسم حالياً 🛍️</div>';
+            let loadingIndicator = document.getElementById('loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.innerHTML = '✨ لا توجد منتجات أخرى';
             }
-        } else {
-            productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">لا توجد منتجات مطابقة لهذا القسم 🛍️</div>';
+            return;
         }
+
+        // أخذ أول 20 منتجاً فقط للدفعة الأولى (Lazy Loading) والباقي يتم تتبعه
+        let firstBatch = matchedProducts.slice(0, 20);
+        
+        // حفظ المتبقي للتمرير اللانهائي
+        window.currentCategoryFullList = matchedProducts;
+        window.currentBatchIndex = 20;
+
+        if (typeof renderProductsList === 'function') {
+            renderProductsList(firstBatch, productsGrid);
+        }
+
+        let loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+            if (matchedProducts.length <= 20) {
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+            } else {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+    }).catch(err => {
+        console.log("خطأ في جلب منتجات القسم: ", err);
+        productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">حدث خطأ أثناء تحميل منتجات القسم</div>';
     });
 }
 
@@ -3357,7 +3376,36 @@ function loadCloudProducts() {
 
 // 2. تحميل المزيد من المنتجات تدريجياً عند التمرير (مدعوم للأقسام والصفحة الرئيسية تلقائياً)
 function loadMoreProducts() {
-    if (isLoadingProducts || !lastVisibleProduct) return;
+    if (isLoadingProducts) return;
+
+    // 1. إذا كنا نتصفح قائمة أقسام مخزنة محلياً (لتجنب مشكلة المنتج الواحد وتعدد الأقسام الفرعية)
+    if (window.currentCategoryFullList && window.currentBatchIndex < window.currentCategoryFullList.length) {
+        isLoadingProducts = true;
+        let productsGrid = document.getElementById('main-products-grid');
+        
+        let nextBatch = window.currentCategoryFullList.slice(window.currentBatchIndex, window.currentBatchIndex + 20);
+        window.currentBatchIndex += 20;
+
+        if (productsGrid && typeof renderProductsList === 'function') {
+            renderProductsList(nextBatch, productsGrid);
+        }
+
+        isLoadingProducts = false;
+
+        let loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+            if (window.currentBatchIndex >= window.currentCategoryFullList.length) {
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+            } else {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        return;
+    }
+
+    // 2. إذا كنا في الصفحة الرئيسية أو نستخدم التمرير اللانهائي العادي لفايربيس
+    if (!lastVisibleProduct) return;
     isLoadingProducts = true;
 
     let loadingIndicator = document.getElementById('loading-indicator');
@@ -3367,10 +3415,8 @@ function loadMoreProducts() {
     }
 
     let productsGrid = document.getElementById('main-products-grid');
-
     let query = db.collection("products");
 
-    // التحقق مما إذا كنا نتصفح قسماً معيناً لتطبيق الفلترة أثناء التمرير
     if (currentSubCategory) {
         query = query.where("subCategory", "==", currentSubCategory);
     } else if (currentCategory) {
