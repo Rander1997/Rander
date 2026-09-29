@@ -3828,6 +3828,17 @@ window.addEventListener('scroll', () => {
         loadMoreProducts();
     }
 });
+
+    window.addEventListener('scroll', () => {
+    // حساب المسافة المتبقية للوصول إلى نهاية الصفحة
+    const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const currentScroll = window.scrollY;
+
+    // إذا بقي أقل من 300 بكسل للوصول للنهاية، قم بجلب المزيد
+    if ((scrollableHeight - currentScroll) <= 300) {
+        loadMoreProducts();
+    }
+});
     
     
 </script>
