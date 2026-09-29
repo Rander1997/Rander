@@ -3227,11 +3227,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 // دالة لجلب وعرض المنتجات من سحابة فايربيس لكل الأجهزة فوراً
+// 1. الدالة الأولى: التحميل الأولي لأول 20 منتجاً مع حفظ نقطة البداية للـ Pagination
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
-    // 1. العرض الفوري من الذاكرة المحلية إن وجدت
+    // العرض الفوري من الذاكرة المحلية إن وجد لسرعة الاستجابة
     let cachedProducts = localStorage.getItem('rander_cloud_products_cache');
     if (cachedProducts) {
         try {
@@ -3240,25 +3241,89 @@ function loadCloudProducts() {
         } catch(e) {}
     }
 
-    // 2. الجلب من فايربيس مع حفظ آخر منتج لكي يعمل التحميل التلقائي بعده
-    db.collection("products").limit(20).get().then((querySnapshot) => {
-        let firebaseProducts = [];
-        
-        if (!querySnapshot.empty) {
-            // 🌟 هذه هي النقطة الأساسية: حفظ آخر منتج ظاهر لتستكمل دالة loadMoreProducts من بعده
-            lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
-        }
+    // جلب أول 20 منتجاً من فايربيس وترتيبها حسب الأحدث
+    db.collection("products")
+      .orderBy("createdAt", "desc")
+      .limit(20)
+      .get()
+      .then((querySnapshot) => {
+          let firebaseProducts = [];
+          
+          if (!querySnapshot.empty) {
+              // حفظ آخر وثيقة في أول 20 منتجاً لتبدأ الدفعة القادمة بعدها بدقة
+              lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+          }
 
-        querySnapshot.forEach((doc) => {
-            firebaseProducts.push({ id: doc.id, ...doc.data() });
-        });
+          querySnapshot.forEach((doc) => {
+              firebaseProducts.push({ id: doc.id, ...doc.data() });
+          });
 
-        if (firebaseProducts.length > 0) {
-            localStorage.setItem('rander_cloud_products_cache', JSON.stringify(firebaseProducts));
-            renderProductsList(firebaseProducts, productsGrid);
-        }
-    }).catch(err => console.log("Offline mode active"));
+          if (firebaseProducts.length > 0) {
+              localStorage.setItem('rander_cloud_products_cache', JSON.stringify(firebaseProducts));
+              renderProductsList(firebaseProducts, productsGrid);
+          }
+      })
+      .catch(err => console.log("Error loading initial products: ", err));
 }
+
+// 2. الدالة الثانية: تحميل المزيد تدريجياً (20 تلو الأخرى) عند النزول لأسفل الصفحة
+function loadMoreProducts() {
+    if (isLoadingProducts || !lastVisibleProduct) return;
+    isLoadingProducts = true;
+
+    let loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
+
+    let productsGrid = document.getElementById('main-products-grid');
+
+    db.collection("products")
+      .orderBy("createdAt", "desc")
+      .startAfter(lastVisibleProduct) // البدء حصرياً بعد آخر منتج تم عرضه
+      .limit(20) // جلب 20 منتجاً إضافياً في كل مرة
+      .get()
+      .then((querySnapshot) => {
+          isLoadingProducts = false;
+          
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+          if (querySnapshot.empty) {
+              lastVisibleProduct = null; // تعطيل الاستمرار لوصولها للنهاية المطلقة
+              if (loadingIndicator) {
+                  loadingIndicator.style.display = 'block';
+                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+              }
+              return;
+          }
+
+          // تحديث مؤشر آخر منتج للدفعة الجديدة
+          lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+          querySnapshot.forEach((doc) => {
+              let product = doc.data();
+              product.id = doc.id;
+              
+              // إلحاق المنتجات الجديدة أسفل المنتجات الموجودة دون مسحها
+              if (productsGrid && typeof createProductCardHTML === 'function') {
+                  productsGrid.innerHTML += createProductCardHTML(product);
+              } else if (productsGrid && typeof appendProductCard === 'function') {
+                  appendProductCard(product);
+              }
+          });
+      })
+      .catch((error) => {
+          isLoadingProducts = false;
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+          console.log("Error loading more products: ", error);
+      });
+}
+
+// 3. مراقب التمرير المنضبط لمنع التكرار وضمان السلاسة
+window.addEventListener('scroll', () => {
+    // التحقق إذا اقترب المستخدم من نهاية الصفحة بمسافة 400 بكسل
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 400) {
+        loadMoreProducts();
+    }
+});
 
 // دالة مساعدة لتنظيف وترتيب عرض المنتجات بدون تكرار
 function renderProductsList(productsArray, gridElement) {
@@ -3770,60 +3835,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-
-// دالة لجلب المنتجات التالية عندما ينزل المستخدم لأسفل الصفحة
-function loadMoreProducts() {
-    if (isLoadingProducts || !lastVisibleProduct) return;
-    isLoadingProducts = true;
-
-    let loadingIndicator = document.getElementById('loading-indicator');
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
-
-    let productsGrid = document.getElementById('main-products-grid');
-
-    db.collection("products")
-      .startAfter(lastVisibleProduct)
-      .limit(20)
-      .get()
-      .then((querySnapshot) => {
-          isLoadingProducts = false;
-          
-          if (loadingIndicator) loadingIndicator.style.display = 'none';
-
-          if (querySnapshot.empty) {
-              lastVisibleProduct = null;
-              if (loadingIndicator) {
-                  loadingIndicator.style.display = 'block';
-                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
-              }
-              return;
-          }
-
-          lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
-
-          querySnapshot.forEach((doc) => {
-              let product = doc.data();
-              product.id = doc.id;
-              
-              if (productsGrid && typeof createProductCardHTML === 'function') {
-                  productsGrid.innerHTML += createProductCardHTML(product);
-              } else if (productsGrid && typeof appendProductCard === 'function') {
-                  appendProductCard(product);
-              }
-          });
-      })
-      .catch((error) => {
-          isLoadingProducts = false;
-          if (loadingIndicator) loadingIndicator.style.display = 'none';
-          console.log("Error: ", error);
-      });
-}
-
-window.addEventListener('scroll', () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        loadMoreProducts();
-    }
-});
 
 
 
