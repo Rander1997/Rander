@@ -1693,7 +1693,7 @@ button.btn[onclick*="sendOrder"]:hover {
 </div>
 
 <!-- زر تحميل المزيد المؤقت لاختبار الجلب -->
-<button id="load-more-btn" onclick="loadMoreProducts()" style="display: block; width: 100%; padding: 15px; margin: 20px 0; background: #000; color: #fff; text-align: center; border: none; border-radius: 8px; font-size: 16px;">تحميل المزيد من المنتجات</button>
+<button id="load-more-btn" onclick="loadMoreProducts()" style="display: block; width: fit-content; min-width: 200px; padding: 12px 24px; margin: 25px auto; background: #000; color: #fff; text-align: center; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">تحميل المزيد</button>
             
             
     </main>
@@ -3234,7 +3234,7 @@ function loadCloudProducts() {
           let loadingIndicator = document.getElementById('loading-indicator');
           if (querySnapshot.size < 20 && loadingIndicator) {
               loadingIndicator.style.display = 'block';
-              loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+              loadingIndicator.innerHTML = ' وصلت إلى نهاية المنتجات';
           }
       })
       .catch(err => console.log("خطأ في جلب المنتجات: ", err));
