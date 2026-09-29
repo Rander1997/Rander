@@ -2333,9 +2333,20 @@ function closeDetailModal() {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
-    // تحديد الزر النشط في الشريطين
-    document.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
-    if (btnElement) btnElement.classList.add('active');
+    // 🌟 التعديل هنا: تحديد الزر النشط بدقة داخل شريطه فقط دون التأثير على باقي الأشرطة بشكل خاطئ
+    if (btnElement) {
+        // معرفة هل الزر ينتمي لشريط الأقسام الرئيسية أم الفرعية
+        let parentContainer = btnElement.closest('#subcategories-container');
+        if (parentContainer) {
+            // إذا كان في الشريط الفرعي، نزع الـ active من أزرار الشريط الفرعي فقط
+            parentContainer.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
+        } else {
+            // إذا كان في الشريط الرئيسي، نزع الـ active من أزرار الشريط الرئيسي فقط
+            var mainContainer = document.getElementById('store-categories-container');
+            if (mainContainer) mainContainer.querySelectorAll('.category-chip').forEach(function(btn) { btn.classList.remove('active'); });
+        }
+        btnElement.classList.add('active');
+    }
 
     const selectedVal = categoryIdentifier ? categoryIdentifier.trim().toLowerCase() : '';
 
@@ -2357,11 +2368,11 @@ function closeDetailModal() {
     let categoryId = categoryObj ? categoryObj.id : categoryIdentifier;
     let targetCategoryName = categoryObj ? categoryObj.name.trim().toLowerCase() : selectedVal;
 
-    // 🌟 الخطوة الذكية: معرفة الأقسام الفرعية التابعة لهذا القسم (سواء بالـ id أو الـ parentId)
+    // 🌟 معرفة الأقسام الفرعية التابعة لهذا القسم (سواء بالـ id أو الـ parentId)
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
     // --- ترتيب الأقسام الفرعية حسب حقل order (تصاعدياً) ثم حسب التاريخ ---
-    subCategories.sort((a, b) => {
+    [...subCategories].sort((a, b) => {
         let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
         let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
         if (orderA !== orderB) {
@@ -2387,7 +2398,7 @@ function closeDetailModal() {
 
     // المرور على بطاقات المنتجات وإظهار/إخفاء ما يناسب القسم أو فروعه
     document.querySelectorAll('.product-card').forEach(card => {
-        let productCat = card.getAttribute('data-category'); // يمكن أن يكون id أو slug أو اسم القسم
+        let productCat = card.getAttribute('data-category'); 
         productCat = productCat ? productCat.trim().toLowerCase() : '';
 
         let matches = validCategoryIdentifiers.includes(productCat);
@@ -2401,16 +2412,21 @@ function closeDetailModal() {
         if (noResults) noResults.style.display = 'block';
     }
 
-    // إدارة وتحديث شريط الأقسام الفرعية
+    // إدارة وتحديث شريط الأقسام الفرعية بثبات تام ودون تخريبط للأماكن
     var subContainer = document.getElementById('subcategories-container');
     if (!subContainer) return;
 
     if (subCategories.length > 0) {
         subContainer.style.display = 'flex';
-        let subHtml = `<button class="category-chip active" onclick="filterCategory('${categoryId}', this)">الكل في هذا القسم</button>`;
+        // التحقق هل الزر الحالي هو زر "الكل في هذا القسم" أم تم النقر على قسم فرعي مسبقاً
+        let isAllActive = (!btnElement || btnElement.innerText.includes('الكل')) ? 'active' : '';
+        let subHtml = `<button class="category-chip ${isAllActive}" onclick="filterCategory('${categoryId}', this)">الكل في هذا القسم</button>`;
+        
         subCategories.forEach(sub => {
             let subKey = sub.slug || sub.id;
-            subHtml += `<button class="category-chip" onclick="filterCategory('${subKey}', this)"> ${sub.name}</button>`;
+            // الحفاظ على حالة الـ active للزر الفرعي الصحيح فقط إن كان هو المضغوط
+            let isSubActive = (btnElement && btnElement.innerText.trim() === sub.name.trim()) ? 'active' : '';
+            subHtml += `<button class="category-chip ${isSubActive}" onclick="filterCategory('${subKey}', this)"> ${sub.name}</button>`;
         });
         subContainer.innerHTML = subHtml;
     } else {
@@ -2424,7 +2440,7 @@ function closeDetailModal() {
             let subHtml = `<button class="category-chip" onclick="filterCategory('${parentId}', this)">الكل</button>`;
             siblingCategories.forEach(sub => {
                 let subKey = sub.slug || sub.id;
-                let isActive = (sub.id === currentCat.id || sub.slug === currentCat.slug) ? 'active' : '';
+                let isActive = (sub.id === currentCat.id || sub.slug === currentCat.slug || (btnElement && btnElement.innerText.trim() === sub.name.trim())) ? 'active' : '';
                 subHtml += `<button class="category-chip ${isActive}" onclick="filterCategory('${subKey}', this)"> ${sub.name}</button>`;
             });
             subContainer.innerHTML = subHtml;
