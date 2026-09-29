@@ -2113,22 +2113,6 @@ function updateProductUrl(product) {
     window.history.replaceState({path: newUrl}, '', newUrl);
 }
 
-function generateSitemapText() {
-    db.collection("products").get().then((snapshot) => {
-        let xmlOutput = '';
-        snapshot.forEach((doc) => {
-            let data = doc.data();
-            let slug = data.slug || doc.id;
-            xmlOutput += `  <url>\n       <loc>https://rander1997.github.io/Rander/?product=${slug}</loc>\n       <priority>0.8000</priority>\n  </url>\n`;
-        });
-        
-        let win = window.open('', '_blank');
-        win.document.write(`<pre style="direction:ltr; text-align:left; font-size:16px;">${xmlOutput}</pre>`);
-    });
-}
-
-// ضعه هنا في السطر الأخير تماماً لكي يعمل بمجرد تحميل الصفحة
-generateSitemapText();
     
 // قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
 function displayProductModal(product) {
