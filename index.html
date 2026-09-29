@@ -1831,6 +1831,9 @@ button.btn[onclick*="sendOrder"]:hover {
 <!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
 <script>
 
+    let lastVisibleProduct = null;
+let isLoadingProducts = false;
+
     // 1. قاعدة بيانات المنتجات الأساسية أولاً
 var productsData = {
     'p1': {
@@ -3224,7 +3227,7 @@ function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
-    // 1. العرض الفوري من الذاكرة المحلية إن وجدت لمنع أي وميض أو تأخير
+    // 1. العرض الفوري من الذاكرة المحلية إن وجدت لمنع أي وميض أو تأخير[span_0](start_span)[span_0](end_span)
     let cachedProducts = localStorage.getItem('rander_cloud_products_cache');
     if (cachedProducts) {
         try {
@@ -3233,9 +3236,15 @@ function loadCloudProducts() {
         } catch(e) {}
     }
 
-    // 2. الجلب من فايربيس في الخلفية وتحديث العرض والذاكرة المؤقتة بصمت
-    db.collection("products").get().then((querySnapshot) => {
+    // 2. الجلب من فايربيس مع تحديد 15 منتجاً للسرعة
+    db.collection("products").limit(15).get().then((querySnapshot) => {
         let firebaseProducts = [];
+        
+        // 🌟 حفظ آخر منتج لكي نعرف من أين نبدأ عند التمرير للأسفل
+        if (!querySnapshot.empty) {
+            lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+        }
+
         querySnapshot.forEach((doc) => {
             firebaseProducts.push({ id: doc.id, ...doc.data() });
         });
@@ -3756,6 +3765,48 @@ document.addEventListener("DOMContentLoaded", function() {
         }, 1000);
     }
 });
+
+
+// دالة لجلب المنتجات التالية عندما ينزل المستخدم لأسفل الصفحة
+function loadMoreProducts() {
+    if (isLoadingProducts || !lastVisibleProduct) return;
+    isLoadingProducts = true;
+
+    db.collection("products")
+      .orderBy("createdAt", "desc") // يجب أن يتطابق مع طريقة الترتيب في دالتك الأساسية
+      .startAfter(lastVisibleProduct) // البدء بعد آخر منتج ظاهر حالياً
+      .limit(15) // جلب الـ 15 منتجاً التالية
+      .get()
+      .then((querySnapshot) => {
+          isLoadingProducts = false;
+          if (querySnapshot.empty) {
+              lastVisibleProduct = null; // انتهت جميع المنتجات
+              return;
+          }
+
+          // تحديث مؤشر آخر منتج
+          lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+          querySnapshot.forEach((doc) => {
+              let product = doc.data();
+              product.id = doc.id;
+              // دالة إضافة المنتج إلى الشاشة (تأكد أن اسمها appendProductCard أو استبدلها بالدالة لديك)
+              appendProductCard(product); 
+          });
+      })
+      .catch((error) => {
+          isLoadingProducts = false;
+          console.log("Error loading more products: ", error);
+      });
+}
+
+// مراقبة التمرير: عندما يقترب المستخدم من نهاية الصفحة، يتم جلب المنتجات الجديدة تلقائياً
+window.addEventListener('scroll', () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        loadMoreProducts();
+    }
+});
+    
     
 </script>
 
