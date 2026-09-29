@@ -3194,11 +3194,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
 // متغيرات عامة لإدارة العرض المحلي
 // متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
 // متغيرات عامة لإدارة العرض المحلي والتخزين المؤقت
-let allCloudProducts = [];
-let currentDisplayCount = 0;
-const pageSize = 20;
+// حزمة متغيرات خاصة بالمتجر لتجنب تضارب الـ let في النطاق العام
+window.RanderStore = window.RanderStore || {
+    allCloudProducts: [],
+    currentDisplayCount: 0,
+    pageSize: 20
+};
 
-// 1. التحميل الأولي: جلب كل المنتجات وتخزينها محلياً لعرض الدفعة الأولى
+// 1. التحميل الأولي: جلب كل المنتجات وتخزينها محلياً
 function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
@@ -3206,13 +3209,13 @@ function loadCloudProducts() {
     db.collection("products")
       .get()
       .then((querySnapshot) => {
-          allCloudProducts = [];
+          window.RanderStore.allCloudProducts = [];
           
           querySnapshot.forEach((doc) => {
-              allCloudProducts.push({ id: doc.id, ...doc.data() });
+              window.RanderStore.allCloudProducts.push({ id: doc.id, ...doc.data() });
           });
 
-          currentDisplayCount = 0;
+          window.RanderStore.currentDisplayCount = 0;
           productsGrid.innerHTML = ""; // تفريغ الشبكة قبل العرض الأول
 
           // عرض أول 20 منتجاً
@@ -3221,12 +3224,13 @@ function loadCloudProducts() {
       .catch(err => console.log("Error loading products: ", err));
 }
 
-// 2. تحميل الدفعة التالية (20 منتجاً إضافياً في كل مرة عند النزول أو الضغط)
+// 2. تحميل الدفعة التالية (20 منتجاً إضافياً في كل مرة)
 function loadMoreProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     let loadingIndicator = document.getElementById('loading-indicator');
+    let store = window.RanderStore;
 
-    if (currentDisplayCount >= allCloudProducts.length) {
+    if (store.currentDisplayCount >= store.allCloudProducts.length) {
         if (loadingIndicator) {
             loadingIndicator.style.display = 'block';
             loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
@@ -3235,8 +3239,8 @@ function loadMoreProducts() {
     }
 
     // جلب الـ 20 منتجاً التالية من المصفوفة المخزنة محلياً
-    let nextBatch = allCloudProducts.slice(currentDisplayCount, currentDisplayCount + pageSize);
-    currentDisplayCount += nextBatch.length;
+    let nextBatch = store.allCloudProducts.slice(store.currentDisplayCount, store.currentDisplayCount + store.pageSize);
+    store.currentDisplayCount += nextBatch.length;
 
     if (productsGrid) {
         nextBatch.forEach(product => {
@@ -3248,7 +3252,7 @@ function loadMoreProducts() {
         });
     }
 
-    if (currentDisplayCount >= allCloudProducts.length && loadingIndicator) {
+    if (store.currentDisplayCount >= store.allCloudProducts.length && loadingIndicator) {
         loadingIndicator.style.display = 'block';
         loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
     }
@@ -3261,7 +3265,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// 🌟 التشغيل التلقائي فور تحميل الصفحة لضمان جلب المنتجات وعرضها
+// 🌟 التشغيل التلقائي فور تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
     loadCloudProducts();
 });
