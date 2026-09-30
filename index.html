@@ -3294,6 +3294,18 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
             }
         });
 
+        let seen = {};
+snapshot.forEach(d => {
+    let p = d.data();
+    seen[(p.category || '') + ' | ' + (p.subCategory || '')] = 1;
+});
+alert(
+    'القسم المطلوب:\n' +
+    (targetCatObj ? targetCatObj.name + ' | ' + targetCatObj.id + ' | ' + (targetCatObj.slug || '') : 'غير موجود') +
+    '\n\nقيم المنتجات (category | subCategory):\n' +
+    Object.keys(seen).join('\n')
+);
+
         productsGrid.innerHTML = ""; 
 
         if (matchedProducts.length === 0) {
