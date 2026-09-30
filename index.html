@@ -3333,7 +3333,7 @@ snapshot.forEach(d => {
         if (loadingIndicator) {
             if (matchedProducts.length <= 20) {
                 loadingIndicator.style.display = 'block';
-                loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+                loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
             } else {
                 loadingIndicator.style.display = 'none';
             }
@@ -3394,7 +3394,7 @@ function loadCloudProducts() {
           if (loadingIndicator) {
               if (allProducts.length <= 20) {
                   loadingIndicator.style.display = 'block';
-                  loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+                  loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
               } else {
                   loadingIndicator.style.display = 'none';
               }
@@ -3428,7 +3428,7 @@ function loadMoreProducts() {
         if (loadingIndicator) {
             if (window.currentBatchIndex >= window.currentCategoryFullList.length) {
                 loadingIndicator.style.display = 'block';
-                loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+                loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
             } else {
                 loadingIndicator.style.display = 'none';
             }
@@ -3457,7 +3457,7 @@ function loadMoreProducts() {
                  lastVisibleProduct = null;
                  if (loadingIndicator) {
                      loadingIndicator.style.display = 'block';
-                     loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+                     loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
                  }
                  return;
              }
@@ -3477,7 +3477,7 @@ function loadMoreProducts() {
 
              if (querySnapshot.size < 20 && loadingIndicator) {
                  loadingIndicator.style.display = 'block';
-                 loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
+                 loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
              }
          })
          .catch((error) => {
