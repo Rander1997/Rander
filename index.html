@@ -1459,6 +1459,22 @@ button.btn[onclick*="sendOrder"]:hover {
     color: #ffffff;
 }
 
+
+        #search-box.search-active {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100001;
+    background: var(--bg-card, #ffffff);
+    padding: 10px 16px !important;
+    margin: 0 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+body.search-focused #products-section {
+    padding-top: 70px;
+}
         
 </style>
 
@@ -2083,6 +2099,28 @@ function runSearch() {
 }
 
 document.addEventListener("DOMContentLoaded", preloadAllProducts);
+
+    (function() {
+    var input = document.getElementById('search-input');
+    var box = document.getElementById('search-box');
+
+    input.addEventListener('focus', function() {
+        box.classList.add('search-active');
+        document.body.classList.add('search-focused');
+        var section = document.getElementById('products-section');
+        setTimeout(function() {
+            var top = section.getBoundingClientRect().top + window.pageYOffset - 70;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        }, 150);
+    });
+
+    input.addEventListener('blur', function() {
+        setTimeout(function() {
+            box.classList.remove('search-active');
+            document.body.classList.remove('search-focused');
+        }, 200);
+    });
+})();
 
         function openProductModal(identifier) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
