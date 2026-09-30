@@ -3360,8 +3360,9 @@ function loadCloudProducts() {
     }
 
     db.collection("products")
-      .limit(20)
-      .get()
+  .orderBy("displayOrder", "asc")
+  .limit(20)
+  .get()
       .then((querySnapshot) => {
           let firebaseProducts = [];
           
@@ -3437,8 +3438,9 @@ function loadMoreProducts() {
     }
 
     db.collection("products")
-         .startAfter(lastVisibleProduct)
-         .limit(20)
+     .orderBy("displayOrder", "asc")
+     .startAfter(lastVisibleProduct)
+     .limit(20)
          .get()
          .then((querySnapshot) => {
              isLoadingProducts = false;
