@@ -2310,6 +2310,7 @@ function closeDetailModal() {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
+    // إزالة الـ active من جميع الأزرار وتفعيله للزر الملموس وحده فقط
     if (btnElement) {
         document.querySelectorAll('.category-chip').forEach(function(btn) { 
             btn.classList.remove('active'); 
@@ -2319,12 +2320,13 @@ function closeDetailModal() {
 
     const selectedVal = categoryIdentifier ? categoryIdentifier.trim().toLowerCase() : '';
 
-    // إذا اختار المستخدم زر "الكل" العام في المتجر
+    // 1. إذا اختار المستخدم "الكل"
     if (selectedVal === 'all' || selectedVal === 'الكل') {
         var subContainer = document.getElementById('subcategories-container');
         if (subContainer) subContainer.style.display = 'none';
         
-        loadCloudProducts(); // تحميل كل منتجات المتجر
+        // استدعاء دالة التحميل السحابي الأصلية لكل المنتجات
+        loadCloudProducts();
         return;
     }
 
@@ -2337,20 +2339,22 @@ function closeDetailModal() {
     let categoryId = categoryObj ? categoryObj.id : categoryIdentifier;
     let targetCategoryName = categoryObj ? categoryObj.name : categoryIdentifier;
 
+    // التحقق مما إذا كان القسم عبارة عن "قسم فرعي" أو "قسم رئيسي"
     let isSubCategory = categoryObj && categoryObj.parentId && categoryObj.parentId !== "";
 
     if (isSubCategory) {
-        // إذا كان قسماً فرعياً
+        // إذا كان قسماً فرعياً، نجلب المنتجات بالقسم الرئيسي والفرعي معاً
         let parentCat = categoriesData.find(c => c.id === categoryObj.parentId);
         let parentName = parentCat ? parentCat.name : null;
         loadProductsByCategory(parentName, categoryObj.name);
     } else {
-        // إذا كان قسماً رئيسياً (بما في ذلك زر "الكل في هذا القسم")
+        // إذا كان قسماً رئيسياً
         loadProductsByCategory(targetCategoryName, null);
     }
 
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
+    // ترتيب الأقسام الفرعية تصاعدياً
     [...subCategories].sort((a, b) => {
         let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
         let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
@@ -2370,7 +2374,6 @@ function closeDetailModal() {
         let isReturningToAll = (selectedVal === categoryId.toLowerCase());
         let allSubActive = (isMainParentClick || isReturningToAll) ? 'active' : '';
         
-        // عند النقر هنا على "الكل في هذا القسم"، يتم تمرير categoryId الأساسي ليعرض منتجات هذا القسم فقط
         let subHtml = `<button class="category-chip ${allSubActive}" onclick="filterCategory('${categoryId}', this)">الكل في هذا القسم</button>`;
         
         subCategories.forEach(sub => {
@@ -3231,6 +3234,7 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
         }
     }
 
+    // جلب جميع المنتجات من فايربيس ومطابقتها بمرونة تامة مع الأقسام
     db.collection("products").get().then((snapshot) => {
         let matchedProducts = [];
 
@@ -3241,23 +3245,38 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
             let prodCat = String(prod.category || "").trim().toLowerCase();
             let prodSubCat = String(prod.subCategory || "").trim().toLowerCase();
 
+            // 1. إذا كان الاختيار لقسم فرعي
             if (subCategoryIdentifier) {
                 let cleanSubQuery = String(subCategoryIdentifier).trim().toLowerCase();
                 let subName = targetSubObj ? targetSubObj.name.trim().toLowerCase() : "";
                 let subId = targetSubObj ? targetSubObj.id.toLowerCase() : "";
                 let subSlug = targetSubObj && targetSubObj.slug ? targetSubObj.slug.toLowerCase() : "";
 
-                if (prodSubCat === cleanSubQuery || (subName && prodSubCat === subName) || (subId && prodSubCat === subId) || (subSlug && prodSubCat === subSlug)) {
+                if (
+                    prodSubCat === cleanSubQuery || 
+                    (subName && prodSubCat === subName) || 
+                    (subId && prodSubCat === subId) || 
+                    (subSlug && prodSubCat === subSlug) ||
+                    prodCat === cleanSubQuery // احتياطي لو تم تخزين القسم الفرعي مكان الرئيسي
+                ) {
                     matchedProducts.push(prod);
                 }
-            } else if (categoryIdentifier) {
+            } 
+            // 2. إذا كان الاختيار لقسم رئيسي
+            else if (categoryIdentifier) {
                 let cleanCatQuery = String(categoryIdentifier).trim().toLowerCase();
                 let catName = targetCatObj ? targetCatObj.name.trim().toLowerCase() : "";
                 let catId = targetCatObj ? targetCatObj.id.toLowerCase() : "";
                 let catSlug = targetCatObj && targetCatObj.slug ? targetCatObj.slug.toLowerCase() : "";
 
-                let isDirectMain = (prodCat === cleanCatQuery || (catName && prodCat === catName) || (catId && prodCat === catId) || (catSlug && prodCat === catSlug));
+                let isDirectMain = (
+                    prodCat === cleanCatQuery || 
+                    (catName && prodCat === catName) || 
+                    (catId && prodCat === catId) || 
+                    (catSlug && prodCat === catSlug)
+                );
 
+                // فحص ما إذا كان المنتج ينتمي لأي قسم فرعي تابع لهذا القسم الرئيسي
                 let isBelongToChildSub = false;
                 if (targetCatObj && typeof categoriesData !== 'undefined') {
                     let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id || c.parentId === categoryIdentifier);
@@ -3288,6 +3307,7 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
             return;
         }
 
+        // تخزين كافة المنتجات المطابقة للقسم في الذاكرة لتفعيل التحميل الكسول (Lazy Loading) بدفعات 20 منتجاً
         window.currentCategoryFullList = matchedProducts;
         window.currentBatchIndex = 20;
 
@@ -3311,7 +3331,6 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
         productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">حدث خطأ أثناء تحميل منتجات القسم</div>';
     });
 }
-
 
 
 // 2. التحميل الأولي لأول 20 منتجاً (للصفحة الرئيسية أو زر الكل)
