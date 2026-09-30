@@ -3248,12 +3248,13 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
                 let subSlug = targetSubObj && targetSubObj.slug ? targetSubObj.slug.toLowerCase() : "";
 
                 if (
-                    prodSubCat === cleanSubQuery || 
-                    (subName && prodSubCat === subName) || 
-                    (subId && prodSubCat === subId) || 
-                    (subSlug && prodSubCat === subSlug) ||
-                    prodCat === cleanSubQuery // احتياطي لو تم تخزين القسم الفرعي مكان الرئيسي
-                ) {
+    (prodSubCat && prodSubCat === cleanSubQuery) ||
+    (subName && prodSubCat && prodSubCat === subName) ||
+    (subId && prodSubCat && prodSubCat === subId) ||
+    (subSlug && prodSubCat && prodSubCat === subSlug) ||
+    (prodCat && prodCat === cleanSubQuery) ||
+    (subName && prodCat && prodCat === subName)
+) {
                     matchedProducts.push(prod);
                 }
             } 
@@ -3280,11 +3281,13 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
     let sId = sub.id ? sub.id.toLowerCase() : "";
     let sSlug = sub.slug ? sub.slug.toLowerCase() : "";
     return (
-        (prodSubCat && sName && prodSubCat === sName) ||
-        (prodSubCat && sId && prodSubCat === sId) ||
-        (prodSubCat && sSlug && prodSubCat === sSlug) ||
-        (prodCat && sId && prodCat === sId)
-    );
+    (prodSubCat && sName && prodSubCat === sName) ||
+    (prodSubCat && sId && prodSubCat === sId) ||
+    (prodSubCat && sSlug && prodSubCat === sSlug) ||
+    (prodCat && sName && prodCat === sName) ||
+    (prodCat && sId && prodCat === sId) ||
+    (prodCat && sSlug && prodCat === sSlug)
+);
 });
                 }
 
@@ -3299,12 +3302,7 @@ snapshot.forEach(d => {
     let p = d.data();
     seen[(p.category || '') + ' | ' + (p.subCategory || '')] = 1;
 });
-alert(
-    'القسم المطلوب:\n' +
-    (targetCatObj ? targetCatObj.name + ' | ' + targetCatObj.id + ' | ' + (targetCatObj.slug || '') : 'غير موجود') +
-    '\n\nقيم المنتجات (category | subCategory):\n' +
-    Object.keys(seen).join('\n')
-);
+
 
         productsGrid.innerHTML = ""; 
 
