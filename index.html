@@ -1842,7 +1842,18 @@ button.btn[onclick*="sendOrder"]:hover {
 <!-- دوال الجافاسكريبت البرمجية المتكاملة والمصححة -->
 <script>
 
-    
+
+
+    var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallUI();
+});
+window.addEventListener('appinstalled', function() {
+    deferredPrompt = null;
+    hideInstallUI();
+});
 
         // 1. قاعدة بيانات المنتجات الأساسية أولاً
     var productsData = {};
@@ -2757,36 +2768,34 @@ itemList += (i + 1) + ". " + (item.name || item.title) + optionText + supplierTe
             }
         }
 
-        var deferredPrompt = null;
+        function isStandaloneMode() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+}
+
+function showInstallUI() {
+    if (isStandaloneMode()) return;
+    var banner = document.getElementById('install-banner');
+    if (banner && !sessionStorage.getItem('dismissed_install_banner')) banner.style.display = 'flex';
+}
 
 function initPWAInstaller() {
-    // 1. إذا كان التطبيق مثبتاً بالفعل على الجهاز، نقوم بإخفاء واجهة التثبيت نهائياً
-    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    if (isStandalone) {
-        hideInstallUI();
-        return;
-    }
+    if (isStandaloneMode()) { hideInstallUI(); return; }
+    if (deferredPrompt) { showInstallUI(); return; }
 
-    // 2. الاستماع لحدث جاهزية التثبيت من المتصفح وإظهار الزر حينها فقط
-    window.addEventListener('beforeinstallprompt', function(e) {
-        e.preventDefault();
-        deferredPrompt = e;
-        
-        var topBtn = document.getElementById('install-pwa-btn');
+    // بديل: إذا لم يصل الحدث خلال 4 ثوانٍ نعرض تعليمات يدوية
+    setTimeout(function() {
+        if (deferredPrompt || isStandaloneMode()) return;
         var banner = document.getElementById('install-banner');
-        
-        if (topBtn) topBtn.style.display = 'inline-flex';
-        if (banner && !sessionStorage.getItem('dismissed_install_banner')) {
-            banner.style.display = 'flex';
-        }
-    });
+        if (!banner || sessionStorage.getItem('dismissed_install_banner')) return;
 
-    // 3. مراقبة حدث اكتمال التثبيت لإخفاء الزر فوراً
-    window.addEventListener('appinstalled', function() {
-        deferredPrompt = null;
-        hideInstallUI();
-        showToast("🎉 تم تثبيت التطبيق بنجاح!");
-    });
+        var inApp = /FBAN|FBAV|Instagram|Telegram|; wv\)/i.test(navigator.userAgent);
+        banner.querySelector('.install-banner-text').innerText = inApp
+            ? '🌐 افتح الرابط في متصفح Chrome لتتمكن من تثبيت التطبيق'
+            : '📲 للتثبيت: اضغط ⋮ في المتصفح ثم «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»';
+        var installBtn = banner.querySelector('.install-confirm-btn');
+        if (installBtn) installBtn.style.display = 'none';
+        banner.style.display = 'flex';
+    }, 4000);
 }
 
 function triggerAppInstall() {
