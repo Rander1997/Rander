@@ -3370,8 +3370,8 @@ function loadCloudProducts() {
           });
 
           allProducts.sort((a, b) => {
-              let oa = a.displayOrder !== undefined && a.displayOrder !== null ? Number(a.displayOrder) : 0;
-              let ob = b.displayOrder !== undefined && b.displayOrder !== null ? Number(b.displayOrder) : 0;
+              let oa = a.displayOrder !== undefined && a.displayOrder !== null && a.displayOrder !== "" ? Number(a.displayOrder) : 999999;
+              let ob = b.displayOrder !== undefined && b.displayOrder !== null && b.displayOrder !== "" ? Number(b.displayOrder) : 999999;
               if (oa !== ob) return oa - ob;
               let ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
               let tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
@@ -3497,8 +3497,8 @@ function loadMoreProducts() {
 // 4. دالة عرض المنتجات (تستخدم appendChild للإضافات المتتالية بدلاً من prepend لكي لا تنعكس أترتيب دفعات التحميل الكسول)
 function renderProductsList(productsArray, gridElement) {
     productsArray.sort((a, b) => {
-        let orderA = a.displayOrder !== undefined && a.displayOrder !== null ? Number(a.displayOrder) : 0;
-        let orderB = b.displayOrder !== undefined && b.displayOrder !== null ? Number(b.displayOrder) : 0;
+        let orderA = a.displayOrder !== undefined && a.displayOrder !== null && a.displayOrder !== "" ? Number(a.displayOrder) : 999999;
+        let orderB = b.displayOrder !== undefined && b.displayOrder !== null && b.displayOrder !== "" ? Number(b.displayOrder) : 999999;
         
         if (orderA !== orderB) {
             return orderA - orderB;
