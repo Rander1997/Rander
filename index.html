@@ -3536,33 +3536,6 @@ function renderProductsList(productsArray, gridElement) {
     });
 }
 
-
-        // --- توليد شارة المنتج الديناميكية حسب ما تم إدخاله من لوحة التحكم ---
-        let badgeHtml = '';
-        if (product.badgeText && product.badgeText.trim() !== '') {
-            let bColor = product.badgeColor || '#10b981'; 
-            badgeHtml = `<span class="badge" style="background-color: ${bColor}; color: #fff;">${product.badgeText}</span>`;
-        }
-
-        card.innerHTML = `
-            ${badgeHtml}
-            <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
-            <img src="${mainImg}" class="product-image" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">
-            <div class="product-title" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">${product.name}</div>
-            
-            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
-            
-            <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
-                ${variantsHtml}
-            </div>
-            
-            <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
-        `;
-
-        gridElement.prepend(card);
-    });
-}
-
 // تشغيل دالة الجلب عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", function() {
     loadCloudProducts();
