@@ -3459,7 +3459,10 @@ function loadCloudProducts() {
               }
           }
       })
-      .catch(err => console.log("خطأ في جلب المنتجات: ", err));
+      .catch(err => {
+    console.log("خطأ في جلب المنتجات: ", err);
+    setTimeout(loadCloudProducts, 2000);
+});
 }
 
 
