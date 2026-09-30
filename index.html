@@ -3005,8 +3005,9 @@ function loadStoreStories() {
         localStorage.setItem('rander_cached_stories', JSON.stringify(storiesData));
         renderStories();
     }, (error) => {
-        console.log("Error loading stories: ", error);
-    });
+    console.log("Error loading stories: ", error);
+    setTimeout(loadStoreStories, 3000);
+});
 }
 
 // رسم الستوريات في شريط العرض الرئيسي
