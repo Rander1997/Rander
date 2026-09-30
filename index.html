@@ -2310,7 +2310,6 @@ function closeDetailModal() {
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
-    // إزالة الـ active من جميع الأزرار وتفعيله للزر الملموس وحده فقط
     if (btnElement) {
         document.querySelectorAll('.category-chip').forEach(function(btn) { 
             btn.classList.remove('active'); 
@@ -2320,12 +2319,9 @@ function closeDetailModal() {
 
     const selectedVal = categoryIdentifier ? categoryIdentifier.trim().toLowerCase() : '';
 
-    // 1. إذا اختار المستخدم "الكل"
     if (selectedVal === 'all' || selectedVal === 'الكل') {
         var subContainer = document.getElementById('subcategories-container');
         if (subContainer) subContainer.style.display = 'none';
-        
-        // استدعاء دالة التحميل السحابي الأصلية لكل المنتجات
         loadCloudProducts();
         return;
     }
@@ -2339,22 +2335,20 @@ function closeDetailModal() {
     let categoryId = categoryObj ? categoryObj.id : categoryIdentifier;
     let targetCategoryName = categoryObj ? categoryObj.name : categoryIdentifier;
 
-    // التحقق مما إذا كان القسم عبارة عن "قسم فرعي" أو "قسم رئيسي"
     let isSubCategory = categoryObj && categoryObj.parentId && categoryObj.parentId !== "";
 
     if (isSubCategory) {
-        // إذا كان قسماً فرعياً، نجلب المنتجات بالقسم الرئيسي والفرعي معاً
+        // إذا كان قسماً فرعياً، نمرر القسم الرئيسي واسم الفرعي بدقة لفلترته حصراً
         let parentCat = categoriesData.find(c => c.id === categoryObj.parentId);
         let parentName = parentCat ? parentCat.name : null;
         loadProductsByCategory(parentName, categoryObj.name);
     } else {
-        // إذا كان قسماً رئيسياً
+        // إذا كان قسماً رئيسياً أو زر "الكل في هذا القسم" الخاص به
         loadProductsByCategory(targetCategoryName, null);
     }
 
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
-    // ترتيب الأقسام الفرعية تصاعدياً
     [...subCategories].sort((a, b) => {
         let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
         let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
@@ -2374,6 +2368,7 @@ function closeDetailModal() {
         let isReturningToAll = (selectedVal === categoryId.toLowerCase());
         let allSubActive = (isMainParentClick || isReturningToAll) ? 'active' : '';
         
+        // زر "الكل في هذا القسم" يمرر الـ categoryId للقسم الحالي فقط لكي لا يجلب منتجات خارج نطاقه
         let subHtml = `<button class="category-chip ${allSubActive}" onclick="filterCategory('${categoryId}', this)">الكل في هذا القسم</button>`;
         
         subCategories.forEach(sub => {
@@ -3467,6 +3462,13 @@ function loadMoreProducts() {
          });
 }
 
+    window.addEventListener('scroll', function() {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        if (!isLoadingProducts && typeof loadMoreProducts === 'function') {
+            loadMoreProducts();
+        }
+    }
+});
 
 // 4. دالة عرض المنتجات (تستخدم appendChild للإضافات المتتالية بدلاً من prepend لكي لا تنعكس أترتيب دفعات التحميل الكسول)
 function renderProductsList(productsArray, gridElement) {
