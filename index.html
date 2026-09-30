@@ -2759,76 +2759,64 @@ itemList += (i + 1) + ". " + (item.name || item.title) + optionText + supplierTe
 
         var deferredPrompt = null;
 
-        function initPWAInstaller() {
-            var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            if (isStandalone) {
-                hideInstallUI();
-                return;
-            }
+function initPWAInstaller() {
+    // 1. إذا كان التطبيق مثبتاً بالفعل على الجهاز، نقوم بإخفاء واجهة التثبيت نهائياً
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (isStandalone) {
+        hideInstallUI();
+        return;
+    }
 
-            window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    deferredPrompt = e;
+    // 2. الاستماع لحدث جاهزية التثبيت من المتصفح وإظهار الزر حينها فقط
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        var topBtn = document.getElementById('install-pwa-btn');
+        var banner = document.getElementById('install-banner');
+        
+        if (topBtn) topBtn.style.display = 'inline-flex';
+        if (banner && !sessionStorage.getItem('dismissed_install_banner')) {
+            banner.style.display = 'flex';
+        }
+    });
+
+    // 3. مراقبة حدث اكتمال التثبيت لإخفاء الزر فوراً
+    window.addEventListener('appinstalled', function() {
+        deferredPrompt = null;
+        hideInstallUI();
+        showToast("🎉 تم تثبيت التطبيق بنجاح!");
+    });
+}
+
+function triggerAppInstall() {
+    if (!deferredPrompt) {
+        alert("التطبيق مثبت بالفعل، أو أن متصفحك لا يدعم التثبيت المباشر حالياً.");
+        return;
+    }
     
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+        if (choiceResult.outcome === 'accepted') {
+            // إخفاء الزر فور موافقة المستخدم على التثبيت
+            hideInstallUI();
+        }
+        deferredPrompt = null;
+    });
+}
+
+function closeInstallBanner() {
+    var banner = document.getElementById('install-banner');
+    if (banner) banner.style.display = 'none';
+    sessionStorage.setItem('dismissed_install_banner', 'true');
+}
+
+function hideInstallUI() {
     var topBtn = document.getElementById('install-pwa-btn');
     var banner = document.getElementById('install-banner');
-    
-    if (topBtn) topBtn.style.display = 'inline-flex';
-    if (banner && !sessionStorage.getItem('dismissed_install_banner')) {
-        banner.style.display = 'flex';
-    }
-});
-
-// استرجاع بيانات الزبون المحفوظة مسبقاً عند تحميل الصفحة
-window.addEventListener('DOMContentLoaded', (event) => {
-    if(localStorage.getItem('saved_name') && document.getElementById('name')) {
-        document.getElementById('name').value = localStorage.getItem('saved_name');
-    }
-    if(localStorage.getItem('saved_phone') && document.getElementById('phone')) {
-        document.getElementById('phone').value = localStorage.getItem('saved_phone');
-    }
-    if(localStorage.getItem('saved_address') && document.getElementById('address')) {
-        document.getElementById('address').value = localStorage.getItem('saved_address');
-    }
-    if(localStorage.getItem('saved_city') && document.getElementById('city')) {
-        document.getElementById('city').value = localStorage.getItem('saved_city');
-    }
-});
-
-            window.addEventListener('appinstalled', function() {
-                deferredPrompt = null;
-                hideInstallUI();
-                showToast("🎉 تم تثبيت التطبيق بنجاح!");
-            });
-        }
-
-        function triggerAppInstall() {
-            if (!deferredPrompt) {
-                alert("التطبيق مثبت بالفعل، أو قم بفتحه عبر متصفح Chrome أو Safari لتفعيله تلقائياً.");
-                return;
-            }
-            
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(function(choiceResult) {
-                if (choiceResult.outcome === 'accepted') {
-                    hideInstallUI();
-                }
-                deferredPrompt = null;
-            });
-        }
-
-        function closeInstallBanner() {
-            var banner = document.getElementById('install-banner');
-            if (banner) banner.style.display = 'none';
-            sessionStorage.setItem('dismissed_install_banner', 'true');
-        }
-
-        function hideInstallUI() {
-            var topBtn = document.getElementById('install-pwa-btn');
-            var banner = document.getElementById('install-banner');
-            if (topBtn) topBtn.style.display = 'none';
-            if (banner) banner.style.display = 'none';
-        }
+    if (topBtn) topBtn.style.display = 'none';
+    if (banner) banner.style.display = 'none';
+}
         
         window.navStack = window.navStack || [];
         var exitTimer = null;
