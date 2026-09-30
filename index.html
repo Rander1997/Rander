@@ -1460,20 +1460,17 @@ button.btn[onclick*="sendOrder"]:hover {
 }
 
 
-        #search-box.search-active {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100001;
-    background: var(--bg-card, #ffffff);
-    padding: 10px 16px !important;
-    margin: 0 !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        #search-box {
+    scroll-margin-top: 90px;
 }
 
-body.search-focused #products-section {
-    padding-top: 120px;
+#search-box.search-active {
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+    background: var(--bg-card, #ffffff);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.3s ease;
 }
         
 </style>
