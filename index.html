@@ -2017,41 +2017,72 @@ function addNewProduct() {
                 .trim();
         }
 
-            function searchProducts() {
-            var query = normalizeText(document.getElementById('search-input').value);
-            var visibleCount = 0;
+            // ===== البحث السريع في كل المنتجات =====
+var allProductsCache = [];
+var searchTimer = null;
 
-            document.querySelectorAll('.product-card').forEach(function(card) {
-                var title = normalizeText(card.querySelector('.product-title').innerText);
-                
-                if (title.includes(query)) {
-                    card.style.display = 'flex';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            var noResults = document.getElementById('no-results');
-            if (noResults) {
-                noResults.style.display = (visibleCount === 0) ? 'block' : 'none';
-            }
-        }
-
-        // كود رفع الشاشة عند النقر على حقل البحث لتجنب تغطية الكيبورد في الهواتف
-        document.getElementById('search-input').addEventListener('focus', function() {
-            setTimeout(() => {
-                const searchBox = document.getElementById('search-box');
-                const boxRect = searchBox.getBoundingClientRect();
-                const absoluteTop = window.pageYOffset + boxRect.top;
-                
-                // الانتقال إلى الموضع مع ترك مسافة 80 بكسل من أعلى الشاشة (يمكنك تقليل الرقم أو زيادته حسب الرغبة)
-                window.scrollTo({
-                    top: absoluteTop - 100,
-                    behavior: 'smooth'
-                });
-            }, 300);
+function preloadAllProducts() {
+    db.collection("products").get().then(function(snapshot) {
+        allProductsCache = [];
+        snapshot.forEach(function(doc) {
+            var p = doc.data();
+            p.id = doc.id;
+            p._search = normalizeText(String(p.name || '') + ' ' + String(p.category || ''));
+            allProductsCache.push(p);
         });
+    }).catch(function(err) { console.log("preload error", err); });
+}
+
+function normalizeArabic(text) {
+    return String(text || '')
+        .toLowerCase()
+        .replace(/[\u064B-\u065F\u0640]/g, '')
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/ة/g, 'ه')
+        .trim();
+}
+
+function searchProducts() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 120);
+}
+
+function runSearch() {
+    var query = normalizeArabic(document.getElementById('search-input').value);
+    var grid = document.getElementById('main-products-grid');
+    var noResults = document.getElementById('no-results');
+    var loadingIndicator = document.getElementById('loading-indicator');
+
+    // البحث فارغ: رجوع للعرض العادي
+    if (!query) {
+        if (noResults) noResults.style.display = 'none';
+        grid.innerHTML = '';
+        loadCloudProducts();
+        return;
+    }
+
+    var words = query.split(/\s+/);
+    var results = allProductsCache.filter(function(p) {
+        var hay = normalizeArabic(String(p.name || '') + ' ' + String(p.category || '') + ' ' + String(p.subCategory || ''));
+        return words.every(function(w) { return hay.indexOf(w) !== -1; });
+    });
+
+    // إيقاف التحميل الكسول أثناء البحث
+    window.currentCategoryFullList = results;
+    window.currentBatchIndex = results.length;
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+    grid.innerHTML = '';
+    if (results.length === 0) {
+        if (noResults) noResults.style.display = 'block';
+        return;
+    }
+    if (noResults) noResults.style.display = 'none';
+    renderProductsList(results, grid);
+}
+
+document.addEventListener("DOMContentLoaded", preloadAllProducts);
 
         function openProductModal(identifier) {
     if (typeof recordNavigationStep === 'function') recordNavigationStep();
