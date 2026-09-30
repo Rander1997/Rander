@@ -2103,18 +2103,14 @@ document.addEventListener("DOMContentLoaded", preloadAllProducts);
 
     input.addEventListener('focus', function() {
         box.classList.add('search-active');
-        document.body.classList.add('search-focused');
-        var section = document.getElementById('products-section');
         setTimeout(function() {
-            var top = section.getBoundingClientRect().top + window.pageYOffset - 70;
-            window.scrollTo({ top: top, behavior: 'smooth' });
-        }, 150);
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
     });
 
     input.addEventListener('blur', function() {
         setTimeout(function() {
             box.classList.remove('search-active');
-            document.body.classList.remove('search-focused');
         }, 200);
     });
 })();
