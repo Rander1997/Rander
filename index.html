@@ -3819,8 +3819,9 @@ function loadStoreCategories() {
         // إعادة رسم وعرض الأقسام في المتجر
         renderStoreCategories();
     }, (error) => {
-        console.log("Error loading categories: ", error);
-    });
+    console.log("Error loading categories: ", error);
+    setTimeout(loadStoreCategories, 3000);
+});
 }
 
 function renderStoreCategories() {
