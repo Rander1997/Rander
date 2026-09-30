@@ -3195,6 +3195,7 @@ let isLoadingProducts = false;
 // دالة جلب منتجات القسم أو القسم الفرعي بدقة لضمان ظهور 20 منتجاً كاملاً
 // دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة تامة حسب القسم أو القسم الفرعي
 // 1. دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة تامة حسب القسم أو القسم الفرعي (تعرض 20 منتجاً كدفعة أولى)
+// دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة مطلقة حسب القسم أو القسم الفرعي
 function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null) {
     currentCategory = categoryIdentifier;
     currentSubCategory = subCategoryIdentifier;
@@ -3216,22 +3217,24 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
 
     if (typeof categoriesData !== 'undefined' && categoriesData.length > 0) {
         if (subCategoryIdentifier) {
+            let cleanSubId = String(subCategoryIdentifier).trim().toLowerCase();
             targetSubObj = categoriesData.find(c => 
-                c.id === subCategoryIdentifier || 
-                (c.slug && c.slug.toLowerCase() === subCategoryIdentifier.toLowerCase()) || 
-                (c.name && c.name.trim().toLowerCase() === subCategoryIdentifier.trim().toLowerCase())
+                (c.id && c.id.toLowerCase() === cleanSubId) || 
+                (c.slug && c.slug.toLowerCase() === cleanSubId) || 
+                (c.name && c.name.trim().toLowerCase() === cleanSubId)
             );
         }
         if (categoryIdentifier) {
+            let cleanCatId = String(categoryIdentifier).trim().toLowerCase();
             targetCatObj = categoriesData.find(c => 
-                c.id === categoryIdentifier || 
-                (c.slug && c.slug.toLowerCase() === categoryIdentifier.toLowerCase()) || 
-                (c.name && c.name.trim().toLowerCase() === categoryIdentifier.trim().toLowerCase())
+                (c.id && c.id.toLowerCase() === cleanCatId) || 
+                (c.slug && c.slug.toLowerCase() === cleanCatId) || 
+                (c.name && c.name.trim().toLowerCase() === cleanCatId)
             );
         }
     }
 
-    // جلب المنتجات وتصفيتها محلياً لضمان المطابقة التامة للأقسام الرئيسية والفرعية
+    // جلب جميع المنتجات من فايربيس ومطابقتها بمرونة تامة مع الأقسام
     db.collection("products").get().then((snapshot) => {
         let matchedProducts = [];
 
@@ -3239,35 +3242,50 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
             let prod = doc.data();
             prod.id = doc.id;
 
-            let prodCat = (prod.category || "").trim().toLowerCase();
-            let prodSubCat = (prod.subCategory || "").trim().toLowerCase();
+            let prodCat = String(prod.category || "").trim().toLowerCase();
+            let prodSubCat = String(prod.subCategory || "").trim().toLowerCase();
 
+            // 1. إذا كان الاختيار لقسم فرعي
             if (subCategoryIdentifier) {
-                let subNameMatch = targetSubObj && prodSubCat === targetSubObj.name.trim().toLowerCase();
-                let subIdMatch = targetSubObj && prodSubCat === targetSubObj.id.toLowerCase();
-                let subSlugMatch = targetSubObj && targetSubObj.slug && prodSubCat === targetSubObj.slug.toLowerCase();
-                let directSubTextMatch = prodSubCat === subCategoryIdentifier.trim().toLowerCase();
+                let cleanSubQuery = String(subCategoryIdentifier).trim().toLowerCase();
+                let subName = targetSubObj ? targetSubObj.name.trim().toLowerCase() : "";
+                let subId = targetSubObj ? targetSubObj.id.toLowerCase() : "";
+                let subSlug = targetSubObj && targetSubObj.slug ? targetSubObj.slug.toLowerCase() : "";
 
-                if (subNameMatch || subIdMatch || subSlugMatch || directSubTextMatch) {
+                if (
+                    prodSubCat === cleanSubQuery || 
+                    (subName && prodSubCat === subName) || 
+                    (subId && prodSubCat === subId) || 
+                    (subSlug && prodSubCat === subSlug) ||
+                    prodCat === cleanSubQuery // احتياطي لو تم تخزين القسم الفرعي مكان الرئيسي
+                ) {
                     matchedProducts.push(prod);
                 }
-            } else if (categoryIdentifier) {
-                let catNameMatch = targetCatObj && prodCat === targetCatObj.name.trim().toLowerCase();
-                let catIdMatch = targetCatObj && prodCat === targetCatObj.id.toLowerCase();
-                let catSlugMatch = targetCatObj && targetCatObj.slug && prodCat === targetCatObj.slug.toLowerCase();
-                let directCatTextMatch = prodCat === categoryIdentifier.trim().toLowerCase();
+            } 
+            // 2. إذا كان الاختيار لقسم رئيسي
+            else if (categoryIdentifier) {
+                let cleanCatQuery = String(categoryIdentifier).trim().toLowerCase();
+                let catName = targetCatObj ? targetCatObj.name.trim().toLowerCase() : "";
+                let catId = targetCatObj ? targetCatObj.id.toLowerCase() : "";
+                let catSlug = targetCatObj && targetCatObj.slug ? targetCatObj.slug.toLowerCase() : "";
 
-                let isDirectMain = catNameMatch || catIdMatch || catSlugMatch || directCatTextMatch;
+                let isDirectMain = (
+                    prodCat === cleanCatQuery || 
+                    (catName && prodCat === catName) || 
+                    (catId && prodCat === catId) || 
+                    (catSlug && prodCat === catSlug)
+                );
 
+                // فحص ما إذا كان المنتج ينتمي لأي قسم فرعي تابع لهذا القسم الرئيسي
                 let isBelongToChildSub = false;
                 if (targetCatObj && typeof categoriesData !== 'undefined') {
-                    let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id);
-                    isBelongToChildSub = childSubs.some(sub => 
-                        prodSubCat === sub.name.trim().toLowerCase() || 
-                        prodSubCat === sub.id.toLowerCase() ||
-                        (sub.slug && prodSubCat === sub.slug.toLowerCase()) ||
-                        prodCat === sub.id.toLowerCase()
-                    );
+                    let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id || c.parentId === categoryIdentifier);
+                    isBelongToChildSub = childSubs.some(sub => {
+                        let sName = sub.name ? sub.name.trim().toLowerCase() : "";
+                        let sId = sub.id ? sub.id.toLowerCase() : "";
+                        let sSlug = sub.slug ? sub.slug.toLowerCase() : "";
+                        return prodSubCat === sName || prodSubCat === sId || prodSubCat === sSlug || prodCat === sId;
+                    });
                 }
 
                 if (isDirectMain || isBelongToChildSub) {
@@ -3289,7 +3307,7 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
             return;
         }
 
-        // حفظ القائمة بالكامل في الذاكرة المؤقتة للقسم لتسهيل التمرير اللانهائي (Lazy loading)
+        // تخزين كافة المنتجات المطابقة للقسم في الذاكرة لتفعيل التحميل الكسول (Lazy Loading) بدفعات 20 منتجاً
         window.currentCategoryFullList = matchedProducts;
         window.currentBatchIndex = 20;
 
