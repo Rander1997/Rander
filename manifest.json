@@ -1,34 +1,27 @@
 {
-  "id": "/Rander/",
   "short_name": "Rander",
   "name": "رانـدر ماكـس | Rander Max",
-  "description": "متجر راندر ماكس لتسوق أحدث الإلكترونيات، إكسسوارات الهواتف، الأجهزة المنزلية، المستلزمات واللوازم المدرسية، الألعاب، والأقسام المتنوعة بأفضل الأسعار وجودة عالية.",
+  "description": "متجر راندر الشامل لتسوق أحدث الإلكترونيات، إكسسوارات الهواتف، الأجهزة المنزلية، المستلزمات واللوازم المدرسية، الألعاب، والأقسام المتنوعة بأفضل الأسعار وجودة عالية.",
   "dir": "rtl",
   "lang": "ar",
-  "start_url": "/Rander/index.html",
-  "scope": "/Rander/",
+  "start_url": "index.html",
+  "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#1d4ed8",
-    "icons": [
-  {
-    "src": "/Rander/icon-192.png",
-    "sizes": "192x192",
-    "type": "image/png",
-    "purpose": "any"
-  },
-  {
-    "src": "/Rander/icon-512.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any"
-  },
-  {
-    "src": "/Rander/icon-maskable-512.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "maskable"
-  }
-]
+  "icons": [
+    {
+      "src": "2A083784-2DAC-41C1-87F5-7C65C9DA55B5.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "2A083784-2DAC-41C1-87F5-7C65C9DA55B5.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
