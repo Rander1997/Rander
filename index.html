@@ -1474,8 +1474,9 @@ button.btn[onclick*="sendOrder"]:hover {
         
         <!-- الشعار كزر لمعلومات التطبيق، وبجانبه زر الوضع الليلي -->
         <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
-    <div class="logo" style="margin: 0; color: inherit;">رانـدر</div>
+            <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
+    <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
+    <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
 </button>
             <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
         </div>
