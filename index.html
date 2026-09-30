@@ -3276,11 +3276,16 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
                 if (targetCatObj && typeof categoriesData !== 'undefined') {
                     let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id || c.parentId === categoryIdentifier);
                     isBelongToChildSub = childSubs.some(sub => {
-                        let sName = sub.name ? sub.name.trim().toLowerCase() : "";
-                        let sId = sub.id ? sub.id.toLowerCase() : "";
-                        let sSlug = sub.slug ? sub.slug.toLowerCase() : "";
-                        return prodSubCat === sName || prodSubCat === sId || prodSubCat === sSlug || prodCat === sId;
-                    });
+    let sName = sub.name ? sub.name.trim().toLowerCase() : "";
+    let sId = sub.id ? sub.id.toLowerCase() : "";
+    let sSlug = sub.slug ? sub.slug.toLowerCase() : "";
+    return (
+        (prodSubCat && sName && prodSubCat === sName) ||
+        (prodSubCat && sId && prodSubCat === sId) ||
+        (prodSubCat && sSlug && prodSubCat === sSlug) ||
+        (prodCat && sId && prodCat === sId)
+    );
+});
                 }
 
                 if (isDirectMain || isBelongToChildSub) {
