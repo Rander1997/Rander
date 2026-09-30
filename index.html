@@ -3360,30 +3360,38 @@ function loadCloudProducts() {
     }
 
     db.collection("products")
-      .limit(20)
       .get()
       .then((querySnapshot) => {
-          let firebaseProducts = [];
-          
-          if (!querySnapshot.empty) {
-              lastVisibleProduct = querySnapshot.docs[querySnapshot.docs.length - 1];
-          }
-
+          let allProducts = [];
           querySnapshot.forEach((doc) => {
               let prodData = doc.data();
               prodData.id = doc.id;
-              firebaseProducts.push(prodData);
+              allProducts.push(prodData);
           });
 
+          allProducts.sort((a, b) => {
+              let oa = a.displayOrder !== undefined && a.displayOrder !== null ? Number(a.displayOrder) : 0;
+              let ob = b.displayOrder !== undefined && b.displayOrder !== null ? Number(b.displayOrder) : 0;
+              if (oa !== ob) return oa - ob;
+              let ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+              let tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+              return tb - ta;
+          });
+
+          window.currentCategoryFullList = allProducts;
+          window.currentBatchIndex = 20;
+          lastVisibleProduct = null;
+
+          let firstBatch = allProducts.slice(0, 20);
           productsGrid.innerHTML = ""; 
 
           if (typeof renderProductsList === 'function') {
-              renderProductsList(firebaseProducts, productsGrid);
+              renderProductsList(firstBatch, productsGrid);
           }
 
           let loadingIndicator = document.getElementById('loading-indicator');
           if (loadingIndicator) {
-              if (querySnapshot.size < 20) {
+              if (allProducts.length <= 20) {
                   loadingIndicator.style.display = 'block';
                   loadingIndicator.innerHTML = '✨ وصلت إلى نهاية المنتجات';
               } else {
