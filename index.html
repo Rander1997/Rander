@@ -3424,11 +3424,6 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
             }
         });
 
-        let seen = {};
-snapshot.forEach(d => {
-    let p = d.data();
-    seen[(p.category || '') + ' | ' + (p.subCategory || '')] = 1;
-});
 
 
         productsGrid.innerHTML = ""; 
