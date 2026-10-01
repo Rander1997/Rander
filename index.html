@@ -1921,9 +1921,33 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
 
 
     
-    <section class="hero">
-    <h1>Rander Max</h1>
-    <p>التسوق الإلكتروني الأسرع والأذكى في العراق</p>
+    <section class="hero" style="text-align: center; padding: 36px 20px; background: var(--bg-card, #fff); border-radius: 20px; margin: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.04); border: 1px solid rgba(167, 139, 250, 0.15); position: relative; overflow: hidden;">
+    
+    <!-- 1. مؤشر النبض الرقمي (Aura Indicator) -->
+    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(167, 139, 250, 0.07); padding: 6px 16px; border-radius: 999px; margin-bottom: 16px; border: 1px solid rgba(167, 139, 250, 0.25);">
+        <div style="width: 8px; height: 8px; background: linear-gradient(135deg, #a78bfa, #f472b6); border-radius: 50%; box-shadow: 0 0 10px #a78bfa; animation: pulse 2s infinite;"></div>
+        <span style="font-size: 11px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px;">النظام الذكي والمجتمع الرقمي نشط</span>
+    </div>
+
+    <!-- 2. العنوان الرئيسي بفخامة بصرية -->
+    <h1 style="font-size: 28px; font-weight: 900; margin: 0 0 8px 0; color: var(--text-primary); letter-spacing: -0.5px;">Rander Max</h1>
+    <p style="font-size: 13px; color: var(--text-secondary, #666); margin: 0 0 22px 0; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.6;">هندسة رقمية تجمع دقة التجارة الإلكترونية بخصوصية مساحات التعبير الحرة.</p>
+
+    <!-- 3. أزرار تفاعلية مبتكرة وغير مطروقة -->
+    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center;">
+        
+        <!-- زر بوابة الأسرار بتأثير متدرج فاخر -->
+        <button onclick="openSecretsWall()" style="background: linear-gradient(135deg, #a78bfa, #f472b6); color: white; border: none; padding: 12px 24px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 25px rgba(167, 139, 250, 0.35); transition: transform 0.2s ease;">
+            ✨ دخول مساحة الأسرار
+        </button>
+
+        <!-- زر الانتقال الاستراتيجي للمنتجات -->
+        <button onclick="window.scrollTo({top: 500, behavior: 'smooth'});" style="background: transparent; color: var(--text-primary); border: 1.5px solid rgba(167, 139, 250, 0.4); padding: 11px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer;">
+            ⚡ استعراض المنصة
+        </button>
+
+    </div>
+
 </section>
 
     <!-- البحث الصوتي والكتابي المحدث -->
