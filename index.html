@@ -1686,46 +1686,41 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
     <button id="scroll-top" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
 
     <header>
-    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+    <div style="display: flex; align-items: center; justify-content: space-width; width: 100%; gap: 8px; box-sizing: border-box;">
         
-        <!-- الشعار كزر لمعلومات التطبيق، وبجانبه زر الوضع الليلي -->
-        <div style="display: flex; align-items: center; gap: 10px;">
-    <!-- زر عن التطبيق (بنفس مقاساته وشكله الأصلي تماماً) -->
-    <button onclick="openSettingsModal()" title="إعدادات التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
-        <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
-        <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
-    </button>
-</div>
-    
+        <!-- القسم الأيمن: زر راندر Max وزر أسرار -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- زر عن التطبيق (راندر Max بنفس المقاسات والأصل تماماً) -->
+            <button onclick="openSettingsModal()" title="إعدادات التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px; flex-shrink: 0;">
+                <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
+                <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
+            </button>
 
-    <!-- زر أسرار بتصميم متناسق -->
-    <button class="cart-btn" onclick="openSecretsWall()" title="حائط الأسرار" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; padding: 8px 14px;">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span style="font-size: 13px; font-weight: 600;">أسرار</span>
-    </button>
-</div>
-
-        <!-- الأزرار العلوية متساوية في المستوى تماماً -->
-        <div style="display: flex; gap: 12px; align-items: center;">
-            
-            <!-- زر مشاركة التطبيق -->
-            <div style="position: relative; display: inline-block;">
-                <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق">🔗 مشاركة</button>
-            </div>
-
-            <!-- زر تثبيت التطبيق PWA -->
-            <button class="cart-btn btn" id="cart-counter" onclick="
-    var modal = document.getElementById('cart-modal') || document.getElementById('cartModal') || document.getElementById('cart-sidebar');
-    if(modal) {
-        modal.style.display = 'block';
-        modal.classList.add('active', 'open');
-    }
-    if(typeof renderCartModal === 'function') {
-        renderCartModal();
-    }
-">⬢ السلة</button>
-            
+            <!-- زر أسرار بتصميم متناسق ومطابق -->
+            <button class="cart-btn btn" onclick="openSecretsWall()" title="حائط الأسرار" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; padding: 8px 12px; font-size: 13px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>أسرار</span>
+            </button>
         </div>
+
+        <!-- القسم الأيسر: زر المشاركة وزر السلة -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- زر مشاركة التطبيق -->
+            <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق" style="padding: 8px 12px; font-size: 13px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;">🔗 مشاركة</button>
+
+            <!-- زر السلة -->
+            <button class="cart-btn btn" id="cart-counter" onclick="
+                var modal = document.getElementById('cart-modal') || document.getElementById('cartModal') || document.getElementById('cart-sidebar');
+                if(modal) {
+                    modal.style.display = 'block';
+                    modal.classList.add('active', 'open');
+                }
+                if(typeof renderCartModal === 'function') {
+                    renderCartModal();
+                }
+            " style="padding: 8px 12px; font-size: 13px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;">⬢ السلة</button>
+        </div>
+
     </div>
 </header>
 
