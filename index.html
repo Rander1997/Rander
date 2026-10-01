@@ -3775,6 +3775,8 @@ function renderProductsList(productsArray, gridElement) {
             badgeHtml = `<span class="badge" style="background-color: ${bColor}; color: #fff;">${product.badgeText}</span>`;
         }
 
+        let isFav = favoritesArray.indexOf(productId) > -1;
+        
         card.innerHTML = `
             ${badgeHtml}
             <button class="fav-btn" onclick="toggleFavorite('${productId}', this)">🤍</button>
