@@ -2480,7 +2480,7 @@ function closeDetailModal() {
 
     let subCategories = categoriesData.filter(cat => cat.parentId === categoryId || cat.parentId === categoryIdentifier);
 
-    [...subCategories].sort((a, b) => {
+    subCategories = [...subCategories].sort((a, b) => {
         let orderA = a.order !== undefined && a.order !== null ? Number(a.order) : 0;
         let orderB = b.order !== undefined && b.order !== null ? Number(b.order) : 0;
         if (orderA !== orderB) return orderA - orderB;
