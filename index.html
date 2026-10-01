@@ -1680,6 +1680,9 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
 #sx-reply-chip.show{display:flex}
 .sx-cm-form{display:flex;gap:8px;align-items:flex-end;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--border-color)}
 .sx-cm-form textarea{min-height:44px;max-height:110px}
+.sx-box{position:relative}
+#secrets-overlay button.sx-x{position:absolute;top:10px;left:10px;width:34px;height:34px;z-index:2}
+.sx-box h3{padding:0 36px}
 
         
 </style>
@@ -2132,29 +2135,59 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
     </div></div>
 
     <!-- تسجيل الدخول / إنشاء حساب -->
-    <div class="sx-modal" id="sx-auth" data-sx="backdrop">
-        <div class="sx-box">
-            <div class="sx-tabs">
-                <button class="sx-btn sx-tab on" id="sx-tab-login" data-sx="tab-login">دخول</button>
-                <button class="sx-btn sx-tab" id="sx-tab-register" data-sx="tab-register">حساب جديد</button>
+    <!-- تسجيل الدخول / إنشاء حساب / استعادة -->
+<div class="sx-modal" id="sx-auth" data-sx="backdrop">
+    <div class="sx-box">
+        <button class="sx-btn sx-icon sx-x" data-sx="x-auth" aria-label="إغلاق"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+
+        <!-- دخول -->
+        <div id="sx-v-login">
+            <h3>تسجيل الدخول</h3>
+            <div class="sx-field"><label>البريد الإلكتروني</label><input type="email" id="sx-l-email" dir="ltr" placeholder="name@email.com"></div>
+            <div class="sx-field"><label>كلمة المرور</label><input type="password" id="sx-l-pass" dir="ltr"></div>
+            <div class="sx-err" id="sx-l-err"></div>
+            <button class="sx-btn sx-primary" id="sx-l-btn" data-sx="do-login" style="width:100%">دخول</button>
+            <div style="text-align:center;margin-top:10px">
+                <button class="sx-btn sx-ghost" data-sx="to-reset" style="font-size:12px">نسيت كلمة المرور؟</button><br>
+                <button class="sx-btn sx-ghost" data-sx="to-register" style="font-size:13px">ليس لديك حساب؟ إنشاء حساب</button>
             </div>
-            <div id="sx-reg-only" style="display:none">
-                <div class="sx-field"><label>الاسم الظاهر</label><input type="text" id="sx-reg-name" maxlength="24" placeholder="مثال: أحمد"></div>
-                <div class="sx-field"><label>الجنس</label>
-                    <select id="sx-reg-gender"><option value="male">ذكر</option><option value="female">أنثى</option></select>
-                </div>
+        </div>
+
+        <!-- حساب جديد -->
+        <div id="sx-v-register" style="display:none">
+            <h3>إنشاء حساب جديد</h3>
+            <div class="sx-field"><label>الاسم الظاهر</label><input type="text" id="sx-r-name" maxlength="24" placeholder="مثال: أحمد"></div>
+            <div class="sx-field"><label>الجنس</label>
+                <select id="sx-r-gender"><option value="male">ذكر</option><option value="female">أنثى</option></select>
             </div>
-            <div class="sx-field"><label>البريد الإلكتروني</label><input type="email" id="sx-email" dir="ltr" placeholder="name@email.com"></div>
-            <div class="sx-field"><label>كلمة المرور</label><input type="password" id="sx-pass" dir="ltr" placeholder="6 أحرف على الأقل"></div>
-            <div class="sx-err" id="sx-auth-err"></div>
-            <button class="sx-btn sx-primary" id="sx-auth-btn" data-sx="auth-submit" style="width:100%">دخول</button>
-            <div style="text-align:center;margin-top:8px"><button class="sx-btn sx-ghost" data-sx="reset" style="font-size:12px">نسيت كلمة المرور؟</button></div>
+            <div class="sx-field"><label>البريد الإلكتروني</label><input type="email" id="sx-r-email" dir="ltr" placeholder="name@email.com"></div>
+            <div class="sx-field"><label>كلمة المرور</label><input type="password" id="sx-r-pass" dir="ltr" placeholder="6 أحرف على الأقل"></div>
+            <div class="sx-err" id="sx-r-err"></div>
+            <button class="sx-btn sx-primary" id="sx-r-btn" data-sx="do-register" style="width:100%">إنشاء الحساب</button>
+            <div style="text-align:center;margin-top:10px">
+                <button class="sx-btn sx-ghost" data-sx="to-login" style="font-size:13px">لديك حساب؟ تسجيل الدخول</button>
+            </div>
+        </div>
+
+        <!-- استعادة كلمة المرور -->
+        <div id="sx-v-reset" style="display:none">
+            <h3>استعادة كلمة المرور</h3>
+            <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:12px">اكتب بريدك وسنرسل لك رابطاً لتعيين كلمة مرور جديدة</p>
+            <div class="sx-field"><label>البريد الإلكتروني</label><input type="email" id="sx-p-email" dir="ltr" placeholder="name@email.com"></div>
+            <div class="sx-err" id="sx-p-err"></div>
+            <div id="sx-p-ok" style="color:#10b981;font-size:13px;text-align:center;margin-bottom:8px;font-weight:700"></div>
+            <button class="sx-btn sx-primary" id="sx-p-btn" data-sx="do-reset" style="width:100%">إرسال الرابط</button>
+            <div style="text-align:center;margin-top:10px">
+                <button class="sx-btn sx-ghost" data-sx="to-login" style="font-size:13px">رجوع لتسجيل الدخول</button>
+            </div>
         </div>
     </div>
+</div>
 
     <!-- الملف الشخصي -->
     <div class="sx-modal" id="sx-profile" data-sx="backdrop">
         <div class="sx-box">
+            <button class="sx-btn sx-icon sx-x" data-sx="x-profile" aria-label="إغلاق"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             <h3>ملفي الشخصي</h3>
             <div class="sx-avatar-edit">
                 <img class="sx-av lg" id="sx-prof-img" alt="">
