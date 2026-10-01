@@ -3028,10 +3028,21 @@ function initPWAInstaller() {
         var banner = document.getElementById('install-banner');
         if (!banner || sessionStorage.getItem('dismissed_install_banner')) return;
 
-        var inApp = /FBAN|FBAV|Instagram|Telegram|; wv\)/i.test(navigator.userAgent);
-        banner.querySelector('.install-banner-text').innerText = inApp
-            ? '🌐 افتح الرابط في متصفح Chrome لتتمكن من تثبيت التطبيق'
-            : '📲 للتثبيت: اضغط ⋮ في المتصفح ثم «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»';
+        var ua = navigator.userAgent;
+        var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        var inApp = /FBAN|FBAV|Instagram|Telegram|; wv\)/i.test(ua);
+        var textEl = banner.querySelector('.install-banner-text');
+
+        var shareIcon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin:0 4px;"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+
+        if (isIOS) {
+            textEl.innerHTML = '📲 للتثبيت: اضغط على زر المشاركة' + shareIcon + 'ثم اختر «إضافة إلى الشاشة الرئيسية»';
+        } else if (inApp) {
+            textEl.innerText = '🌐 افتح الرابط في متصفح Chrome لتتمكن من تثبيت التطبيق';
+        } else {
+            textEl.innerText = '📲 للتثبيت: اضغط ⋮ في المتصفح ثم «إضافة إلى الشاشة الرئيسية»';
+        }
+
         var installBtn = banner.querySelector('.install-confirm-btn');
         if (installBtn) installBtn.style.display = 'none';
         banner.style.display = 'flex';
