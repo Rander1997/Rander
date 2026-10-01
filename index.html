@@ -194,24 +194,15 @@
             padding: 0 4px;
         }
 
-        @keyframes pulseGlow {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(167, 139, 250, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); }
-}
-@keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.hero-tab-content {
-    animation: fadeInSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.hero-interactive-btn {
-    transition: all 0.25s ease;
-}
-.hero-interactive-btn:hover {
-    transform: translateY(-2px);
-}
+        .hero {
+            padding: 30px 20px;
+            text-align: center;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero h1 { font-size: 26px; margin-bottom: 8px; }
+        .hero p { color: var(--text-secondary); font-size: 14px; }
 
         .search-container {
             display: none;
@@ -1930,57 +1921,10 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
 
 
     
-    <section class="hero" style="text-align: center; padding: 36px 20px; background: var(--bg-card, #fff); border-radius: 20px; margin: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.04); border: 1px solid rgba(167, 139, 250, 0.15); position: relative; overflow: hidden;">
-    
-    <!-- مؤشر النبض الرقمي الحي -->
-    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(167, 139, 250, 0.08); padding: 6px 16px; border-radius: 999px; margin-bottom: 16px; border: 1px solid rgba(167, 139, 250, 0.25);">
-        <div style="width: 8px; height: 8px; background: linear-gradient(135deg, #a78bfa, #f472b6); border-radius: 50%; animation: pulseGlow 2s infinite;"></div>
-        <span id="heroStatusText" style="font-size: 11px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px;">النظام الذكي والمجتمع الرقمي نشط</span>
-    </div>
-
-    <!-- محتوى الصفحات الديناميكي المتغير -->
-    <div id="heroDynamicContainer" class="hero-tab-content">
-        <!-- الصفحة الافتراضية الأولى: النظرة العامة -->
-        <div id="hero-view-main">
-            <h1 style="font-size: 28px; font-weight: 900; margin: 0 0 8px 0; color: var(--text-primary); letter-spacing: -0.5px;">Rander Max</h1>
-            <p style="font-size: 13px; color: var(--text-secondary, #666); margin: 0 0 22px 0; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.6;">هندسة رقمية تجمع دقة التجارة الإلكترونية بخصوصية مساحات التعبير الحرة.</p>
-        </div>
-
-        <!-- الصفحة الثانية: محطة الأسرار والمجتمع -->
-        <div id="hero-view-secrets" style="display: none;">
-            <h1 style="font-size: 24px; font-weight: 900; margin: 0 0 8px 0; background: linear-gradient(135deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">مساحة الأسرار الحرة</h1>
-            <p style="font-size: 13px; color: var(--text-secondary, #666); margin: 0 0 22px 0; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.6;">شارك قصصك وأسرارك السرية بكل أمان وثقة مع أعضاء مجتمع راندر.</p>
-        </div>
-
-        <!-- الصفحة الثالثة: محطة استعراض المنصة والمنتجات -->
-        <div id="hero-view-shop" style="display: none;">
-            <h1 style="font-size: 24px; font-weight: 900; margin: 0 0 8px 0; color: var(--text-primary);">الكتالوج الرقمي الذكي</h1>
-            <p style="font-size: 13px; color: var(--text-secondary, #666); margin: 0 0 22px 0; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.6;">استعرض أحدث الأقسام والمنتجات المصممة لتلبية احتياجاتك بكل دقة.</p>
-        </div>
-    </div>
-
-    <!-- الأزرار التفاعلية للتبديل بين الصفحات والمحطات -->
-    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center;">
-        
-        <!-- زر الانتقال لمحطة الأسرار -->
-        <button class="hero-interactive-btn" onclick="switchHeroView('secrets')" style="background: linear-gradient(135deg, #a78bfa, #f472b6); color: white; border: none; padding: 11px 22px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 25px rgba(167, 139, 250, 0.35);">
-             حائط الأسرار
-        </button>
-
-        <!-- زر الانتقال لمحطة استعراض المنتجات -->
-        <button class="hero-interactive-btn" onclick="switchHeroView('shop')" style="background: transparent; color: var(--text-primary); border: 1.5px solid rgba(167, 139, 250, 0.4); padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer;">
-             استعراض المنصة
-        </button>
-
-        <!-- زر العودة للرئيسية -->
-        <button id="heroBackBtn" class="hero-interactive-btn" onclick="switchHeroView('main')" style="display: none; background: rgba(0,0,0,0.05); color: var(--text-primary); border: none; padding: 10px 16px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;">
-            ↩ الرئيسية
-        </button>
-
-    </div>
-
+    <section class="hero">
+    <h1>Rander Max</h1>
+    <p>التسوق الإلكتروني الأسرع والأذكى في العراق</p>
 </section>
-
 
     <!-- البحث الصوتي والكتابي المحدث -->
     <div class="search-container" id="search-box">
@@ -4593,40 +4537,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-function switchHeroView(viewName) {
-    // إخفاء جميع المحطات
-    document.getElementById('hero-view-main').style.display = 'none';
-    document.getElementById('hero-view-secrets').style.display = 'none';
-    document.getElementById('hero-view-shop').style.display = 'none';
-    
-    let statusText = document.getElementById('heroStatusText');
-    let backBtn = document.getElementById('heroBackBtn');
-
-    // إعادة تشغيل تأثير الحركات والانيميشن
-    let container = document.getElementById('heroDynamicContainer');
-    container.classList.remove('hero-tab-content');
-    void container.offsetWidth; 
-    container.classList.add('hero-tab-content');
-
-    if (viewName === 'secrets') {
-        document.getElementById('hero-view-secrets').style.display = 'block';
-        statusText.innerText = 'محطة التعبير الحر والأسرار النشطة';
-        backBtn.style.display = 'inline-block';
-        
-        // إذا أردت فتح نافذة الأسرار الفعلية مباشرة مع التبديل، يمكنك استدعاء دالتها هنا:
-        // if(typeof openSecretsWall === 'function') openSecretsWall();
-        
-    } else if (viewName === 'shop') {
-        document.getElementById('hero-view-shop').style.display = 'block';
-        statusText.innerText = 'محطة الكتالوج والمنتجات الرقمية';
-        backBtn.style.display = 'inline-block';
-        window.scrollTo({top: 450, behavior: 'smooth'});
-    } else {
-        document.getElementById('hero-view-main').style.display = 'block';
-        statusText.innerText = 'النظام الذكي والمجتمع الرقمي نشط';
-        backBtn.style.display = 'none';
-    }
-}
 
 
     
