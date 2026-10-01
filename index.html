@@ -3943,6 +3943,10 @@ function renderStoreCategories() {
 
 // تشغيل دالة جلب الأقسام تلقائياً عند تحميل صفحة المتجر
 document.addEventListener("DOMContentLoaded", function() {
+    try {
+        let c = JSON.parse(localStorage.getItem('rander_cached_categories'));
+        if (Array.isArray(c) && c.length) { categoriesData = c; renderStoreCategories(); }
+    } catch (e) {}
     loadStoreCategories();
 });
 
