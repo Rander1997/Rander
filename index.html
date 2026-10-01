@@ -3273,6 +3273,10 @@ function closeStory() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    try {
+        let s = JSON.parse(localStorage.getItem('rander_cached_stories'));
+        if (Array.isArray(s) && s.length) { storiesData = s; renderStories(); }
+    } catch (e) {}
     loadStoreStories();
 });
 // ... الدوال القديمة الخاصة بمتجرك ...
