@@ -1689,30 +1689,32 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
         
         <!-- الشعار كزر لمعلومات التطبيق، وبجانبه زر الوضع الليلي -->
-        <div style="display: flex; align-items: center; gap: 10px;">
-    <!-- زر عن التطبيق -->
-    <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
-        <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
-        <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
-    </button>
-    
-    <!-- زر الوضع الليلي أولاً -->
-    <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
-
-    <!-- زر أسرار بعد الوضع الليلي وبتصميم متناسق -->
-    <button class="cart-btn" onclick="openSecretsWall()" title="حائط الأسرار" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; padding: 8px 14px;">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span style="font-size: 13px; font-weight: 600;">أسرار</span>
-    </button>
-</div>
-
-        <!-- الأزرار العلوية متساوية في المستوى تماماً -->
-        <div style="display: flex; gap: 12px; align-items: center;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; overflow-x: auto; padding: 4px 0;">
+        
+        <!-- الجانب الأيمن: الشعار، الوضع الليلي، وزر أسرار -->
+        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            <!-- زر عن التطبيق -->
+            <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 4px 10px;">
+                <div class="logo" style="margin: 0; color: inherit; line-height: 1.1; font-size: 14px;">رانـدر</div>
+                <div style="font-size: 8px; font-weight: 800; letter-spacing: 2px; line-height: 1; margin-top: 1px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
+            </button>
             
+            <!-- زر الوضع الليلي -->
+            <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
+
+            <!-- زر أسرار (مطابق تماماً لزر مشاركة بالحجم والتصميم) -->
+            <button class="cart-btn btn" onclick="openSecretsWall()" title="حائط الأسرار" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; padding: 8px 14px; font-size: 13px; border-radius: 999px; white-space: nowrap;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>أسرار</span>
+            </button>
+        </div>
+
+        <!-- الجانب الأيسر: زر مشاركة التطبيق وزر السلة -->
+        <div style="display: flex; gap: 6px; align-items: center; flex-shrink: 0;">
             <!-- زر مشاركة التطبيق -->
-            <div style="position: relative; display: inline-block;">
-                <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق">🔗 مشاركة</button>
-            </div>
+            <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق" style="padding: 8px 14px; font-size: 13px; border-radius: 999px; white-space: nowrap;">🔗 مشاركة</button>
+            
+        </div>
 
             <!-- زر تثبيت التطبيق PWA -->
             <button class="cart-btn btn" id="cart-counter" onclick="
