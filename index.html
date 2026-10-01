@@ -1472,6 +1472,62 @@ button.btn[onclick*="sendOrder"]:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     transition: box-shadow 0.3s ease;
 }
+
+/* شبكة منتجات متساوية تماماً كالمتاجر العالمية */
+.products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    align-items: stretch;
+}
+
+.product-card {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: hidden;
+    padding: 10px !important;
+}
+
+.product-card .product-image {
+    width: 100% !important;
+    aspect-ratio: 1 / 1;
+    height: auto !important;
+    object-fit: cover;
+}
+
+.product-card .product-title {
+    min-height: 2.6em;
+    word-break: break-word;
+}
+
+.product-card .control-group {
+    min-width: 0;
+}
+
+.product-card .dynamic-variant-select {
+    min-width: 0 !important;
+    max-width: 100%;
+}
+
+.product-card .buy-button {
+    margin-top: auto;
+}
+
+@media (min-width: 1024px) {
+    .products-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    .products-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+}
+
+
         
 </style>
 
