@@ -1690,11 +1690,12 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
         
         <!-- الشعار كزر لمعلومات التطبيق، وبجانبه زر الوضع الليلي -->
         <div style="display: flex; align-items: center; gap: 10px;">
-    <!-- زر عن التطبيق -->
-    <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
+    <!-- زر عن التطبيق (بنفس مقاساته وشكله الأصلي تماماً) -->
+    <button onclick="openSettingsModal()" title="إعدادات التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
         <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
         <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
     </button>
+</div>
     
     <!-- زر الوضع الليلي أولاً -->
     <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
@@ -1734,16 +1735,47 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
 
 
     <!-- نافذة معلومات التطبيق واتصل بنا -->
-    <div id="app-info-modal" class="info-modal" onclick="closeAppInfo(event)">
-        <div class="info-modal-content">
-            <h3>عن متجر RANDER</h3>
-            <p style="margin: 10px 0; font-size: 14px; color: var(--text-secondary);">متجر إلكتروني يوفر لك أحدث المنتجات والعروض مع خدمة توصيل سريعة وبسيطة.</p>
-            <hr style="border: 0.5px solid var(--border-color, #eee); margin: 12px 0;">
-            <h4>تواصل معنا</h4>
-            <p style="margin-top: 8px;"><a href="https://wa.me/9647742440666" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold; font-size: 15px;">💬 تواصل عبر الواتساب</a></p>
-            <button onclick="document.getElementById('app-info-modal').style.display='none'" style="margin-top: 15px; padding: 8px 20px; border: none; background: var(--accent, #1d4ed8); color: #fff; border-radius: 8px; font-weight: bold;">إغلاق</button>
+    <!-- نافذة إعدادات وخيارات راندر Max -->
+<div id="settingsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+    <div style="background: var(--bg-card, #fff); width: 90%; max-width: 360px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); color: var(--text-primary, #333); animation: fadeIn 0.3s ease;">
+        
+        <!-- رأس النافذة -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 700;">⚙️️ إعدادات وخيارات راندر Max</h3>
+            <button onclick="closeSettingsModal()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: inherit;">✕</button>
+        </div>
+
+        <!-- قائمة الخيارات -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            
+            <!-- خيار الوضع الليلي -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 10px;">
+                <span style="font-size: 14px; font-weight: 500;">🌙 الوضع الليلي</span>
+                <button onclick="toggleDarkMode()" style="background: var(--btn-bg, #1d4ed8); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px;">تغيير</button>
+            </div>
+
+            <!-- خيار اللغة -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 10px;">
+                <span style="font-size: 14px; font-weight: 500;">🌐 لغة التطبيق</span>
+                <select style="padding: 6px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 12px; background: transparent; color: inherit;">
+                    <option value="ar">العربية</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <!-- خيار الدعم الفني -->
+            <button onclick="openSupport()" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; background: rgba(0,0,0,0.03); border: none; border-radius: 10px; cursor: pointer; color: inherit; text-align: right; font-size: 14px; font-weight: 500;">
+                💬 الدعم الفني والمراسلة
+            </button>
+
+            <!-- خيار عن التطبيق -->
+            <button onclick="openAppInfo()" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; background: rgba(0,0,0,0.03); border: none; border-radius: 10px; cursor: pointer; color: inherit; text-align: right; font-size: 14px; font-weight: 500;">
+                ℹ️ عن التطبيق والمطور
+            </button>
+
         </div>
     </div>
+</div>
 
 
     <!-- شريط منبثق يدعو الزبون لتثبيت التطبيق -->
@@ -3585,6 +3617,31 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 // ... الدوال القديمة الخاصة بمتجرك ...
 
+
+// فتح نافذة الإعدادات
+function openSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+
+// إغلاق نافذة الإعدادات
+function closeSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+// زر الدعم الفني (يمكن ربطه برابط واتساب أو صفحة الدعم)
+function openSupport() {
+    alert('سيتم توجيهك إلى خدمة الدعم الفني قريباً!');
+    // window.open('https://wa.me/your-number', '_blank');
+}
+
+// إغلاق النافذة عند الضغط خارجها
+window.onclick = function(event) {
+    let modal = document.getElementById('settingsModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+    
 // دالة تبديل الوضع الليلي
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
