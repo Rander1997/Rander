@@ -3466,64 +3466,94 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
 
 
 // 2. التحميل الأولي لأول 20 منتجاً (للصفحة الرئيسية أو زر الكل)
+function sortProductsList(arr) {
+    arr.sort((a, b) => {
+        let oa = Number(a.displayOrder) > 0 ? Number(a.displayOrder) : 999999;
+        let ob = Number(b.displayOrder) > 0 ? Number(b.displayOrder) : 999999;
+        if (oa !== ob) return oa - ob;
+        let ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() / 1000 : 0);
+        let tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : (b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() / 1000 : 0);
+        return tb - ta;
+    });
+    return arr;
+}
+
+function showHomeProducts(allProducts) {
+    let productsGrid = document.getElementById('main-products-grid');
+    if (!productsGrid) return;
+
+    window.currentCategoryFullList = allProducts;
+    window.currentBatchIndex = 20;
+    lastVisibleProduct = null;
+
+    productsGrid.innerHTML = "";
+    renderProductsList(allProducts.slice(0, 20), productsGrid);
+
+    let loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        if (allProducts.length <= 20) {
+            loadingIndicator.style.display = 'block';
+            loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
+        } else {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+}
+
 function loadCloudProducts() {
     currentCategory = null;
     currentSubCategory = null;
     lastVisibleProduct = null;
-    window.currentCategoryFullList = null; // إعادة تعيين القائمة المفلترة
-    
+    window.currentCategoryFullList = null;
+
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
-    if (typeof db === 'undefined') {
-        console.log("قاعدة بيانات فايربيس غير متوفرة");
-        return;
-    }
+    // 1) عرض فوري من الذاكرة (الزيارات التالية)
+    let hadCache = false;
+    try {
+        let cached = JSON.parse(localStorage.getItem('rander_cached_products'));
+        if (Array.isArray(cached) && cached.length > 0) {
+            showHomeProducts(sortProductsList(cached));
+            hadCache = true;
+        }
+    } catch (e) {}
 
-    db.collection("products")
-      .get()
-      .then((querySnapshot) => {
-          let allProducts = [];
-          querySnapshot.forEach((doc) => {
-              let prodData = doc.data();
-              prodData.id = doc.id;
-              allProducts.push(prodData);
-          });
+    if (typeof db === 'undefined') return;
 
-          allProducts.sort((a, b) => {
-              let oa = Number(a.displayOrder) > 0 ? Number(a.displayOrder) : 999999;
-              let ob = Number(b.displayOrder) > 0 ? Number(b.displayOrder) : 999999;
-              if (oa !== ob) return oa - ob;
-              let ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-              let tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-              return tb - ta;
-          });
+    // 2) تحديث صامت من Firebase
+    db.collection("products").get().then((querySnapshot) => {
+        let allProducts = [];
+        querySnapshot.forEach((doc) => {
+            let prodData = doc.data();
+            prodData.id = doc.id;
+            allProducts.push(prodData);
+        });
+        sortProductsList(allProducts);
 
-          window.currentCategoryFullList = allProducts;
-          window.currentBatchIndex = 20;
-          lastVisibleProduct = null;
+        try {
+            localStorage.setItem('rander_cached_products', JSON.stringify(allProducts.map(function(p) {
+                return {
+                    id: p.id, slug: p.slug, name: p.name, price: p.price,
+                    image: p.image, images: p.images ? p.images.slice(0, 1) : undefined,
+                    category: p.category, subCategory: p.subCategory,
+                    variants: p.variants, badgeText: p.badgeText, badgeColor: p.badgeColor,
+                    displayOrder: p.displayOrder,
+                    createdAt: p.createdAt && p.createdAt.seconds ? { seconds: p.createdAt.seconds } : null
+                };
+            })));
+        } catch (e) {}
 
-          let firstBatch = allProducts.slice(0, 20);
-          productsGrid.innerHTML = ""; 
+        // لا نعيد الرسم إن كان الزبون داخل قسم أو يبحث
+        if (currentCategory !== null || (document.getElementById('search-input') && document.getElementById('search-input').value.trim())) return;
 
-          if (typeof renderProductsList === 'function') {
-              renderProductsList(firstBatch, productsGrid);
-          }
-
-          let loadingIndicator = document.getElementById('loading-indicator');
-          if (loadingIndicator) {
-              if (allProducts.length <= 20) {
-                  loadingIndicator.style.display = 'block';
-                  loadingIndicator.innerHTML = 'وصلت إلى نهاية المنتجات';
-              } else {
-                  loadingIndicator.style.display = 'none';
-              }
-          }
-      })
-      .catch(err => {
-    console.log("خطأ في جلب المنتجات: ", err);
-    setTimeout(loadCloudProducts, 2000);
-});
+        if (!hadCache || (window.currentCategoryFullList && window.currentCategoryFullList.length !== allProducts.length)) {
+            showHomeProducts(allProducts);
+        }
+    }).catch(err => {
+        console.log("خطأ في جلب المنتجات: ", err);
+        if (!hadCache) setTimeout(loadCloudProducts, 2000);
+    });
 }
 
 
