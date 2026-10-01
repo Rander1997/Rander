@@ -2481,20 +2481,85 @@ function closeDetailModal() {
         }
 
         function toggleFavorite(productId, btnElement) {
-            if (typeof favoritesArray === 'undefined') favoritesArray = [];
-            var index = favoritesArray.indexOf(productId);
-            if (index > -1) {
-                favoritesArray.splice(index, 1);
-                btnElement.innerText = "🤍";
-            } else {
-                favoritesArray.push(productId);
-                btnElement.innerText = "❤️";
-                showToast("❤️ تم الحفظ في المفضلة!");
-            }
-            saveFavsToStorage();
-        }
+    if (!Array.isArray(favoritesArray)) favoritesArray = [];
+    var index = favoritesArray.indexOf(productId);
+    var added = index === -1;
+
+    if (added) favoritesArray.push(productId);
+    else favoritesArray.splice(index, 1);
+    saveFavsToStorage();
+
+    if (btnElement) {
+        btnElement.classList.toggle('active', added);
+        btnElement.classList.remove('pop');
+        void btnElement.offsetWidth;
+        if (added) btnElement.classList.add('pop');
+    }
+
+    showToast(added ? "تمت الإضافة إلى المفضلة" : "تمت الإزالة من المفضلة");
+
+    // داخل صفحة المفضلة: احذف البطاقة فور إزالتها
+    if (!added && window.isFavoritesView && btnElement) {
+        var card = btnElement.closest('.product-card');
+        if (card) card.remove();
+        if (!document.querySelector('#main-products-grid .product-card')) showFavorites();
+    }
+}
+
+function syncFavoritesUI() {
+    document.querySelectorAll('.fav-btn').forEach(function(b) {
+        b.classList.toggle('active', favoritesArray.indexOf(b.getAttribute('data-pid')) > -1);
+    });
+}
+
+function resetFavoritesView() {
+    window.isFavoritesView = false;
+    var h = document.getElementById('section-heading');
+    if (h) h.innerText = 'جميع المنتجات';
+}
+
+function showFavorites(btnElement) {
+    if (btnElement) setActiveNav(btnElement);
+    window.isFavoritesView = true;
+
+    var searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = '';
+    var noResults = document.getElementById('no-results');
+    if (noResults) noResults.style.display = 'none';
+    var sub = document.getElementById('subcategories-container');
+    if (sub) sub.style.display = 'none';
+    var loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+    var source = allProductsCache.length ? allProductsCache : [];
+    if (!source.length) {
+        try { source = JSON.parse(localStorage.getItem('rander_cached_products')) || []; } catch (e) {}
+    }
+    var favs = sortProductsList(source.filter(function(p) { return favoritesArray.indexOf(p.id) > -1; }));
+
+    var heading = document.getElementById('section-heading');
+    if (heading) heading.innerText = 'المفضلة';
+
+    window.currentCategoryFullList = favs;
+    window.currentBatchIndex = favs.length;
+
+    var grid = document.getElementById('main-products-grid');
+    grid.innerHTML = '';
+
+    if (!favs.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--text-secondary);">' +
+            '<svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5; margin-bottom:12px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+            '<div style="font-weight:700; font-size:16px;">لا توجد منتجات في المفضلة</div>' +
+            '<div style="font-size:13px; margin-top:6px;">اضغط على أيقونة القلب في أي منتج لحفظه هنا</div></div>';
+        return;
+    }
+
+    renderProductsList(favs, grid);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
         function filterCategory(categoryIdentifier, btnElement) {
+                resetFavoritesView();
     var noResults = document.getElementById('no-results');
     if (noResults) noResults.style.display = 'none';
     
