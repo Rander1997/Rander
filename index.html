@@ -3346,6 +3346,7 @@ function hideInstallUI() {
         }
 
         window.addEventListener('popstate', function (e) {
+                if (window.sxHandleBack && window.sxHandleBack()) return;
             var modal = document.getElementById('detail-modal');
             var isModalVisible = modal && (modal.classList.contains('active') || modal.style.display === 'flex' || modal.style.display === 'block');
 
@@ -4590,8 +4591,8 @@ document.addEventListener("DOMContentLoaded", function() {
     'use strict';
     var fs = firebase.firestore(), au = firebase.auth(), FV = firebase.firestore.FieldValue;
     var me = null, PAGE = 15, limitN = PAGE, unsubFeed = null, unsubCm = null;
-    var lastSnap = null, curSecret = null, replyTo = null, mode = 'login';
-    var registering = false, pendingAvatar = null, locks = {};
+    var lastSnap = null, curSecret = null, replyTo = null;
+    var registering = false, pendingAvatar = null, locks = {}, layers = [];
 
     var ICON = {
         heart: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
@@ -4601,14 +4602,17 @@ document.addEventListener("DOMContentLoaded", function() {
     };
     var ERR = {
         'auth/invalid-email': 'البريد الإلكتروني غير صحيح',
+        'auth/missing-email': 'اكتب بريدك الإلكتروني',
         'auth/user-not-found': 'لا يوجد حساب بهذا البريد',
         'auth/wrong-password': 'كلمة المرور غير صحيحة',
         'auth/invalid-credential': 'البريد أو كلمة المرور غير صحيحة',
-        'auth/email-already-in-use': 'هذا البريد مسجّل مسبقاً',
+        'auth/email-already-in-use': 'هذا البريد مسجّل مسبقاً، جرّب تسجيل الدخول',
         'auth/weak-password': 'كلمة المرور ضعيفة (6 أحرف على الأقل)',
         'auth/too-many-requests': 'محاولات كثيرة، حاول لاحقاً',
         'auth/network-request-failed': 'تحقق من اتصال الإنترنت',
-        'auth/operation-not-allowed': 'فعّل Email/Password من لوحة Firebase'
+        'auth/user-disabled': 'هذا الحساب موقوف',
+        'auth/operation-not-allowed': 'فعّل Email/Password من لوحة Firebase (Authentication)',
+        'auth/unauthorized-domain': 'أضف نطاق الموقع في Firebase > Authentication > Settings > Authorized domains'
     };
 
     function $(id) { return document.getElementById(id); }
@@ -4627,6 +4631,37 @@ document.addEventListener("DOMContentLoaded", function() {
         var d = Math.floor(h / 24); if (d < 30) return 'منذ ' + d + ' يوم';
         return new Date(ts.toMillis()).toLocaleDateString('ar-IQ');
     }
+
+    /* ---------- طبقات النوافذ + زر الرجوع ---------- */
+    function hideLayer(n) {
+        if (n === 'wall') {
+            $('secrets-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+            if (unsubFeed) { unsubFeed(); unsubFeed = null; }
+        } else if (n === 'auth') { $('sx-auth').classList.remove('show'); }
+        else if (n === 'profile') { $('sx-profile').classList.remove('show'); }
+        else if (n === 'comments') {
+            $('sx-cm').classList.remove('show');
+            if (unsubCm) { unsubCm(); unsubCm = null; }
+            curSecret = null; replyTo = null; updateReplyChip();
+        }
+    }
+    function pushLayer(n) {
+        if (layers.indexOf(n) > -1) return;
+        layers.push(n);
+        history.pushState({ sx: n }, '');
+    }
+    function closeLayer(n) {
+        var i = layers.indexOf(n);
+        if (i < 0) return;
+        if (i === layers.length - 1) history.back();   // يستدعي sxHandleBack
+        else { layers.splice(i, 1); hideLayer(n); }
+    }
+    window.sxHandleBack = function () {
+        if (!layers.length) return false;
+        hideLayer(layers.pop());
+        return true;
+    };
 
     /* ---------- الأفاتار ---------- */
     function defAvatar(name, g) {
@@ -4656,19 +4691,13 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    /* ---------- فتح وإغلاق ---------- */
+    /* ---------- فتح الجدار ---------- */
     function openWall() {
         $('secrets-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
+        pushLayer('wall');
         if (!lastSnap) $('sx-feed').innerHTML = '<div class="sx-skel"></div><div class="sx-skel"></div><div class="sx-skel"></div>';
         subscribeFeed();
-    }
-    function closeWall() {
-        $('secrets-overlay').classList.remove('open');
-        document.body.style.overflow = '';
-        ['sx-auth', 'sx-profile'].forEach(function (id) { $(id).classList.remove('show'); });
-        closeComments();
-        if (unsubFeed) { unsubFeed(); unsubFeed = null; }
     }
     window.openSecretsWall = openWall;
 
@@ -4681,7 +4710,9 @@ document.addEventListener("DOMContentLoaded", function() {
               '<div class="sx-comp-foot"><span id="sx-count">0/500</span>' +
               '<button class="sx-btn sx-primary" id="sx-publish" data-sx="publish">نشر</button></div>'
             : '<div class="sx-login-prompt"><p>سجّل الدخول لتشارك سرّك وتتفاعل مع الآخرين</p>' +
-              '<button class="sx-btn sx-primary" data-sx="login">تسجيل الدخول / حساب جديد</button></div>';
+              '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
+              '<button class="sx-btn sx-primary" data-sx="open-login">تسجيل الدخول</button>' +
+              '<button class="sx-btn sx-ghost" data-sx="open-register" style="border:1px solid var(--border-color)!important">إنشاء حساب</button></div></div>';
         renderCmForm();
         if (lastSnap) renderFeed(lastSnap);
     }
@@ -4700,56 +4731,79 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     /* ---------- المصادقة ---------- */
-    function openAuth(m) {
-        setMode(m || 'login');
-        $('sx-auth-err').textContent = '';
+    function authErr(e) {
+        if (e && e.sx) return e.message;
+        var c = e && e.code;
+        return ERR[c] || ('حدث خطأ' + (c ? ' (' + c + ')' : '') + '، حاول مرة أخرى');
+    }
+    function showView(v) {
+        ['login', 'register', 'reset'].forEach(function (x) {
+            $('sx-v-' + x).style.display = x === v ? 'block' : 'none';
+        });
+        ['sx-l-err', 'sx-r-err', 'sx-p-err', 'sx-p-ok'].forEach(function (id) { $(id).textContent = ''; });
+    }
+    function openAuth(v) {
+        showView(v || 'login');
         $('sx-auth').classList.add('show');
+        pushLayer('auth');
     }
-    function setMode(m) {
-        mode = m;
-        $('sx-tab-login').classList.toggle('on', m === 'login');
-        $('sx-tab-register').classList.toggle('on', m === 'register');
-        $('sx-reg-only').style.display = m === 'register' ? 'block' : 'none';
-        $('sx-auth-btn').textContent = m === 'login' ? 'دخول' : 'إنشاء الحساب';
-    }
-    function authErr(e) { return e && e.sx ? e.message : (ERR[e && e.code] || 'حدث خطأ، حاول مرة أخرى'); }
 
-    async function authSubmit() {
-        var email = $('sx-email').value.trim(), pass = $('sx-pass').value, btn = $('sx-auth-btn');
-        $('sx-auth-err').textContent = '';
-        if (!email || !pass) { $('sx-auth-err').textContent = 'أدخل البريد وكلمة المرور'; return; }
+    async function doLogin() {
+        var email = $('sx-l-email').value.trim(), pass = $('sx-l-pass').value, err = $('sx-l-err'), btn = $('sx-l-btn');
+        err.textContent = '';
+        if (!email || !pass) { err.textContent = 'أدخل البريد وكلمة المرور'; return; }
         btn.disabled = true;
         try {
-            if (mode === 'login') {
-                await au.signInWithEmailAndPassword(email, pass);
-            } else {
-                var name = $('sx-reg-name').value.trim(), g = $('sx-reg-gender').value;
-                if (name.length < 2) throw { sx: 1, message: 'اكتب اسماً من حرفين على الأقل' };
-                registering = true;
-                var cred = await au.createUserWithEmailAndPassword(email, pass);
-                await cred.user.updateProfile({ displayName: name });
+            await au.signInWithEmailAndPassword(email, pass);
+            $('sx-l-pass').value = '';
+            closeLayer('auth');
+            toast('أهلاً بعودتك');
+        } catch (e) { err.textContent = authErr(e); }
+        btn.disabled = false;
+    }
+
+    async function doRegister() {
+        var name = $('sx-r-name').value.trim(), g = $('sx-r-gender').value;
+        var email = $('sx-r-email').value.trim(), pass = $('sx-r-pass').value;
+        var err = $('sx-r-err'), btn = $('sx-r-btn');
+        err.textContent = '';
+        if (name.length < 2) { err.textContent = 'اكتب اسماً من حرفين على الأقل'; return; }
+        if (!email || !pass) { err.textContent = 'أدخل البريد وكلمة المرور'; return; }
+        if (pass.length < 6) { err.textContent = 'كلمة المرور 6 أحرف على الأقل'; return; }
+        btn.disabled = true; registering = true;
+        try {
+            var cred = await au.createUserWithEmailAndPassword(email, pass);
+            me = { uid: cred.user.uid, name: name, avatar: '', gender: g };
+            try { await cred.user.updateProfile({ displayName: name }); } catch (e1) { console.error(e1); }
+            var saved = true;
+            try {
                 await fs.collection('users').doc(cred.user.uid).set({
                     displayName: name, gender: g, avatar: '', createdAt: FV.serverTimestamp()
                 });
-                me = { uid: cred.user.uid, name: name, avatar: '', gender: g };
-                registering = false;
-                refreshUI();
-            }
-            $('sx-auth').classList.remove('show');
-            $('sx-pass').value = '';
-            toast(mode === 'login' ? 'أهلاً بعودتك' : 'تم إنشاء حسابك');
+            } catch (e2) { saved = false; console.error('users write failed:', e2); }
+            registering = false;
+            $('sx-r-pass').value = '';
+            refreshUI();
+            closeLayer('auth');
+            toast(saved ? 'تم إنشاء حسابك' : 'تم إنشاء الحساب، لكن تعذّر حفظ الملف الشخصي (راجع قواعد Firestore)');
         } catch (e) {
             registering = false;
-            $('sx-auth-err').textContent = authErr(e);
+            console.error(e);
+            err.textContent = authErr(e);
         }
         btn.disabled = false;
     }
-    function resetPass() {
-        var email = $('sx-email').value.trim();
-        if (!email) { $('sx-auth-err').textContent = 'اكتب بريدك أولاً ثم اضغط «نسيت كلمة المرور»'; return; }
-        au.sendPasswordResetEmail(email)
-            .then(function () { toast('أُرسل رابط إعادة التعيين إلى بريدك'); })
-            .catch(function (e) { $('sx-auth-err').textContent = authErr(e); });
+
+    async function doReset() {
+        var email = $('sx-p-email').value.trim(), err = $('sx-p-err'), ok = $('sx-p-ok'), btn = $('sx-p-btn');
+        err.textContent = ''; ok.textContent = '';
+        if (!email) { err.textContent = 'اكتب بريدك الإلكتروني'; return; }
+        btn.disabled = true;
+        try {
+            await au.sendPasswordResetEmail(email);
+            ok.textContent = 'تم الإرسال. افحص بريدك (وقد يكون في الرسائل غير المرغوبة)';
+        } catch (e) { err.textContent = authErr(e); }
+        btn.disabled = false;
     }
 
     /* ---------- الملف الشخصي ---------- */
@@ -4762,6 +4816,7 @@ document.addEventListener("DOMContentLoaded", function() {
         $('sx-prof-img').className = 'sx-av lg ' + (me.gender === 'female' ? 'g-f' : 'g-m');
         $('sx-prof-img').src = me.avatar || defAvatar(me.name, me.gender);
         $('sx-profile').classList.add('show');
+        pushLayer('profile');
     }
     async function saveProfile() {
         var name = $('sx-prof-name').value.trim(), g = $('sx-prof-gender').value;
@@ -4776,10 +4831,10 @@ document.addEventListener("DOMContentLoaded", function() {
             await fs.collection('users').doc(me.uid).set({ displayName: name, gender: g, avatar: avatar }, { merge: true });
             await au.currentUser.updateProfile({ displayName: name });
             me.name = name; me.gender = g; me.avatar = avatar;
-            $('sx-profile').classList.remove('show');
+            closeLayer('profile');
             refreshUI();
             toast('تم حفظ ملفك الشخصي');
-        } catch (e) { $('sx-prof-err').textContent = 'تعذّر الحفظ، حاول مرة أخرى'; }
+        } catch (e) { console.error(e); $('sx-prof-err').textContent = 'تعذّر الحفظ، تحقق من قواعد Firestore'; }
     }
 
     /* ---------- المنشورات ---------- */
@@ -4844,15 +4899,11 @@ document.addEventListener("DOMContentLoaded", function() {
         curSecret = id; replyTo = null; updateReplyChip();
         $('sx-cm-list').innerHTML = '<div class="sx-skel"></div>';
         $('sx-cm').classList.add('show');
+        pushLayer('comments');
         renderCmForm();
         if (unsubCm) unsubCm();
         unsubCm = fs.collection('secrets').doc(id).collection('comments').orderBy('createdAt', 'asc').limit(150)
             .onSnapshot(renderComments, function () { $('sx-cm-list').innerHTML = '<div class="sx-empty">تعذّر تحميل التعليقات</div>'; });
-    }
-    function closeComments() {
-        $('sx-cm').classList.remove('show');
-        if (unsubCm) { unsubCm(); unsubCm = null; }
-        curSecret = null; replyTo = null; updateReplyChip();
     }
     function cmHtml(c, isReply) {
         return '<div class="sx-cm' + (isReply ? ' reply' : '') + '">' + avHtml(c.authorAvatar, c.authorName, c.authorGender, 'sm') +
@@ -4876,11 +4927,10 @@ document.addEventListener("DOMContentLoaded", function() {
         var f = $('sx-cm-form'); if (!f) return;
         f.innerHTML = me
             ? '<textarea id="sx-cm-text" rows="1" maxlength="300" placeholder="اكتب تعليقاً..."></textarea><button class="sx-btn sx-primary" data-sx="cm-send">إرسال</button>'
-            : '<button class="sx-btn sx-primary" data-sx="login" style="width:100%">سجّل الدخول للتعليق</button>';
+            : '<button class="sx-btn sx-primary" data-sx="open-login" style="width:100%">سجّل الدخول للتعليق</button>';
     }
     function updateReplyChip() {
-        var chip = $('sx-reply-chip');
-        chip.classList.toggle('show', !!replyTo);
+        $('sx-reply-chip').classList.toggle('show', !!replyTo);
         $('sx-reply-name').textContent = replyTo ? 'رد على ' + replyTo.name : '';
     }
     async function sendComment() {
@@ -4904,19 +4954,26 @@ document.addEventListener("DOMContentLoaded", function() {
         var a = t.getAttribute('data-sx'), id = t.getAttribute('data-id');
         if (a === 'backdrop') {
             if (e.target !== t) return;
-            if (t.id === 'sx-cm') closeComments(); else t.classList.remove('show');
+            if (t.id === 'sx-cm') closeLayer('comments');
+            else if (t.id === 'sx-auth') closeLayer('auth');
+            else if (t.id === 'sx-profile') closeLayer('profile');
             return;
         }
         switch (a) {
-            case 'close': closeWall(); break;
-            case 'close-cm': closeComments(); break;
+            case 'close': closeLayer('wall'); break;
+            case 'close-cm': closeLayer('comments'); break;
+            case 'x-auth': closeLayer('auth'); break;
+            case 'x-profile': closeLayer('profile'); break;
             case 'profile': me ? openProfile() : openAuth('login'); break;
-            case 'login': openAuth('login'); break;
-            case 'tab-login': setMode('login'); break;
-            case 'tab-register': setMode('register'); break;
-            case 'auth-submit': authSubmit(); break;
-            case 'reset': resetPass(); break;
-            case 'logout': au.signOut().then(function () { $('sx-profile').classList.remove('show'); toast('تم تسجيل الخروج'); }); break;
+            case 'open-login': openAuth('login'); break;
+            case 'open-register': openAuth('register'); break;
+            case 'to-login': showView('login'); break;
+            case 'to-register': showView('register'); break;
+            case 'to-reset': showView('reset'); break;
+            case 'do-login': doLogin(); break;
+            case 'do-register': doRegister(); break;
+            case 'do-reset': doReset(); break;
+            case 'logout': au.signOut().then(function () { closeLayer('profile'); toast('تم تسجيل الخروج'); }); break;
             case 'profile-save': saveProfile(); break;
             case 'avatar-remove': pendingAvatar = ''; $('sx-prof-img').src = defAvatar($('sx-prof-name').value || me.name, $('sx-prof-gender').value); break;
             case 'publish': publish(); break;
@@ -4941,7 +4998,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }).catch(function () { $('sx-prof-err').textContent = 'تعذّر قراءة الصورة'; });
     });
     $('secrets-overlay').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.closest('#sx-auth')) authSubmit();
+        if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+        var box = e.target.closest('#sx-v-login, #sx-v-register, #sx-v-reset');
+        if (!box) return;
+        if (box.id === 'sx-v-login') doLogin();
+        else if (box.id === 'sx-v-register') doRegister();
+        else doReset();
     });
 
     refreshUI();
