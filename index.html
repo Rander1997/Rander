@@ -3058,6 +3058,15 @@ function loadStoreStories() {
             });
         });
 
+        storiesData.sort(function(a, b) {
+            var oa = Number(a.order) > 0 ? Number(a.order) : 999999;
+            var ob = Number(b.order) > 0 ? Number(b.order) : 999999;
+            if (oa !== ob) return oa - ob;
+            var ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+            var tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+            return tb - ta;
+        });
+        
         localStorage.setItem('rander_cached_stories', JSON.stringify(storiesData));
         renderStories();
     }, (error) => {
