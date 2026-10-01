@@ -1690,16 +1690,21 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
         
         <!-- الشعار كزر لمعلومات التطبيق، وبجانبه زر الوضع الليلي -->
         <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
-    <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
-    <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
-</button>
-            <button class="btn" onclick="openSecretsWall()" style="margin-top:14px; padding:10px 22px; font-size:13px; border-radius:999px;">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      أسرار
+    <!-- زر عن التطبيق -->
+    <button onclick="openAppInfo()" title="عن التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px;">
+        <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
+        <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
     </button>
-            <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
-        </div>
+    
+    <!-- زر الوضع الليلي أولاً -->
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="الوضع الليلي">🌙</button>
+
+    <!-- زر أسرار بعد الوضع الليلي وبتصميم متناسق -->
+    <button class="cart-btn" onclick="openSecretsWall()" title="حائط الأسرار" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; padding: 8px 14px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span style="font-size: 13px; font-weight: 600;">أسرار</span>
+    </button>
+</div>
 
         <!-- الأزرار العلوية متساوية في المستوى تماماً -->
         <div style="display: flex; gap: 12px; align-items: center;">
