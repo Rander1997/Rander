@@ -1530,6 +1530,61 @@ button.btn[onclick*="sendOrder"]:hover {
 }
 
 
+/* زر المفضلة الاحترافي */
+#main-products-grid .product-card .fav-btn {
+    position: absolute !important;
+    top: 8px !important;
+    left: 8px !important;
+    right: auto !important;
+    width: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #64748b !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 3;
+    cursor: pointer;
+    transition: transform 0.2s ease !important;
+}
+#main-products-grid .product-card .fav-btn:hover {
+    transform: none !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+}
+#main-products-grid .product-card .fav-btn:active {
+    transform: scale(0.85) !important;
+}
+#main-products-grid .product-card .fav-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: fill 0.2s ease, stroke 0.2s ease;
+}
+#main-products-grid .product-card .fav-btn.active {
+    color: #ef4444 !important;
+}
+#main-products-grid .product-card .fav-btn.active svg {
+    fill: #ef4444;
+}
+#main-products-grid .product-card .fav-btn.pop svg {
+    animation: favPop 0.35s ease;
+}
+@keyframes favPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+        
         
 </style>
 
