@@ -1734,18 +1734,18 @@ header #cart-counter {
     <button id="scroll-top" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
 
     <header>
-    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; box-sizing: border-box;">
+    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
         
         <!-- القسم الأيمن: زر راندر Max وزر مشاركة -->
         <div style="display: flex; align-items: center; gap: 8px;">
             <!-- زر عن التطبيق (راندر Max) -->
-            <button onclick="openSettingsModal()" title="إعدادات التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px; flex-shrink: 0; border-radius: 8px;">
-                <div class="logo" style="margin: 0; color: inherit; line-height: 1.1;">رانـدر</div>
+            <button onclick="openSettingsModal()" title="إعدادات التطبيق" class="cart-btn" style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; cursor: pointer; padding: 6px 14px; flex-shrink: 0; border-radius: 8px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
+                <div class="logo" style="margin: 0; color: inherit; line-height: 1.1; font-weight: 700;">رانـدر</div>
                 <div style="font-size: 9px; font-weight: 800; letter-spacing: 3px; line-height: 1; margin-top: 2px; direction: ltr; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</div>
             </button>
 
-            <!-- زر مشاركة التطبيق (مكانه الجديد بجانب راندر) -->
-            <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 13px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;">
+            <!-- زر مشاركة التطبيق -->
+            <button class="cart-btn btn" onclick="shareApp()" title="مشاركة التطبيق" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; white-space: nowrap; flex-shrink: 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="url(#maxGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <defs>
                         <linearGradient id="maxGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1761,27 +1761,27 @@ header #cart-counter {
             </button>
         </div>
 
-        <!-- القسم الأيسر: زر أسرار وزر السلة في أقصى اليسار -->
+        <!-- القسم الأيسر: زر لمة Max وزر السلة -->
         <div style="display: flex; align-items: center; gap: 8px;">
             <!-- زر لمّـة Max -->
-<button class="cart-btn btn" onclick="openSecretsWall()" title="لمّـة Max" style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; padding: 6px 12px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;">
-    <span style="width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #a78bfa, #f472b6); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-            <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"/>
-            <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-            <path d="M17 10h2a2 2 0 0 1 2 2v1"/>
-            <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-            <path d="M3 13v-1a2 2 0 0 1 2 -2h2"/>
-        </svg>
-    </span>
-    <span style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
-        <span style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; font-weight: 700; line-height: 1.1;">لمّـة</span>
-        <span style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 9px; font-weight: 800; letter-spacing: 3px; direction: ltr; margin-top: 2px; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</span>
-    </span>
-</button>
+            <button class="cart-btn btn" onclick="openSecretsWall()" title="لمّـة Max" style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; padding: 6px 12px; border-radius: 8px; white-space: nowrap; flex-shrink: 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
+                <span style="width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #a78bfa, #f472b6); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                        <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"/>
+                        <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                        <path d="M17 10h2a2 2 0 0 1 2 2v1"/>
+                        <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                        <path d="M3 13v-1a2 2 0 0 1 2 -2h2"/>
+                    </svg>
+                </span>
+                <span style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
+                    <span style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 14px; font-weight: 700; line-height: 1.1;">لمّـة</span>
+                    <span style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 9px; font-weight: 800; letter-spacing: 3px; direction: ltr; margin-top: 2px; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</span>
+                </span>
+            </button>
 
-            <!-- زر السلة (في أقصى اليسار مع أيقونة بتدرج ألوان Max) -->
+            <!-- زر السلة -->
             <button class="cart-btn btn" id="cart-counter" onclick="
                 var modal = document.getElementById('cart-modal') || document.getElementById('cartModal') || document.getElementById('cart-sidebar');
                 if(modal) {
@@ -1791,7 +1791,7 @@ header #cart-counter {
                 if(typeof renderCartModal === 'function') {
                     renderCartModal();
                 }
-            " style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 13px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;">
+            " style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; white-space: nowrap; flex-shrink: 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="url(#maxGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="9" cy="21" r="1"></circle>
                     <circle cx="20" cy="21" r="1"></circle>
