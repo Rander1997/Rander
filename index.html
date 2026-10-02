@@ -27,7 +27,8 @@
       firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-  const messaging = firebase.messaging();
+  let messaging = null;
+try { if (firebase.messaging.isSupported()) messaging = firebase.messaging(); } catch (e) {}
 </script>
 
         <!-- عنوان المتجر الشامل الذي يظهر في جوجل -->
