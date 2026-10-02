@@ -4746,10 +4746,7 @@ function share(text) {
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var ov = $('secrets-overlay');
     var hd = ov.querySelector('.sx-header');
-    hd.querySelector('h2').textContent = 'لمة ماكس';
     hd.lastElementChild.outerHTML = '<div style="display:flex;gap:2px"><button class="sx-btn sx-icon" id="sx-admin-btn" data-sx="admin" style="display:none" aria-label="الإدارة">' + ic('shield') + '</button><button class="sx-btn sx-icon" id="sx-dm-btn" data-sx="dm" aria-label="الرسائل">' + ic('send') + '<span class="sx-badge" id="sx-dmbadge"></span></button></div>';
-    var sb = document.querySelector('[onclick="openSecretsWall()"]');
-    if (sb) { var sp = sb.querySelector('span'); if (sp) sp.textContent = 'لمة ماكس'; sb.title = 'لمة ماكس'; }
     ov.insertAdjacentHTML('beforeend',
         '<input type="file" id="sx-imgs" accept="image/*" multiple style="display:none">' +
         '<div class="sx-modal" id="sx-editpost" data-sx="backdrop"><div class="sx-box"><button class="sx-btn sx-icon sx-x" data-sx="x-editpost" aria-label="إغلاق">' + ic('x') + '</button><h3>تعديل المنشور</h3>' +
