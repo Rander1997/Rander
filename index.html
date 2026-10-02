@@ -4647,7 +4647,14 @@ document.addEventListener("DOMContentLoaded", function() {
     
 </script>
 
-
+<script>
+window.addEventListener('error', function (e) {
+    var d = document.createElement('div');
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#b91c1c;color:#fff;padding:8px;font:12px monospace;direction:ltr;white-space:pre-wrap';
+    d.textContent = 'ERR: ' + e.message + ' @' + (e.lineno || '') + ':' + (e.colno || '');
+    document.body.appendChild(d);
+});
+</script>
 
     <script>
 (function () {
@@ -4746,7 +4753,7 @@ function share(text) {
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var ov = $('secrets-overlay');
     var hd = ov.querySelector('.sx-header');
-    hd.querySelector('h2').textContent = 'لمة ماكس';
+    hd.querySelector('h2').textContent = 'لمّـة Max';
     hd.lastElementChild.outerHTML = '<div style="display:flex;gap:2px"><button class="sx-btn sx-icon" id="sx-admin-btn" data-sx="admin" style="display:none" aria-label="الإدارة">' + ic('shield') + '</button><button class="sx-btn sx-icon" id="sx-dm-btn" data-sx="dm" aria-label="الرسائل">' + ic('send') + '<span class="sx-badge" id="sx-dmbadge"></span></button></div>';
     ov.insertAdjacentHTML('beforeend',
         '<input type="file" id="sx-imgs" accept="image/*" multiple style="display:none">' +
