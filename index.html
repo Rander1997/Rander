@@ -5733,10 +5733,221 @@ $('secrets-overlay').addEventListener('scroll', function (e) {
     var dots = car.nextElementSibling; if (dots && dots.classList.contains('sx-dots')) Array.prototype.forEach.call(dots.children, function (d, i) { d.classList.toggle('on', i === idx); });
 }, true);
 
+window.lmScan = scan; window.lmCompress = compress; window.lmBan = banMe;
+    
 render();
 })();
 </script>
 
+
+
+    <script>
+/* LM-STORIES */
+(function () {
+'use strict';
+var fs = firebase.firestore(), au = firebase.auth(), FV = firebase.firestore.FieldValue, TS = firebase.firestore.Timestamp, FP = firebase.firestore.FieldPath;
+var DAY = 864e5, DUR = 5000;
+var groups = [], cache = null, cacheAt = 0, seen = {}, UCs = {};
+var open = false, skipPop = false, gi = 0, si = 0, timer = null, paused = false, elapsed = 0, pressAt = 0, panel = false;
+try { seen = JSON.parse(localStorage.getItem('lm_seen') || '{}'); } catch (e) {}
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function ms(t) { return t && t.toMillis ? t.toMillis() : Date.now(); }
+function toast(t) { if (window.showToast) window.showToast(t); else alert(t); }
+function ago(t) { var m = Math.floor((Date.now() - ms(t)) / 6e4); return m < 1 ? 'الآن' : m < 60 ? 'منذ ' + m + ' د' : 'منذ ' + Math.floor(m / 60) + ' س'; }
+function avOf(u) {
+    if (u && u.avatar) return u.avatar;
+    var c = u && u.gender === 'female' ? ['#f472b6', '#a855f7'] : ['#38bdf8', '#6366f1'], ch = String((u && u.displayName) || '?').trim().charAt(0) || '?';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="50" dy=".35em" text-anchor="middle" font-size="46" font-family="sans-serif" font-weight="700" fill="#fff">' + esc(ch) + '</text></svg>');
+}
+async function users(ids) {
+    var need = ids.filter(function (i, k) { return i && !UCs[i] && ids.indexOf(i) === k; });
+    for (var k = 0; k < need.length; k += 10) {
+        var s = await fs.collection('users').where(FP.documentId(), 'in', need.slice(k, k + 10)).get();
+        s.forEach(function (d) { var u = d.data(); u.id = d.id; UCs[d.id] = u; });
+    }
+}
+
+/* ---------- الواجهة ---------- */
+var st = document.createElement('style');
+st.textContent = '.lms-bar{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;margin-bottom:6px;scrollbar-width:none}.lms-bar::-webkit-scrollbar{display:none}' +
+    '.lms-item{flex:0 0 68px;text-align:center;cursor:pointer;position:relative}.lms-item span.n{display:block;font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary)}' +
+    '.lms-ring{width:64px;height:64px;border-radius:50%;padding:3px;background:linear-gradient(45deg,#f59e0b,#ef4444,#a855f7);margin:0 auto}.lms-ring.seen{background:#94a3b8}.lms-ring.none{background:transparent;border:2px dashed #94a3b8;padding:2px}' +
+    '.lms-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--bg-primary);display:block}' +
+    '.lms-plus{position:absolute;top:44px;left:2px;width:22px;height:22px;border-radius:50%;background:#6366f1;color:#fff;font-size:16px;line-height:20px;border:2px solid var(--bg-primary)}' +
+    '#lms-v{position:fixed;inset:0;z-index:100050;background:#000;display:none;align-items:center;justify-content:center;direction:rtl;touch-action:manipulation;user-select:none;-webkit-user-select:none}#lms-v.on{display:flex}' +
+    '.lms-box{position:relative;width:100%;max-width:440px;height:100%;max-height:100dvh;background:#000;overflow:hidden}.lms-box>img{width:100%;height:100%;object-fit:contain;display:block}' +
+    '.lms-prog{position:absolute;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;display:flex;gap:4px;z-index:3}.lms-prog i{flex:1;height:3px;background:rgba(255,255,255,.35);border-radius:2px;overflow:hidden;display:block}.lms-prog b{display:block;height:100%;width:0;background:#fff}' +
+    '.lms-head{position:absolute;top:calc(20px + env(safe-area-inset-top));left:10px;right:10px;display:flex;align-items:center;gap:8px;color:#fff;z-index:3;text-shadow:0 1px 4px #000;font-size:14px}.lms-head img{width:34px;height:34px;border-radius:50%;object-fit:cover}.lms-head .sp{flex:1}.lms-head .ic{font-size:22px;padding:4px 8px;cursor:pointer}' +
+    '.lms-foot{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#fff;z-index:3;font-size:14px;text-shadow:0 1px 4px #000}.lms-foot span{cursor:pointer;background:rgba(0,0,0,.5);padding:8px 16px;border-radius:20px}' +
+    '.lms-pan{position:absolute;left:0;right:0;bottom:0;max-height:60%;overflow:auto;background:#1e1e1e;color:#fff;border-radius:18px 18px 0 0;padding:14px;z-index:5;display:none}.lms-pan.on{display:block}.lms-pan .r{display:flex;align-items:center;gap:10px;padding:8px 0}.lms-pan img{width:36px;height:36px;border-radius:50%;object-fit:cover}';
+document.head.appendChild(st);
+var v = document.createElement('div'); v.id = 'lms-v';
+v.innerHTML = '<div class="lms-box" id="lms-box"><div class="lms-prog" id="lms-prog"></div><div class="lms-head" id="lms-head"></div><img id="lms-img" alt=""><div class="lms-foot" id="lms-foot"></div><div class="lms-pan" id="lms-pan"></div></div>';
+document.body.appendChild(v);
+var fi = document.createElement('input'); fi.type = 'file'; fi.accept = 'image/*'; fi.style.display = 'none'; document.body.appendChild(fi);
+
+/* ---------- تحميل القصص ---------- */
+async function load(force) {
+    var u = au.currentUser; if (!u) return [];
+    if (!force && cache && Date.now() - cacheAt < 60000) return cache;
+    var f = await fs.collection('follows').where('follower', '==', u.uid).limit(300).get(), ids = [u.uid], qs = [];
+    f.forEach(function (d) { ids.push(d.data().following); });
+    for (var i = 0; i < ids.length; i += 30) qs.push(fs.collection('lmstories').where('authorUid', 'in', ids.slice(i, i + 30)).limit(100).get());
+    var snaps = await Promise.all(qs), by = {}, now = Date.now();
+    snaps.forEach(function (s) { s.forEach(function (d) {
+        var x = d.data(); x.id = d.id; if (!x.expireAt || x.expireAt.toMillis() <= now) return;
+        (by[x.authorUid] = by[x.authorUid] || []).push(x);
+    }); });
+    var bs = await fs.collection('bans').limit(500).get(), bn = {}; bs.forEach(function (d) { bn[d.id] = 1; });
+    var uids = Object.keys(by).filter(function (k) { return !bn[k]; });
+    await users(uids.concat([u.uid]));
+    var out = uids.map(function (k) {
+        var it = by[k].sort(function (a, b) { return ms(a.createdAt) - ms(b.createdAt); });
+        return { uid: k, items: it, last: ms(it[it.length - 1].createdAt) };
+    });
+    cache = out; cacheAt = Date.now(); return out;
+}
+function unseen(g) { return g.items.some(function (s) { return !seen[s.id]; }); }
+function order(list, me) {
+    return list.slice().sort(function (a, b) {
+        if (a.uid === me) return -1; if (b.uid === me) return 1;
+        var ua = unseen(a), ub = unseen(b); if (ua !== ub) return ua ? -1 : 1;
+        return b.last - a.last;
+    });
+}
+async function fillBar(bar) {
+    var u = au.currentUser; if (!u) return;
+    try {
+        groups = order(await load(), u.uid);
+        var mine = groups.filter(function (g) { return g.uid === u.uid; })[0], mu = UCs[u.uid] || {};
+        var h = '<div class="lms-item" data-own="1"><div class="lms-ring ' + (mine ? (unseen(mine) ? '' : 'seen') : 'none') + '"><img src="' + esc(avOf(mu)) + '" alt=""></div>' + (mine ? '' : '') + '<div class="lms-plus" data-add="1">+</div><span class="n">قصتك</span></div>';
+        groups.forEach(function (g, i) {
+            if (g.uid === u.uid) return;
+            var x = UCs[g.uid] || {};
+            h += '<div class="lms-item" data-g="' + i + '"><div class="lms-ring ' + (unseen(g) ? '' : 'seen') + '"><img src="' + esc(avOf(x)) + '" alt=""></div><span class="n">' + esc(x.displayName || 'مستخدم') + '</span></div>';
+        });
+        if (document.body.contains(bar)) bar.innerHTML = h;
+    } catch (e) { console.error(e); bar.style.display = 'none'; }
+}
+
+/* ---------- حقن الشريط في الرئيسية ---------- */
+var view = $('sx-view'), busyInject = false;
+function inject() {
+    if (busyInject || !au.currentUser) return;
+    var on = document.querySelector('#sx-bar .on[data-tab="feed"]');
+    if (!on || !view || view.querySelector('.lms-bar') || view.querySelector('.sx-skel') || !view.children.length) return;
+    busyInject = true;
+    var bar = document.createElement('div'); bar.className = 'lms-bar'; view.insertBefore(bar, view.firstChild);
+    fillBar(bar).then(function () { busyInject = false; }, function () { busyInject = false; });
+}
+if (view) new MutationObserver(inject).observe(view, { childList: true });
+au.onAuthStateChanged(function () { cache = null; setTimeout(inject, 600); });
+
+document.addEventListener('click', function (e) {
+    var bar = e.target.closest('.lms-bar'); if (!bar) return;
+    var it = e.target.closest('.lms-item'); if (!it) return;
+    var me = au.currentUser; if (!me) return;
+    if (e.target.closest('[data-add]')) { fi.click(); return; }
+    if (it.getAttribute('data-own')) {
+        var idx = groups.findIndex(function (g) { return g.uid === me.uid; });
+        if (idx > -1) openViewer(idx); else fi.click();
+        return;
+    }
+    openViewer(+it.getAttribute('data-g'));
+});
+
+/* ---------- إضافة قصة ---------- */
+fi.addEventListener('change', async function () {
+    var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
+    var me = au.currentUser; if (!me) return;
+    if (!window.lmCompress || !window.lmScan) return toast('أعد تحميل الصفحة');
+    try {
+        var b = await fs.collection('bans').doc(me.uid).get(); if (b.exists) return toast('حسابك محظور');
+        toast('جارٍ تجهيز القصة...');
+        var d = await window.lmCompress(f, 150000, 1080, false), r = await window.lmScan([d]);
+        if (r === true) { await window.lmBan('story'); return; }
+        await fs.collection('lmstories').add({ authorUid: me.uid, image: d, unscanned: r === null, viewers: [], viewsCount: 0,
+            createdAt: FV.serverTimestamp(), expireAt: TS.fromMillis(Date.now() + DAY) });
+        cache = null; toast('تمت إضافة قصتك');
+        var bar = view && view.querySelector('.lms-bar'); if (bar) fillBar(bar);
+    } catch (e) { console.error(e); toast('تعذّر نشر القصة: ' + (e.code || 'خطأ')); }
+});
+
+/* ---------- العارض ---------- */
+function openViewer(i) {
+    if (!groups[i]) return;
+    gi = i; si = 0;
+    var g = groups[gi], k = g.items.findIndex(function (s) { return !seen[s.id]; }); if (k > 0) si = k;
+    open = true; v.classList.add('on'); history.pushState({ lms: 1 }, ''); show();
+}
+function hideV() { open = false; clearInterval(timer); v.classList.remove('on'); $('lms-pan').classList.remove('on'); panel = false; $('lms-img').removeAttribute('src');
+    var bar = view && view.querySelector('.lms-bar'); if (bar) { groups = order(groups, au.currentUser.uid); fillBar(bar); } }
+function closeV() { if (!open) return; hideV(); skipPop = true; history.back(); }
+var oldBack = window.sxHandleBack;
+window.sxHandleBack = function () {
+    if (skipPop) { skipPop = false; return true; }
+    if (open) { hideV(); return true; }
+    return oldBack ? oldBack() : false;
+};
+function show() {
+    var g = groups[gi]; if (!g) return closeV();
+    var s = g.items[si]; if (!s) return next();
+    var me = au.currentUser, own = g.uid === me.uid, u = UCs[g.uid] || {};
+    $('lms-img').src = s.image;
+    $('lms-prog').innerHTML = g.items.map(function (_, i) { return '<i><b style="width:' + (i < si ? 100 : 0) + '%"></b></i>'; }).join('');
+    $('lms-head').innerHTML = '<img src="' + esc(avOf(u)) + '" alt=""><b>' + esc(u.displayName || 'مستخدم') + '</b><small>' + ago(s.createdAt) + '</small><span class="sp"></span>' +
+        (own ? '<span class="ic" id="lms-del">🗑</span>' : '') + '<span class="ic" id="lms-x">✕</span>';
+    $('lms-foot').innerHTML = own ? '<span id="lms-views">👁 ' + (s.viewsCount || 0) + ' مشاهدة</span>' : '';
+    $('lms-pan').classList.remove('on'); panel = false;
+    seen[s.id] = 1; try { localStorage.setItem('lm_seen', JSON.stringify(seen)); } catch (e) {}
+    if (!own && (s.viewers || []).indexOf(me.uid) < 0) {
+        s.viewers = (s.viewers || []).concat(me.uid);
+        fs.collection('lmstories').doc(s.id).update({ viewers: FV.arrayUnion(me.uid), viewsCount: FV.increment(1) }).catch(function () {});
+    }
+    elapsed = 0; paused = false; clearInterval(timer);
+    timer = setInterval(function () {
+        if (paused || panel) return;
+        elapsed += 50;
+        var b = $('lms-prog').children[si]; if (b) b.firstChild.style.width = Math.min(100, elapsed / DUR * 100) + '%';
+        if (elapsed >= DUR) next();
+    }, 50);
+}
+function next() { var g = groups[gi]; if (si < g.items.length - 1) { si++; show(); } else if (gi < groups.length - 1) { gi++; si = 0; show(); } else closeV(); }
+function prev() { if (si > 0) { si--; show(); } else if (gi > 0) { gi--; si = 0; show(); } else show(); }
+
+var box = $('lms-box');
+box.addEventListener('pointerdown', function (e) { if (e.target.closest('.lms-pan,.ic,#lms-views')) return; paused = true; pressAt = Date.now(); });
+box.addEventListener('pointerup', function (e) {
+    if (e.target.closest('.lms-pan,.ic,#lms-views')) return;
+    paused = false; if (Date.now() - pressAt > 250) return;
+    var r = box.getBoundingClientRect(), x = e.clientX - r.left;
+    if (x < r.width / 2) next(); else prev();
+});
+box.addEventListener('click', async function (e) {
+    var t = e.target; if (!t.id) return;
+    if (t.id === 'lms-x') return closeV();
+    if (t.id === 'lms-del') {
+        if (!confirm('حذف هذه القصة؟')) return;
+        var g = groups[gi], s = g.items[si];
+        try {
+            await fs.collection('lmstories').doc(s.id).delete();
+            g.items.splice(si, 1); cache = null; toast('تم الحذف');
+            if (!g.items.length) { groups.splice(gi, 1); closeV(); } else { if (si >= g.items.length) si = g.items.length - 1; show(); }
+        } catch (er) { console.error(er); toast('تعذّر الحذف'); }
+    }
+    if (t.id === 'lms-views') {
+        var s2 = groups[gi].items[si], ids = (s2.viewers || []).slice(0, 100), p = $('lms-pan');
+        panel = true; p.classList.add('on'); p.innerHTML = '<b>المشاهدون (' + (s2.viewsCount || 0) + ')</b>';
+        if (!ids.length) { p.innerHTML += '<p style="opacity:.7">لا مشاهدات بعد</p>'; return; }
+        await users(ids);
+        p.innerHTML = '<b>المشاهدون (' + (s2.viewsCount || 0) + ')</b>' + ids.map(function (i) { var x = UCs[i] || {}; return '<div class="r"><img src="' + esc(avOf(x)) + '" alt=""><div><b>' + esc(x.displayName || 'مستخدم') + '</b><br><small>@' + esc(x.username || '') + '</small></div></div>'; }).join('');
+    }
+});
+v.addEventListener('click', function (e) { if (panel && !e.target.closest('.lms-pan') && e.target.id !== 'lms-views') { panel = false; $('lms-pan').classList.remove('on'); } });
+})();
+</script>
 
 
 
