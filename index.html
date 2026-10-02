@@ -4654,12 +4654,17 @@ document.addEventListener("DOMContentLoaded", function() {
 'use strict';
 var fs = firebase.firestore(), au = firebase.auth(), FV = firebase.firestore.FieldValue, FP = firebase.firestore.FieldPath, TS = firebase.firestore.Timestamp;
 au.languageCode = 'ar';
+var ADMIN_UID = 'ضع_UID_حساب_لمة_ماكس_هنا';
 var PAGE = 8, KEEP_DAYS = 90;
-var me = null, following = [], bans = {}, bansAt = 0, UC = {}, PC = {}, CM = {};
-var tab = 'feed', feedPage = 1, feedMore = false, rt = 0, explorePage = 1;
-var curPost = null, replyTo = null, unsubCm = null, unsubN = null, notifs = [], editId = null, dt = { id: '', t: 0 };
-var layers = [], pending = [], locks = {}, last = { post: 0, cm: 0 }, registering = false, nsfwP = null, searchT = null;
+var me = null, following = [], bans = {}, bansAt = 0, blocked = {}, saved = {}, UC = {}, PC = {}, CM = {};
+var tab = 'feed', feedPage = 1, feedMore = false, rt = 0, explorePage = 1, pool = [], poolAt = 0, sugCache = null;
+var curPost = null, replyTo = null, unsubCm = null, unsubN = null, unsubC = null, unsubM = null, notifs = [], chats = [], editId = null, dt = { id: '', t: 0 }, curChat = null;
+var layers = [], pending = [], locks = {}, last = { post: 0, cm: 0, msg: 0 }, registering = false, nsfwP = null, searchT = null;
+var AFF = {}, TAGS = {};
+try { AFF = JSON.parse(localStorage.getItem('lm_aff') || '{}'); TAGS = JSON.parse(localStorage.getItem('lm_tags') || '{}'); } catch (e) {}
+function isAdmin() { return !!me && me.uid === ADMIN_UID; }
 
+/* ===== أدوات ===== */
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function toast(t) { if (window.showToast) window.showToast(t); else alert(t); }
@@ -4681,11 +4686,32 @@ var IC = {
     flag: '<path d="M4 22V4h12l-2 4 2 4H4"/>',
     x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
     img: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
-    multi: '<rect x="7" y="7" width="14" height="14" rx="2"/><path d="M3 17V5a2 2 0 0 1 2-2h12"/>'
+    multi: '<rect x="7" y="7" width="14" height="14" rx="2"/><path d="M3 17V5a2 2 0 0 1 2-2h12"/>',
+    send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    mark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+    share: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',
+    grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+    more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+    back: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>'
 };
 function ic(n) { return '<svg viewBox="0 0 24 24">' + IC[n] + '</svg>'; }
 function vb(u) { return u && u.verified === true ? '<svg class="sx-vb" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="none"/><path d="M8 12.5l2.8 2.8L16 9.5"/></svg>' : ''; }
+function rich(t) {
+    return esc(t).replace(/(^|\s)#([\p{L}\p{N}_]{2,30})/gu, '$1<span class="sx-tag" data-sx="tag" data-t="$2">#$2</span>')
+        .replace(/(^|\s)@([a-z0-9_.]{3,20})/g, '$1<span class="sx-tag" data-sx="mention" data-un="$2">@$2</span>');
+}
+function tagsOf(t) {
+    var m = String(t || '').match(/#[\p{L}\p{N}_]{2,30}/gu) || [];
+    return m.map(function (x) { return x.slice(1).toLowerCase(); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).slice(0, 10);
+}
+function share(text) {
+    var url = location.origin + location.pathname;
+    if (navigator.share) navigator.share({ title: 'لمة ماكس', text: text, url: url }).catch(function () {});
+    else { try { navigator.clipboard.writeText(text + ' ' + url); } catch (e) {} toast('تم نسخ الرابط'); }
+}
 
+/* ===== حقن الواجهة ===== */
 (function inject() {
     var css = '#secrets-overlay svg.sx-vb{width:15px;height:15px;fill:#3b82f6;stroke:#fff;stroke-width:2.6;margin:0 3px;vertical-align:-3px;display:inline-block}' +
         '#secrets-overlay .sx-post{border-radius:0;border-left:0;border-right:0;border-top:0;background:var(--bg-primary);margin-bottom:6px}' +
@@ -4698,17 +4724,43 @@ function vb(u) { return u && u.verified === true ? '<svg class="sx-vb" viewBox="
         '.sx-pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px}.sx-pgrid div{position:relative;aspect-ratio:1}.sx-pgrid img{width:100%;height:100%;object-fit:cover;border-radius:12px}' +
         '#secrets-overlay .sx-pgrid button{position:absolute;top:6px;left:6px;width:26px;height:26px;padding:0;border-radius:50%;background:rgba(0,0,0,.65)!important;color:#fff!important}.sx-pgrid button svg{width:14px;height:14px}' +
         '.sx-tile .sx-mi{position:absolute;top:6px;right:6px;color:#fff}#secrets-overlay .sx-tile svg{width:18px;height:18px;filter:drop-shadow(0 0 2px #000)}' +
-        '.sx-grid.wide{gap:2px}.sx-adm{display:inline-block;font-size:11px;background:rgba(59,130,246,.15);color:#3b82f6;border-radius:10px;padding:1px 8px;margin-top:4px}';
+        '.sx-grid.wide{gap:2px}.sx-adm{display:inline-block;font-size:11px;background:rgba(59,130,246,.15);color:#3b82f6;border-radius:10px;padding:1px 8px;margin-top:4px}' +
+        '.sx-tag{color:#6366f1;font-weight:700;cursor:pointer}.sx-tap{cursor:pointer;display:block}' +
+        '#sx-dm-btn,#sx-admin-btn{position:relative}#sx-dmbadge{left:auto;right:0;margin:0;top:0}' +
+        '.sx-sugbox{background:var(--bg-card);border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);padding:12px 0;margin:6px -14px}' +
+        '.sx-sughd{display:flex;justify-content:space-between;padding:0 14px 10px;font-size:14px}.sx-sughd span{color:#6366f1;cursor:pointer;font-weight:700}' +
+        '.sx-sugrow{display:flex;gap:10px;overflow-x:auto;padding:0 14px;scrollbar-width:none}.sx-sugrow::-webkit-scrollbar{display:none}' +
+        '.sx-scard{flex:0 0 150px;text-align:center;border:1px solid var(--border-color);border-radius:14px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px}' +
+        '.sx-scard b{font-size:13px}.sx-scard>div>span{font-size:11px;color:var(--text-secondary);display:block}.sx-scard .sx-av{margin:0 auto 6px}' +
+        '.sx-ptabs{display:flex;border-top:1px solid var(--border-color);margin-top:14px}' +
+        '#secrets-overlay button.sx-pt{flex:1;border-radius:0;color:var(--text-secondary)!important;border-top:2px solid transparent!important}' +
+        '#secrets-overlay button.sx-pt.on{color:var(--text-primary)!important;border-top-color:var(--text-primary)!important}' +
+        '.sx-prow{display:flex;gap:6px;margin-top:10px}.sx-prow .sx-btn{flex:1}' +
+        '.sx-msgs{display:flex;flex-direction:column;padding-bottom:6px}' +
+        '.sx-msg{max-width:78%;padding:8px 12px;border-radius:18px;margin:3px 0;font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word}' +
+        '.sx-msg small{display:block;opacity:.7;font-size:10px;margin-top:2px}' +
+        '.sx-msg.me{align-self:flex-start;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff}' +
+        '.sx-msg.th{align-self:flex-end;background:var(--bg-card);border:1px solid var(--border-color)}' +
+        '.sx-dot{width:10px;height:10px;border-radius:50%;background:#6366f1;flex-shrink:0}' +
+        '.sx-ab{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}#secrets-overlay .sx-ab button{padding:5px 10px;font-size:12px;border:1px solid var(--border-color)!important}';
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var ov = $('secrets-overlay');
+    var hd = ov.querySelector('.sx-header');
+    hd.querySelector('h2').textContent = 'لمة ماكس';
+    hd.lastElementChild.outerHTML = '<div style="display:flex;gap:2px"><button class="sx-btn sx-icon" id="sx-admin-btn" data-sx="admin" style="display:none" aria-label="الإدارة">' + ic('shield') + '</button><button class="sx-btn sx-icon" id="sx-dm-btn" data-sx="dm" aria-label="الرسائل">' + ic('send') + '<span class="sx-badge" id="sx-dmbadge"></span></button></div>';
+    var sb = document.querySelector('[onclick="openSecretsWall()"]');
+    if (sb) { var sp = sb.querySelector('span'); if (sp) sp.textContent = 'لمة ماكس'; sb.title = 'لمة ماكس'; }
     ov.insertAdjacentHTML('beforeend',
         '<input type="file" id="sx-imgs" accept="image/*" multiple style="display:none">' +
-        '<div class="sx-modal" id="sx-editpost" data-sx="backdrop"><div class="sx-box">' +
-        '<button class="sx-btn sx-icon sx-x" data-sx="x-editpost" aria-label="إغلاق">' + ic('x') + '</button><h3>تعديل المنشور</h3>' +
-        '<div class="sx-field"><textarea id="sx-ep-text" rows="4" maxlength="500"></textarea></div><div class="sx-err" id="sx-ep-err"></div>' +
-        '<button class="sx-btn sx-primary" data-sx="save-post" style="width:100%">حفظ</button></div></div>');
+        '<div class="sx-modal" id="sx-editpost" data-sx="backdrop"><div class="sx-box"><button class="sx-btn sx-icon sx-x" data-sx="x-editpost" aria-label="إغلاق">' + ic('x') + '</button><h3>تعديل المنشور</h3>' +
+        '<div class="sx-field"><textarea id="sx-ep-text" rows="4" maxlength="500"></textarea></div><div class="sx-err" id="sx-ep-err"></div><button class="sx-btn sx-primary" data-sx="save-post" style="width:100%">حفظ</button></div></div>' +
+        '<div class="sx-uview" id="sx-dm"><div class="sx-header"><button class="sx-btn sx-icon" data-sx="x-dm" aria-label="رجوع">' + ic('back') + '</button><h2>الرسائل</h2><span style="width:40px"></span></div><div class="sx-scroll"><div class="sx-wrap" id="sx-dm-body"></div></div></div>' +
+        '<div class="sx-uview" id="sx-chat"><div class="sx-header"><button class="sx-btn sx-icon" data-sx="x-chat" aria-label="رجوع">' + ic('back') + '</button><div class="sx-ulink" id="sx-chat-head" style="justify-content:center"></div><span style="width:40px"></span></div>' +
+        '<div class="sx-scroll" id="sx-chat-scroll"><div class="sx-wrap" id="sx-chat-body"></div></div><div class="sx-cm-form" id="sx-chat-form"></div></div>' +
+        '<div class="sx-uview" id="sx-admin"><div class="sx-header"><button class="sx-btn sx-icon" data-sx="x-admin" aria-label="رجوع">' + ic('back') + '</button><h2>لوحة الإدارة</h2><span style="width:40px"></span></div><div class="sx-scroll"><div class="sx-wrap" id="sx-admin-body"></div></div></div>');
 })();
 
+/* ===== فلتر الألفاظ ===== */
 var BAD = ['كس','زب','عير','نيك','ناك','عرص','طيز','خرا','قحبه','لبوه','فاجره','عاهره','ديوث','كواد','قواد','معرص','شرموط','شرموطه','منيوك','fuck','shit','bitch','dick','cunt','whore','slut','pussy','bastard','asshole','nigger'];
 var PH = ['ابن الكلب','يا كلب','ابن الحرام','ابن الزنا','ابن القحبه','يلعن ابوك','يلعن دينك'];
 var STEM = ['كسمك','كسخت','كسام','كسك','شرموط','منيوك','منيك','قحب','عرصه','زانيه','عاهر','خنيث','fuck'];
@@ -4728,6 +4780,7 @@ function clean(t) {
     return true;
 }
 
+/* ===== فحص الصور ===== */
 var MODEL_SRCS = ['model/', 'https://cdn.jsdelivr.net/gh/infinitered/nsfwjs@2.4.2/example/nsfw_demo/public/model/'];
 function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
 function getNsfw() {
@@ -4741,7 +4794,6 @@ function getNsfw() {
     return nsfwP;
 }
 function loadImg(src) { return new Promise(function (res, rej) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = rej; i.src = src; }); }
-    
 async function scan(list) {
     var model; try { model = await getNsfw(); } catch (e) { console.error(e); return null; }
     try {
@@ -4771,12 +4823,10 @@ async function compress(file, maxChars, maxSide, square) {
 }
 async function banMe(reason) {
     try { await fs.collection('bans').doc(me.uid).set({ reason: reason, at: FV.serverTimestamp() }); } catch (e) { console.error(e); }
-    me.banned = true; bans[me.uid] = 1;
-    toast('تم حظر حسابك: محتوى غير مسموح');
-    render();
+    me.banned = true; bans[me.uid] = 1; toast('تم حظر حسابك: محتوى غير مسموح'); render();
 }
 
-
+/* ===== المستخدمون ===== */
 function defAv(n, g) {
     var c = g === 'female' ? ['#f472b6', '#a855f7'] : ['#38bdf8', '#6366f1'], ch = String(n || '?').trim().charAt(0) || '?';
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="50" dy=".35em" text-anchor="middle" font-size="46" font-family="sans-serif" font-weight="700" fill="#fff">' + esc(ch) + '</text></svg>';
@@ -4795,43 +4845,63 @@ async function ensureUsers(ids) {
         c.forEach(function (i) { if (!UC[i]) UC[i] = { id: i, displayName: 'مستخدم', username: '' }; });
     }
 }
-async function loadBans() {
-    if (Date.now() - bansAt < 60000) return;
+async function loadBans(force) {
+    if (!force && Date.now() - bansAt < 60000) return;
     var s = await fs.collection('bans').limit(500).get(); bans = {};
     s.forEach(function (d) { bans[d.id] = 1; }); bansAt = Date.now();
 }
 async function loadMe(u) {
     var r = await Promise.all([fs.collection('users').doc(u.uid).get(), fs.collection('bans').doc(u.uid).get(),
-        fs.collection('follows').where('follower', '==', u.uid).limit(500).get()]);
+        fs.collection('follows').where('follower', '==', u.uid).limit(500).get(),
+        fs.collection('saves').where('uid', '==', u.uid).limit(300).get(),
+        fs.collection('blocks').where('by', '==', u.uid).limit(200).get()]);
     var d = r[0].exists ? r[0].data() : {};
     d.id = u.uid; UC[u.uid] = d;
     me = { uid: u.uid, email: u.email, verified: true, banned: r[1].exists };
     if (me.banned) bans[u.uid] = 1;
     following = []; r[2].forEach(function (x) { following.push(x.data().following); });
-    startNotifs(); render();
+    saved = {}; r[3].forEach(function (x) { saved[x.data().postId] = 1; });
+    blocked = {}; r[4].forEach(function (x) { blocked[x.data().target] = 1; });
+    $('sx-admin-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
+    startNotifs(); startChats(); render();
 }
 function mu() { return UC[me.uid] || {}; }
 au.onAuthStateChanged(function (u) {
     if (registering) return;
-    if (!u) { me = null; following = []; stopNotifs(); render(); return; }
+    if (!u) { me = null; following = []; saved = {}; blocked = {}; stopNotifs(); stopChats(); $('sx-admin-btn').style.display = 'none'; render(); return; }
     loadMe(u).catch(function (e) { console.error(e); });
 });
 
-
-function hideLayer(n) {
-    if (n === 'wall') { $('secrets-overlay').classList.remove('open'); document.body.style.overflow = ''; }
-    else if (n === 'auth') $('sx-auth').classList.remove('show');
-    else if (n === 'edit') $('sx-edit').classList.remove('show');
-    else if (n === 'editpost') $('sx-editpost').classList.remove('show');
-    else if (n === 'list') $('sx-list').classList.remove('show');
-    else if (n === 'uview') $('sx-uview').classList.remove('show');
-    else if (n === 'post') {
-        $('sx-post').classList.remove('show');
-        if (unsubCm) { unsubCm(); unsubCm = null; }
-        curPost = null; replyTo = null; updReply();
-    }
+/* ===== الخوارزمية ===== */
+function bump(p, w) {
+    if (!p) return;
+    AFF[p.authorUid] = (AFF[p.authorUid] || 0) + w;
+    (p.tags || []).forEach(function (t) { TAGS[t] = (TAGS[t] || 0) + w; });
+    try { localStorage.setItem('lm_aff', JSON.stringify(AFF)); localStorage.setItem('lm_tags', JSON.stringify(TAGS)); } catch (e) {}
 }
-function pushLayer(n) { if (layers.indexOf(n) > -1) return; layers.push(n); history.pushState({ sx: n }, ''); }
+function score(p) {
+    var age = (Date.now() - ms(p.createdAt)) / 36e5;
+    var s = 10 / Math.pow(age + 2, 0.8) + Math.log(1 + (p.likesCount || 0) + 2 * (p.commentsCount || 0));
+    s += Math.min(6, AFF[p.authorUid] || 0) * 0.8;
+    (p.tags || []).forEach(function (t) { s += Math.min(4, TAGS[t] || 0) * 0.5; });
+    if (following.indexOf(p.authorUid) > -1) s += 3;
+    if (me && p.authorUid === me.uid) s -= 1.5;
+    return s;
+}
+
+/* ===== الطبقات وزر الرجوع ===== */
+var LAYER_EL = { auth: 'sx-auth', edit: 'sx-edit', editpost: 'sx-editpost', list: 'sx-list', uview: 'sx-uview', post: 'sx-post', dm: 'sx-dm', chat: 'sx-chat', admin: 'sx-admin' };
+function hideLayer(n) {
+    if (n === 'wall') { $('secrets-overlay').classList.remove('open'); document.body.style.overflow = ''; return; }
+    var el = $(LAYER_EL[n]); if (el) el.classList.remove('show');
+    if (n === 'post') { if (unsubCm) { unsubCm(); unsubCm = null; } curPost = null; replyTo = null; updReply(); }
+    if (n === 'chat') { if (unsubM) { unsubM(); unsubM = null; } curChat = null; }
+}
+function pushLayer(n) {
+    if (layers.indexOf(n) > -1) return;
+    layers.push(n); history.pushState({ sx: n }, '');
+    var el = $(LAYER_EL[n]); if (el) el.style.zIndex = 10 + layers.length;
+}
 function closeLayer(n) {
     var i = layers.indexOf(n); if (i < 0) return;
     if (i === layers.length - 1) history.back(); else { layers.splice(i, 1); hideLayer(n); }
@@ -4841,7 +4911,7 @@ window.openSecretsWall = function () {
     $('secrets-overlay').classList.add('open'); document.body.style.overflow = 'hidden'; pushLayer('wall'); render();
 };
 
-
+/* ===== التبويبات ===== */
 function render() {
     var tk = ++rt;
     document.querySelectorAll('#sx-bar [data-tab]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
@@ -4857,56 +4927,66 @@ function errBox(e) {
     var m = String(e && e.message || e), link = (m.match(/https:\/\/console\.firebase[^\s]+/) || [])[0];
     return '<div class="sx-warn">تعذّر التحميل.' + (link ? '<br>يلزم إنشاء فهرس لمرة واحدة: <a href="' + esc(link) + '" target="_blank" style="color:inherit;text-decoration:underline">اضغط هنا ثم Create index</a> وانتظر دقيقة ثم أعد المحاولة.' : '<br>تأكد من قواعد Firestore.') + '</div>';
 }
-function okPost(p) { return !bans[p.authorUid] && (p.reportedBy || []).length < 3 && alive(p); }
+function okPost(p) { return !bans[p.authorUid] && !blocked[p.authorUid] && (p.reportedBy || []).length < 3 && alive(p); }
 
-
+/* ===== الرئيسية ===== */
+async function loadPool() {
+    var ids = [me.uid].concat(following), qs = [];
+    for (var i = 0; i < ids.length; i += 30) qs.push(fs.collection('posts').where('authorUid', 'in', ids.slice(i, i + 30)).orderBy('createdAt', 'desc').limit(30).get());
+    qs.push(fs.collection('posts').orderBy('createdAt', 'desc').limit(40).get());
+    var snaps = await Promise.all(qs), seen = {}, out = [];
+    snaps.forEach(function (s) { s.forEach(function (d) { if (seen[d.id]) return; seen[d.id] = 1; var p = d.data(); p.id = d.id; out.push(p); }); });
+    pool = out; poolAt = Date.now();
+}
 async function fetchFeed() {
-    var ids = [me.uid].concat(following), per = PAGE * feedPage, items = [], chunks = [];
-    for (var i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
-    var snaps = await Promise.all(chunks.map(function (c) { return fs.collection('posts').where('authorUid', 'in', c).orderBy('createdAt', 'desc').limit(per).get(); }));
-    snaps.forEach(function (s) { s.forEach(function (d) { var p = d.data(); p.id = d.id; items.push(p); }); });
-    items.sort(function (a, b) { return ms(b.createdAt) - ms(a.createdAt); });
-    feedMore = items.length > per;
-    items = items.slice(0, per).filter(okPost);
+    if (feedPage === 1 || Date.now() - poolAt > 120000) await loadPool();
+    var items = pool.filter(okPost);
+    items.forEach(function (p) { p._s = score(p); });
+    items.sort(function (a, b) { return b._s - a._s; });
+    var per = PAGE * feedPage; feedMore = items.length > per; items = items.slice(0, per);
     items.forEach(function (p) { PC[p.id] = p; });
     await ensureUsers(items.map(function (p) { return p.authorUid; }));
     return items;
 }
-async function fetchExplore(n, onlyStrangers) {
-    var s = await fs.collection('posts').orderBy('createdAt', 'desc').limit(n * 3).get(), out = [];
-    s.forEach(function (d) {
-        var p = d.data(); p.id = d.id;
-        if (!okPost(p) || !(p.images && p.images.length)) return;
-        if (onlyStrangers && me && (p.authorUid === me.uid || following.indexOf(p.authorUid) > -1)) return;
-        PC[p.id] = p; out.push(p);
-    });
-    out = out.slice(0, n);
-    await ensureUsers(out.map(function (p) { return p.authorUid; }));
-    return out;
+async function suggestions(n) {
+    await loadBans();
+    if (!sugCache) {
+        var s = await fs.collection('users').orderBy('followersCount', 'desc').limit(60).get(); sugCache = [];
+        s.forEach(function (d) { var u = d.data(); u.id = d.id; UC[u.id] = u; sugCache.push(u); });
+    }
+    var l = sugCache.filter(function (u) { return !(me && u.id === me.uid) && following.indexOf(u.id) < 0 && !bans[u.id] && !blocked[u.id] && u.username; })
+        .map(function (u) { return { u: u, k: (u.verified ? 20 : 0) + (u.followersCount || 0) + Math.random() * 5 }; });
+    l.sort(function (a, b) { return b.k - a.k; });
+    return l.slice(0, n).map(function (x) { return x.u; });
 }
-
-
+function sCard(u) {
+    return '<div class="sx-scard"><div data-sx="user" data-uid="' + u.id + '" style="cursor:pointer">' + av(u, 'lg') + '<b>' + esc(u.displayName) + vb(u) + '</b><span>@' + esc(u.username) + '</span></div>' + followBtn(u.id) + '</div>';
+}
+async function sugStrip() {
+    try {
+        var l = await suggestions(10); if (!l.length) return '';
+        return '<div class="sx-sugbox"><div class="sx-sughd"><b>مقترح لك</b><span data-sx="tab" data-tab="explore">عرض الكل</span></div><div class="sx-sugrow">' + l.map(sCard).join('') + '</div></div>';
+    } catch (e) { return ''; }
+}
 async function renderFeed(tk) {
     var V = $('sx-view');
-    if (!me) { V.innerHTML = prompt_('سجّل الدخول لترى منشورات الأشخاص الذين تتابعهم'); return; }
+    if (!me) { V.innerHTML = prompt_('سجّل الدخول لترى منشورات لمة ماكس'); return; }
     V.innerHTML = SKEL;
     try {
         await loadBans(); var list = await fetchFeed(); if (tk !== rt) return;
+        var strip = await sugStrip(); if (tk !== rt) return;
         var h = banner();
-        h += list.map(function (p) { return postHtml(p); }).join('');
-        if (feedMore) h += '<div style="text-align:center;margin-bottom:14px"><button class="sx-btn sx-line" data-sx="more-feed">عرض المزيد</button></div>';
-        if (list.length < 4) {
-            var sug = await fetchExplore(10, true); if (tk !== rt) return;
-            var seen = {}; list.forEach(function (p) { seen[p.id] = 1; });
-            sug = sug.filter(function (p) { return !seen[p.id]; });
-            if (sug.length) h += '<h3 style="margin:10px 4px">منشورات مقترحة لك</h3>' + sug.map(function (p) { return postHtml(p); }).join('');
-            else if (!list.length) h += '<div class="sx-card sx-empty">لا توجد منشورات بعد.<br>اضغط + وانشر أول صورة!</div>';
+        if (!list.length) h += strip + '<div class="sx-card sx-empty">لا توجد منشورات بعد.<br>اضغط + وانشر أول صورة!</div>';
+        else {
+            list.forEach(function (p, i) { h += postHtml(p); if (i === 1) h += strip; });
+            if (list.length < 2) h += strip;
+            if (feedMore) h += '<div style="text-align:center;margin-bottom:14px"><button class="sx-btn sx-line" data-sx="more-feed">عرض المزيد</button></div>';
         }
         V.innerHTML = h;
     } catch (e) { if (tk === rt) V.innerHTML = errBox(e); }
 }
 
-
+/* ===== اكتشف والبحث ===== */
 function followBtn(uid) {
     if (me && uid === me.uid) return '';
     var f = following.indexOf(uid) > -1;
@@ -4920,28 +5000,67 @@ function tilesHtml(list) {
         return '<div class="sx-tile" data-sx="open-post" data-id="' + p.id + '"><img src="' + esc(p.images[0]) + '" alt="">' + (p.images.length > 1 ? '<span class="sx-mi">' + ic('multi') + '</span>' : '') + '</div>';
     }).join('') + '</div>';
 }
+async function fetchExplore(n) {
+    var s = await fs.collection('posts').orderBy('createdAt', 'desc').limit(150).get(), out = [];
+    s.forEach(function (d) {
+        var p = d.data(); p.id = d.id;
+        if (!okPost(p) || !(p.images && p.images.length)) return;
+        if (me && (p.authorUid === me.uid || following.indexOf(p.authorUid) > -1)) return;
+        p._s = score(p); PC[p.id] = p; out.push(p);
+    });
+    out.sort(function (a, b) { return b._s - a._s; }); out = out.slice(0, n);
+    await ensureUsers(out.map(function (p) { return p.authorUid; }));
+    return out;
+}
+async function findUsers(q) {
+    q = q.trim().replace(/^@/, ''); if (!q) return [];
+    var lq = q.toLowerCase();
+    var r = await Promise.all([fs.collection('users').orderBy('username').startAt(lq).endAt(lq + '\uf8ff').limit(15).get(),
+        fs.collection('users').orderBy('displayName').startAt(q).endAt(q + '\uf8ff').limit(10).get()]);
+    var seen = {}, out = [];
+    r.forEach(function (s) { s.forEach(function (d) { if (seen[d.id]) return; seen[d.id] = 1; var u = d.data(); u.id = d.id; UC[u.id] = u; out.push(u); }); });
+    return out;
+}
 async function fillExplore() {
-    var el = $('sx-res'); if (!el) return;
-    el.innerHTML = SKEL;
+    var el = $('sx-res'); if (!el) return; el.innerHTML = SKEL;
     try {
-        await loadBans(); var l = await fetchExplore(30 * explorePage, true);
+        await loadBans(); var l = await fetchExplore(30 * explorePage);
         if ($('sx-res') && !$('sx-q').value.trim()) $('sx-res').innerHTML = l.length ? tilesHtml(l) + '<div style="text-align:center;margin:12px"><button class="sx-btn sx-line" data-sx="more-explore">عرض المزيد</button></div>' : '<div class="sx-empty">لا توجد منشورات لاكتشافها الآن</div>';
     } catch (e) { if ($('sx-res')) $('sx-res').innerHTML = errBox(e); }
 }
 function renderExplore() {
-    $('sx-view').innerHTML = '<div class="sx-field"><input type="search" id="sx-q" placeholder="بحث" dir="auto" autocomplete="off"></div><div id="sx-res"></div>';
+    $('sx-view').innerHTML = '<div class="sx-field"><input type="search" id="sx-q" placeholder="بحث عن حسابات أو #وسوم" dir="auto" autocomplete="off"></div><div id="sx-res"></div>';
     fillExplore();
 }
-function doSearch(v) {
-    var q = v.trim().toLowerCase().replace(/^@/, ''), res = $('sx-res'); if (!res) return;
+async function doSearch(v) {
+    var q = v.trim(); if (!$('sx-res')) return;
     if (!q) { fillExplore(); return; }
-    fs.collection('users').orderBy('username').startAt(q).endAt(q + '\uf8ff').limit(20).get().then(function (s) {
-        var h = ''; s.forEach(function (d) { var u = d.data(); u.id = d.id; UC[u.id] = u; if (!bans[u.id]) h += userRow(u); });
-        if ($('sx-res')) $('sx-res').innerHTML = h || '<div class="sx-empty">لا نتائج</div>';
-    }).catch(function (e) { if ($('sx-res')) $('sx-res').innerHTML = errBox(e); });
+    try {
+        if (q.charAt(0) === '#') {
+            var t = q.slice(1).toLowerCase(); if (!t) return;
+            var s = await fs.collection('posts').where('tags', 'array-contains', t).orderBy('createdAt', 'desc').limit(60).get(), l = [];
+            s.forEach(function (d) { var p = d.data(); p.id = d.id; if (okPost(p) && p.images && p.images.length) { PC[p.id] = p; l.push(p); } });
+            if ($('sx-res')) $('sx-res').innerHTML = l.length ? tilesHtml(l) : '<div class="sx-empty">لا منشورات بهذا الوسم</div>';
+        } else {
+            await loadBans(); var us = (await findUsers(q)).filter(function (u) { return !bans[u.id] && !blocked[u.id]; });
+            if ($('sx-res')) $('sx-res').innerHTML = us.length ? us.map(userRow).join('') : '<div class="sx-empty">لا نتائج</div>';
+        }
+    } catch (e) { if ($('sx-res')) $('sx-res').innerHTML = errBox(e); }
+}
+async function openTag(t) {
+    $('sx-uview-title').textContent = '#' + t; $('sx-uview-body').innerHTML = SKEL; $('sx-uview').classList.add('show'); pushLayer('uview');
+    try {
+        await loadBans();
+        var s = await fs.collection('posts').where('tags', 'array-contains', t).orderBy('createdAt', 'desc').limit(60).get(), l = [];
+        s.forEach(function (d) { var p = d.data(); p.id = d.id; if (okPost(p) && p.images && p.images.length) { PC[p.id] = p; l.push(p); } });
+        $('sx-uview-body').innerHTML = '<div style="font-weight:800;font-size:20px;margin-bottom:10px">#' + esc(t) + '</div>' + (l.length ? tilesHtml(l) : '<div class="sx-empty">لا منشورات بهذا الوسم</div>');
+    } catch (e) { $('sx-uview-body').innerHTML = errBox(e); }
+}
+async function openMention(un) {
+    try { var d = await fs.collection('usernames').doc(un).get(); if (d.exists) openUser(d.data().uid); else toast('الحساب غير موجود'); } catch (e) { toast('تعذّر فتح الحساب'); }
 }
 
-
+/* ===== النشر ===== */
 function renderCreate() {
     var V = $('sx-view');
     if (!me) { V.innerHTML = prompt_('سجّل الدخول لتنشر'); return; }
@@ -4952,7 +5071,7 @@ function renderCreate() {
     }
     V.innerHTML = '<div class="sx-pgrid">' + pending.map(function (s, i) { return '<div><img src="' + s + '" alt=""><button class="sx-btn" data-sx="rm-img" data-i="' + i + '">' + ic('x') + '</button></div>'; }).join('') + '</div>' +
         (pending.length < 4 ? '<button class="sx-btn sx-line" data-sx="pick" style="margin-bottom:12px">+ إضافة صور</button>' : '') +
-        '<div class="sx-card sx-composer"><div style="display:flex;gap:10px">' + av(mu()) + '<textarea id="sx-text" maxlength="500" placeholder="اكتب شيئاً عن صورتك..."></textarea></div>' +
+        '<div class="sx-card sx-composer"><div style="display:flex;gap:10px">' + av(mu()) + '<textarea id="sx-text" maxlength="500" placeholder="اكتب شيئاً عن صورتك... يمكنك استخدام #وسوم و@إشارات"></textarea></div>' +
         '<div class="sx-comp-foot"><span id="sx-count">0/500</span><button class="sx-btn sx-primary" id="sx-publish" data-sx="publish">مشاركة</button></div>' +
         '<p class="sx-note">الصور تُفحص تلقائياً، ونشر محتوى جنسي أو عري يؤدي إلى حظر الحساب. تُحذف المنشورات تلقائياً بعد 3 أشهر.</p></div>';
 }
@@ -4967,11 +5086,11 @@ async function publish() {
         var r = await scan(pending);
         if (r === true) { pending = []; await banMe('post-image'); return; }
         var ref = fs.collection('posts').doc(), batch = fs.batch();
-        batch.set(ref, { authorUid: me.uid, text: text, images: pending.slice(), likesCount: 0, commentsCount: 0, likedBy: [], reportedBy: [], unscanned: r === null,
+        batch.set(ref, { authorUid: me.uid, text: text, tags: tagsOf(text), images: pending.slice(), likesCount: 0, commentsCount: 0, likedBy: [], reportedBy: [], unscanned: r === null,
             createdAt: FV.serverTimestamp(), expireAt: TS.fromMillis(Date.now() + KEEP_DAYS * 864e5) });
         batch.update(fs.collection('users').doc(me.uid), { postsCount: FV.increment(1) });
         await batch.commit();
-        last.post = Date.now(); pending = [];
+        last.post = Date.now(); pending = []; poolAt = 0;
         mu().postsCount = (mu().postsCount || 0) + 1; feedPage = 1;
         toast('تمت المشاركة'); tab = 'feed'; render();
     } catch (e) {
@@ -4980,20 +5099,25 @@ async function publish() {
     }
 }
 
-
+/* ===== المنشورات ===== */
 function postHtml(p, full) {
-    var u = UC[p.authorUid] || {}, liked = me && (p.likedBy || []).indexOf(me.uid) > -1, mine = me && p.authorUid === me.uid, imgs = p.images || [];
+    var u = UC[p.authorUid] || {}, liked = me && (p.likedBy || []).indexOf(me.uid) > -1, mine = me && p.authorUid === me.uid, imgs = p.images || [], sv = !!saved[p.id];
     var car = imgs.length ? '<div class="sx-car" data-pc="' + p.id + '"><div class="sx-track">' + imgs.map(function (s) { return '<img src="' + esc(s) + '" alt="" loading="lazy">'; }).join('') + '</div>' +
         (imgs.length > 1 ? '<span class="sx-ctr">1/' + imgs.length + '</span>' : '') + '<div class="sx-bh">' + ic('heart') + '</div></div>' +
         (imgs.length > 1 ? '<div class="sx-dots">' + imgs.map(function (_, i) { return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div>' : '') : '';
-    var n = p.commentsCount || 0;
-    var menu = mine ? '<button class="sx-btn sx-ghost" data-sx="edit-post" data-id="' + p.id + '">' + ic('edit') + '</button><button class="sx-btn sx-ghost" data-sx="del-post" data-id="' + p.id + '">' + ic('trash') + '</button>'
-        : '<button class="sx-btn sx-ghost" data-sx="report" data-id="' + p.id + '">' + ic('flag') + '</button>';
+    var n = p.commentsCount || 0, menu = '';
+    if (mine) menu += '<button class="sx-btn sx-ghost" data-sx="edit-post" data-id="' + p.id + '">' + ic('edit') + '</button>';
+    if (mine || isAdmin()) menu += '<button class="sx-btn sx-ghost" data-sx="del-post" data-id="' + p.id + '">' + ic('trash') + '</button>';
+    if (!mine) menu += '<button class="sx-btn sx-ghost" data-sx="report" data-id="' + p.id + '">' + ic('flag') + '</button>';
+    var sug = me && !mine && following.indexOf(p.authorUid) < 0 ? ' · مقترح' : '';
     return '<article class="sx-post" data-post="' + p.id + '"><div class="sx-post-head"><div class="sx-ulink" data-sx="user" data-uid="' + p.authorUid + '">' + av(u) +
-        '<div class="sx-meta"><b>' + esc(u.displayName || 'مستخدم') + vb(u) + '</b><span>@' + esc(u.username || '') + ' · ' + ago(p.createdAt) + (p.edited ? ' · معدّل' : '') + '</span></div></div>' + menu + '</div>' + car +
-        '<div class="sx-actions"><button class="sx-btn sx-act' + (liked ? ' liked' : '') + '" data-sx="like" data-id="' + p.id + '">' + ic('heart') + '</button><button class="sx-btn sx-act" data-sx="' + (full ? 'focus-cm' : 'open-post') + '" data-id="' + p.id + '">' + ic('chat') + '</button></div>' +
-        '<div class="sx-likes">' + (p.likesCount || 0) + ' إعجاب</div>' +
-        (p.text ? '<div class="sx-text"><b>' + esc(u.displayName || '') + vb(u) + '</b> ' + esc(p.text) + '</div>' : '') +
+        '<div class="sx-meta"><b>' + esc(u.displayName || 'مستخدم') + vb(u) + '</b><span>@' + esc(u.username || '') + ' · ' + ago(p.createdAt) + (p.edited ? ' · معدّل' : '') + sug + '</span></div></div>' + menu + '</div>' + car +
+        '<div class="sx-actions"><button class="sx-btn sx-act' + (liked ? ' liked' : '') + '" data-sx="like" data-id="' + p.id + '">' + ic('heart') + '</button>' +
+        '<button class="sx-btn sx-act" data-sx="' + (full ? 'focus-cm' : 'open-post') + '" data-id="' + p.id + '">' + ic('chat') + '</button>' +
+        '<button class="sx-btn sx-act" data-sx="share" data-id="' + p.id + '">' + ic('share') + '</button>' +
+        '<button class="sx-btn sx-act' + (sv ? ' liked' : '') + '" data-sx="save" data-id="' + p.id + '" style="margin-right:auto">' + ic('mark') + '</button></div>' +
+        '<div class="sx-likes" data-sx="likers" data-id="' + p.id + '" style="cursor:pointer">' + (p.likesCount || 0) + ' إعجاب</div>' +
+        (p.text ? '<div class="sx-text"><b>' + esc(u.displayName || '') + vb(u) + '</b> ' + rich(p.text) + '</div>' : '') +
         (!full && n > 0 ? '<button class="sx-btn sx-ghost sx-vc" data-sx="open-post" data-id="' + p.id + '">عرض كل التعليقات (' + n + ')</button>' : '') + '</article>';
 }
 function refreshPost(id) {
@@ -5008,7 +5132,7 @@ async function like(id) {
         p.likedBy = add ? (p.likedBy || []).concat(me.uid) : (p.likedBy || []).filter(function (x) { return x !== me.uid; });
         p.likesCount = Math.max(0, (p.likesCount || 0) + (add ? 1 : -1)); refreshPost(id);
     }
-    apply(!liked);
+    apply(!liked); if (!liked) bump(p, 3);
     var b = fs.batch();
     b.update(fs.collection('posts').doc(id), { likedBy: liked ? FV.arrayRemove(me.uid) : FV.arrayUnion(me.uid), likesCount: FV.increment(liked ? -1 : 1) });
     if (p.authorUid !== me.uid) {
@@ -5023,11 +5147,28 @@ function dblLike(id) {
     if ((p.likedBy || []).indexOf(me.uid) < 0) like(id);
     document.querySelectorAll('[data-pc="' + id + '"]').forEach(function (c) { c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); });
 }
-async function delPost(id) {
-    if (!confirm('حذف هذا المنشور نهائياً؟')) return;
+async function openLikers(id) {
+    var p = PC[id]; if (!p) return;
+    var ids = (p.likedBy || []).slice(0, 100);
+    $('sx-list-title').textContent = 'الإعجابات'; $('sx-list-body').innerHTML = SKEL; $('sx-list').classList.add('show'); pushLayer('list');
+    if (!ids.length) { $('sx-list-body').innerHTML = '<div class="sx-empty">لا إعجابات بعد</div>'; return; }
+    try { await ensureUsers(ids); $('sx-list-body').innerHTML = ids.map(function (i) { return userRow(UC[i]); }).join(''); }
+    catch (e) { $('sx-list-body').innerHTML = errBox(e); }
+}
+async function toggleSave(id) {
+    if (!gate()) return; var is = !!saved[id], ref = fs.collection('saves').doc(me.uid + '_' + id);
     try {
-        var b = fs.batch(); b.delete(fs.collection('posts').doc(id)); b.update(fs.collection('users').doc(me.uid), { postsCount: FV.increment(-1) }); await b.commit();
-        mu().postsCount = Math.max(0, (mu().postsCount || 1) - 1); delete PC[id];
+        if (is) { await ref.delete(); delete saved[id]; }
+        else { await ref.set({ uid: me.uid, postId: id, createdAt: FV.serverTimestamp() }); saved[id] = 1; bump(PC[id], 4); }
+        refreshPost(id); toast(is ? 'أُزيل من المحفوظات' : 'تم الحفظ');
+    } catch (e) { console.error(e); toast('تعذّر الحفظ'); }
+}
+async function delPost(id) {
+    var p = PC[id]; if (!p || !confirm('حذف هذا المنشور نهائياً؟')) return;
+    try {
+        var b = fs.batch(); b.delete(fs.collection('posts').doc(id)); b.update(fs.collection('users').doc(p.authorUid), { postsCount: FV.increment(-1) }); await b.commit();
+        if (p.authorUid === me.uid) mu().postsCount = Math.max(0, (mu().postsCount || 1) - 1);
+        delete PC[id]; pool = pool.filter(function (x) { return x.id !== id; });
         document.querySelectorAll('[data-post="' + id + '"]').forEach(function (e) { e.remove(); });
         document.querySelectorAll('.sx-tile[data-id="' + id + '"]').forEach(function (e) { e.remove(); });
         if (curPost === id) closeLayer('post'); toast('تم الحذف');
@@ -5042,8 +5183,9 @@ async function savePost() {
     var p = PC[editId], text = $('sx-ep-text').value.trim(), err = $('sx-ep-err'); if (!p) return;
     if (!clean(text)) { err.textContent = 'النص يحتوي على ألفاظ غير مسموحة'; return; }
     try {
-        await fs.collection('posts').doc(editId).update({ text: text, edited: true });
-        p.text = text; p.edited = true; refreshPost(editId); closeLayer('editpost'); toast('تم التعديل');
+        var tg = tagsOf(text);
+        await fs.collection('posts').doc(editId).update({ text: text, edited: true, tags: tg });
+        p.text = text; p.edited = true; p.tags = tg; refreshPost(editId); closeLayer('editpost'); toast('تم التعديل');
     } catch (e) { console.error(e); err.textContent = 'تعذّر الحفظ'; }
 }
 async function report(id) {
@@ -5058,14 +5200,14 @@ async function report(id) {
     } catch (e) { console.error(e); toast('تعذّر الإبلاغ'); }
 }
 
-
+/* ===== المنشور والتعليقات ===== */
 async function openPost(id) {
     curPost = id; replyTo = null; updReply();
     $('sx-pv').innerHTML = SKEL; $('sx-post').classList.add('show'); pushLayer('post'); renderCmForm();
     try {
         var d = await fs.collection('posts').doc(id).get();
         if (!d.exists) { $('sx-pv').innerHTML = '<div class="sx-empty">هذا المنشور غير متاح</div>'; return; }
-        var p = d.data(); p.id = id; PC[id] = p; await ensureUsers([p.authorUid]);
+        var p = d.data(); p.id = id; PC[id] = p; bump(p, 1); await ensureUsers([p.authorUid]);
         if (curPost !== id) return;
         $('sx-pv').innerHTML = postHtml(p, true) + '<div id="sx-cm-list"></div>';
         if (unsubCm) unsubCm();
@@ -5077,9 +5219,9 @@ async function openPost(id) {
 }
 function cmHtml(c, isReply) {
     var u = UC[c.authorUid] || {}, p = PC[curPost] || {}, liked = me && (c.likedBy || []).indexOf(me.uid) > -1;
-    var canDel = me && (c.authorUid === me.uid || p.authorUid === me.uid);
-    return '<div class="sx-cm' + (isReply ? ' reply' : '') + '">' + av(u, 'sm') + '<div class="sx-cm-body"><b>' + esc(u.displayName || 'مستخدم') + vb(u) + '</b><small>' + ago(c.createdAt) + '</small><p>' +
-        (c.replyToName ? '<span class="sx-rt">@' + esc(c.replyToName) + '</span> ' : '') + esc(c.text) + '</p>' +
+    var canDel = me && (c.authorUid === me.uid || p.authorUid === me.uid || isAdmin());
+    return '<div class="sx-cm' + (isReply ? ' reply' : '') + '"><span class="sx-tap" data-sx="user" data-uid="' + c.authorUid + '">' + av(u, 'sm') + '</span><div class="sx-cm-body"><b class="sx-tap" style="display:inline" data-sx="user" data-uid="' + c.authorUid + '">' + esc(u.displayName || 'مستخدم') + vb(u) + '</b><small>' + ago(c.createdAt) + '</small><p>' +
+        (c.replyToName ? '<span class="sx-rt">@' + esc(c.replyToName) + '</span> ' : '') + rich(c.text) + '</p>' +
         '<button class="sx-btn sx-reply" data-sx="reply" data-parent="' + esc(c.parentId || c.id) + '" data-uid="' + c.authorUid + '" data-name="' + esc(u.username || u.displayName || '') + '">رد</button>' +
         '<button class="sx-btn sx-reply sx-cl' + (liked ? ' liked' : '') + '" data-sx="cm-like" data-id="' + c.id + '">' + ic('heart') + (c.likesCount > 0 ? ' ' + c.likesCount : '') + '</button>' +
         (canDel ? '<button class="sx-btn sx-reply" data-sx="del-cm" data-id="' + c.id + '">حذف</button>' : '') + '</div></div>';
@@ -5115,7 +5257,7 @@ async function sendComment() {
     var ta = $('sx-cm-text'), text = ta.value.trim(), p = PC[curPost]; if (!text || !p) return;
     if (!clean(text)) return toast('تعليقك يحتوي على ألفاظ غير مسموحة');
     if (Date.now() - last.cm < 5000) return toast('انتظر قليلاً');
-    last.cm = Date.now();
+    last.cm = Date.now(); bump(p, 2);
     var sref = fs.collection('posts').doc(curPost), cref = sref.collection('comments').doc(), b = fs.batch();
     b.set(cref, { authorUid: me.uid, text: text, parentId: replyTo ? replyTo.parent : null, replyToUid: replyTo ? replyTo.uid : null, replyToName: replyTo ? replyTo.name : null, likesCount: 0, likedBy: [], createdAt: FV.serverTimestamp() });
     b.update(sref, { commentsCount: FV.increment(1) });
@@ -5134,7 +5276,7 @@ async function delComment(id) {
     } catch (e) { console.error(e); toast('تعذّر الحذف'); }
 }
 
-
+/* ===== المتابعة والحظر ===== */
 async function toggleFollow(uid) {
     if (!gate() || uid === me.uid || locks['f' + uid]) return; locks['f' + uid] = 1;
     var is = following.indexOf(uid) > -1, b = fs.batch();
@@ -5151,11 +5293,21 @@ async function toggleFollow(uid) {
         if (is) following = following.filter(function (x) { return x !== uid; }); else following.push(uid);
         var t = UC[uid]; if (t) t.followersCount = Math.max(0, (t.followersCount || 0) + (is ? -1 : 1));
         mu().followingCount = Math.max(0, (mu().followingCount || 0) + (is ? -1 : 1));
-        feedPage = 1;
+        feedPage = 1; poolAt = 0;
         document.querySelectorAll('[data-sx="follow"][data-uid="' + uid + '"]').forEach(function (el) { el.outerHTML = followBtn(uid); });
         var fc = $('sx-fc-' + uid); if (fc && t) fc.textContent = t.followersCount;
     } catch (e) { console.error(e); toast('تعذّر تنفيذ العملية'); }
     locks['f' + uid] = 0;
+}
+async function toggleBlock(uid) {
+    if (!gate()) return; var is = !!blocked[uid], ref = fs.collection('blocks').doc(me.uid + '_' + uid);
+    if (!confirm(is ? 'إلغاء حظر هذا الحساب؟' : 'حظر هذا الحساب؟ لن ترى منشوراته ولن تتمكن من مراسلته.')) return;
+    try {
+        if (is) { await ref.delete(); delete blocked[uid]; }
+        else { await ref.set({ by: me.uid, target: uid, createdAt: FV.serverTimestamp() }); blocked[uid] = 1; if (following.indexOf(uid) > -1) await toggleFollow(uid); }
+        poolAt = 0; toast(is ? 'تم إلغاء الحظر' : 'تم حظر الحساب');
+        var host = document.querySelector('[data-puid="' + uid + '"]'); if (host) renderProfile(uid, host, 0, 'posts');
+    } catch (e) { console.error(e); toast('تعذّرت العملية'); }
 }
 async function openList(kind, uid) {
     $('sx-list-title').textContent = kind === 'followers' ? 'المتابعون' : 'يتابعهم';
@@ -5168,28 +5320,47 @@ async function openList(kind, uid) {
     } catch (e) { $('sx-list-body').innerHTML = errBox(e); }
 }
 
-
-async function renderProfile(uid, el, tk) {
-    el.innerHTML = SKEL;
+/* ===== الملف الشخصي ===== */
+async function fetchByIds(ids) {
+    var out = [];
+    for (var k = 0; k < ids.length; k += 10) {
+        var s = await fs.collection('posts').where(FP.documentId(), 'in', ids.slice(k, k + 10)).get();
+        s.forEach(function (d) { var p = d.data(); p.id = d.id; out.push(p); });
+    }
+    out.sort(function (a, b) { return ms(b.createdAt) - ms(a.createdAt); }); return out;
+}
+async function renderProfile(uid, el, tk, sub) {
+    sub = sub || 'posts'; el.setAttribute('data-puid', uid);
+    if (!el.querySelector('.sx-ph')) el.innerHTML = SKEL;
     try {
         await loadBans();
         var d = await fs.collection('users').doc(uid).get(); if (!d.exists) { el.innerHTML = '<div class="sx-empty">المستخدم غير موجود</div>'; return; }
         var u = d.data(); u.id = uid; UC[uid] = u;
-        var isMe = me && me.uid === uid, posts = [];
-        if (!bans[uid]) {
-            var s = await fs.collection('posts').where('authorUid', '==', uid).orderBy('createdAt', 'desc').limit(30).get();
-            s.forEach(function (x) { var p = x.data(); p.id = x.id; if ((p.reportedBy || []).length < 3 && alive(p)) { PC[p.id] = p; posts.push(p); } });
+        var isMe = me && me.uid === uid, hide = bans[uid] || blocked[uid], posts = [];
+        if (!hide) {
+            if (sub === 'saved' && isMe) posts = (await fetchByIds(Object.keys(saved).slice(0, 30))).filter(alive);
+            else {
+                var s = await fs.collection('posts').where('authorUid', '==', uid).orderBy('createdAt', 'desc').limit(30).get();
+                s.forEach(function (x) { var p = x.data(); p.id = x.id; if ((p.reportedBy || []).length < 3 && alive(p)) posts.push(p); });
+            }
+            posts.forEach(function (p) { PC[p.id] = p; });
         }
         if (tk && tk !== rt) return;
+        if (el.id === 'sx-uview-body') $('sx-uview-title').textContent = '@' + (u.username || '');
+        var btns = isMe ? '<div class="sx-prow"><button class="sx-btn sx-line" data-sx="edit">تعديل الملف الشخصي</button><button class="sx-btn sx-line" data-sx="share-profile" data-uid="' + uid + '">مشاركة الملف</button></div>'
+            : '<div class="sx-prow">' + followBtn(uid) + '<button class="sx-btn sx-line" data-sx="msg" data-uid="' + uid + '">رسالة</button><button class="sx-btn sx-line" data-sx="block-menu" data-uid="' + uid + '" style="flex:0 0 44px">' + ic('more') + '</button></div>';
         el.innerHTML = '<div class="sx-ph">' + av(u, 'lg') + '<div class="sx-stats"><div><b>' + (u.postsCount || 0) + '</b><span>منشور</span></div>' +
             '<div data-sx="list" data-kind="followers" data-uid="' + uid + '"><b id="sx-fc-' + uid + '">' + (u.followersCount || 0) + '</b><span>متابع</span></div>' +
             '<div data-sx="list" data-kind="following" data-uid="' + uid + '"><b>' + (u.followingCount || 0) + '</b><span>يتابع</span></div></div></div>' +
-            '<div style="font-weight:800">' + esc(u.displayName) + vb(u) + '</div><div style="font-size:12px;color:var(--text-secondary)">@' + esc(u.username || '') + '</div>' +
-            (u.verified === true ? '<span class="sx-adm">حساب رسمي · إدارة راندر</span>' : '') +
-            (u.bio ? '<div style="margin:8px 0;font-size:14px;line-height:1.7;white-space:pre-wrap">' + esc(u.bio) + '</div>' : '') +
-            '<div style="margin-top:10px">' + (isMe ? '<button class="sx-btn sx-line" data-sx="edit" style="width:100%">تعديل الملف الشخصي</button>' : followBtn(uid)) + '</div>' +
+            '<div style="font-weight:800">' + esc(u.displayName) + vb(u) + '</div>' +
+            (u.verified === true ? '<span class="sx-adm">حساب موثّق</span>' : '') +
+            (u.bio ? '<div style="margin:8px 0;font-size:14px;line-height:1.7;white-space:pre-wrap">' + rich(u.bio) + '</div>' : '') + btns +
+            '<div class="sx-ptabs"><button class="sx-btn sx-pt' + (sub === 'posts' ? ' on' : '') + '" data-sx="ptab" data-t="posts">' + ic('grid') + '</button>' +
+            (isMe ? '<button class="sx-btn sx-pt' + (sub === 'saved' ? ' on' : '') + '" data-sx="ptab" data-t="saved">' + ic('mark') + '</button>' : '') + '</div>' +
             (bans[uid] ? '<div class="sx-warn" style="margin-top:14px">هذا الحساب محظور</div>' :
-            tilesHtml(posts.filter(function (p) { return p.images && p.images.length; })) + (posts.length ? '' : '<div class="sx-empty">لا توجد منشورات</div>'));
+             blocked[uid] ? '<div class="sx-empty">لقد حظرت هذا الحساب</div>' :
+             posts.length ? tilesHtml(posts.filter(function (p) { return p.images && p.images.length; })) :
+             '<div class="sx-empty">' + (sub === 'saved' ? 'لا منشورات محفوظة' : 'لا توجد منشورات بعد') + '</div>');
     } catch (e) { el.innerHTML = errBox(e); }
 }
 function renderMe(tk) {
@@ -5199,6 +5370,7 @@ function renderMe(tk) {
 }
 function openUser(uid) {
     if (me && uid === me.uid) { while (layers.length > 1) hideLayer(layers.pop()); tab = 'me'; render(); return; }
+    $('sx-uview-title').textContent = 'الملف الشخصي';
     $('sx-uview').classList.add('show'); pushLayer('uview');
     renderProfile(uid, $('sx-uview-body'), 0);
 }
@@ -5222,7 +5394,7 @@ async function saveProfile() {
     } catch (e) { console.error(e); err.textContent = 'تعذّر الحفظ'; }
 }
 
-
+/* ===== الإشعارات ===== */
 function startNotifs() {
     stopNotifs();
     unsubN = fs.collection('notifications').doc(me.uid).collection('items').orderBy('createdAt', 'desc').limit(40).onSnapshot(function (s) {
@@ -5234,7 +5406,7 @@ function stopNotifs() { if (unsubN) { unsubN(); unsubN = null; } notifs = []; up
 function updBadge() {
     var n = notifs.filter(function (x) { return !x.read; }).length, b = $('sx-badge');
     b.style.display = n ? 'flex' : 'none'; b.textContent = n > 9 ? '9+' : n;
-    var d = document.getElementById('sx-store-dot'); if (d) d.style.display = n ? 'inline-block' : 'none';
+    var d = document.getElementById('sx-store-dot'); if (d) d.style.display = (n || dmUnread()) ? 'inline-block' : 'none';
 }
 async function renderNotifs(tk) {
     var V = $('sx-view');
@@ -5244,8 +5416,8 @@ async function renderNotifs(tk) {
     var T = { follow: 'بدأ بمتابعتك', like: 'أعجبه منشورك', comment: 'علّق على منشورك: ', reply: 'ردّ على تعليقك: ', clike: 'أعجبه تعليقك: ' };
     V.innerHTML = notifs.map(function (n) {
         var u = UC[n.fromUid] || {};
-        return '<div class="sx-n' + (n.read ? '' : ' unread') + '" data-sx="notif" data-uid="' + n.fromUid + '" data-post="' + (n.postId || '') + '">' + av(u, 'sm') +
-            '<div style="flex:1;min-width:0"><b>' + esc(u.displayName || 'مستخدم') + '</b> ' + (T[n.type] || '') + esc(n.text || '') + '<small>' + ago(n.createdAt) + '</small></div></div>';
+        return '<div class="sx-n' + (n.read ? '' : ' unread') + '" data-sx="notif" data-uid="' + n.fromUid + '" data-post="' + (n.postId || '') + '"><span class="sx-tap" data-sx="user" data-uid="' + n.fromUid + '">' + av(u, 'sm') + '</span>' +
+            '<div style="flex:1;min-width:0"><b class="sx-tap" style="display:inline" data-sx="user" data-uid="' + n.fromUid + '">' + esc(u.displayName || 'مستخدم') + vb(u) + '</b> ' + (T[n.type] || '') + esc(n.text || '') + '<small>' + ago(n.createdAt) + '</small></div></div>';
     }).join('');
     var un = notifs.filter(function (x) { return !x.read; });
     if (un.length) setTimeout(function () {
@@ -5254,7 +5426,157 @@ async function renderNotifs(tk) {
     }, 1500);
 }
 
+/* ===== الرسائل الخاصة ===== */
+function cidOf(a, b) { return [a, b].sort().join('_'); }
+function startChats() {
+    stopChats();
+    unsubC = fs.collection('chats').where('members', 'array-contains', me.uid).limit(60).onSnapshot(function (s) {
+        chats = []; s.forEach(function (d) { var c = d.data(); c.id = d.id; chats.push(c); });
+        chats.sort(function (a, b) { return ms(b.lastAt) - ms(a.lastAt); });
+        updDm(); if (layers.indexOf('dm') > -1) renderDm();
+    }, function (e) { console.error(e); });
+}
+function stopChats() { if (unsubC) { unsubC(); unsubC = null; } chats = []; updDm(); }
+function dmUnread() { return me ? chats.reduce(function (n, c) { return n + ((c.unread && c.unread[me.uid]) || 0); }, 0) : 0; }
+function updDm() { var n = dmUnread(), b = $('sx-dmbadge'); b.style.display = n ? 'flex' : 'none'; b.textContent = n > 9 ? '9+' : n; }
+function openDm() {
+    if (!gate()) return;
+    $('sx-dm-body').innerHTML = '<div class="sx-field"><input type="search" id="sx-dmq" placeholder="ابحث عن حساب لبدء محادثة" dir="auto" autocomplete="off"></div><div id="sx-dmres"></div><div id="sx-dmlist"></div><p class="sx-note">المحادثات قد تُراجع من إدارة لمة ماكس عند وجود بلاغ أو مخالفة.</p>';
+    $('sx-dm').classList.add('show'); pushLayer('dm'); renderDm();
+}
+async function renderDm() {
+    var el = $('sx-dmlist'); if (!el) return;
+    var list = chats.filter(function (c) { return !blocked[c.members.filter(function (x) { return x !== me.uid; })[0]]; });
+    await ensureUsers(list.map(function (c) { return c.members.filter(function (x) { return x !== me.uid; })[0]; }));
+    el = $('sx-dmlist'); if (!el) return;
+    el.innerHTML = list.length ? list.map(function (c) {
+        var o = c.members.filter(function (x) { return x !== me.uid; })[0], u = UC[o] || {}, un = (c.unread && c.unread[me.uid]) || 0;
+        return '<div class="sx-urow" data-sx="chat" data-uid="' + o + '" style="cursor:pointer">' + av(u) + '<div class="sx-meta"><b>' + esc(u.displayName || 'مستخدم') + vb(u) + '</b><span style="' + (un ? 'font-weight:800;color:var(--text-primary)' : '') + '">' +
+            (c.lastFrom === me.uid ? 'أنت: ' : '') + esc(c.last || '') + ' · ' + ago(c.lastAt) + '</span></div>' + (un ? '<i class="sx-dot"></i>' : '') + '</div>';
+    }).join('') : '<div class="sx-empty">لا توجد محادثات بعد.<br>ابحث عن صديق وابدأ المحادثة.</div>';
+}
+async function dmSearch(v) {
+    var el = $('sx-dmres'); if (!el) return;
+    if (!v.trim()) { el.innerHTML = ''; return; }
+    try {
+        await loadBans(); var us = (await findUsers(v)).filter(function (u) { return u.id !== me.uid && !bans[u.id] && !blocked[u.id]; });
+        el.innerHTML = us.length ? us.map(function (u) { return '<div class="sx-urow" data-sx="chat" data-uid="' + u.id + '" style="cursor:pointer">' + av(u) + '<div class="sx-meta"><b>' + esc(u.displayName) + vb(u) + '</b><span>@' + esc(u.username) + '</span></div></div>'; }).join('') + '<hr style="border:0;border-top:1px solid var(--border-color);margin:8px 0">' : '<div class="sx-empty">لا نتائج</div>';
+    } catch (e) { el.innerHTML = errBox(e); }
+}
+async function openChat(uid) {
+    if (!gate()) return;
+    if (blocked[uid]) return toast('لقد حظرت هذا الحساب');
+    await ensureUsers([uid]); var u = UC[uid] || {};
+    showChat(cidOf(me.uid, uid), av(u, 'sm') + '<div class="sx-meta" data-sx="user" data-uid="' + uid + '"><b>' + esc(u.displayName || 'مستخدم') + vb(u) + '</b></div>', uid, false);
+}
+function showChat(chatId, head, other, ro) {
+    curChat = { id: chatId, other: other, ro: ro };
+    $('sx-chat-head').innerHTML = head;
+    $('sx-chat-body').innerHTML = '<p class="sx-note" style="text-align:center">' + (ro ? 'عرض إداري للمحادثة (للقراءة فقط)' : 'المحادثات قد تُراجع من الإدارة عند وجود بلاغ أو مخالفة') + '</p><div class="sx-msgs" id="sx-msgs">' + SKEL + '</div>';
+    $('sx-chat-form').innerHTML = ro ? '' : '<textarea id="sx-msg-text" rows="1" maxlength="1000" placeholder="اكتب رسالة..."></textarea><button class="sx-btn sx-primary" data-sx="send-msg">إرسال</button>';
+    $('sx-chat').classList.add('show'); pushLayer('chat');
+    if (unsubM) unsubM();
+    unsubM = fs.collection('chats').doc(chatId).collection('msgs').orderBy('createdAt', 'desc').limit(100).onSnapshot(async function (s) {
+        var arr = []; s.forEach(function (d) { var m = d.data(); m.id = d.id; arr.push(m); }); arr.reverse();
+        await ensureUsers(arr.map(function (m) { return m.from; }));
+        renderMsgs(arr); if (!ro) markRead();
+    }, function (e) { console.error(e); if ($('sx-msgs')) $('sx-msgs').innerHTML = '<div class="sx-empty">لا توجد رسائل بعد</div>'; });
+}
+function renderMsgs(arr) {
+    var el = $('sx-msgs'); if (!el || !curChat) return;
+    el.innerHTML = arr.length ? arr.map(function (m) {
+        var mine = me && m.from === me.uid && !curChat.ro, t = new Date(ms(m.createdAt)).toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
+        return '<div class="sx-msg ' + (mine ? 'me' : 'th') + '">' + esc(m.text) + '<small>' + (curChat.ro ? esc((UC[m.from] || {}).username || '') + ' · ' : '') + t + '</small></div>';
+    }).join('') : '<div class="sx-empty">ابدأ المحادثة بإرسال رسالة</div>';
+    var sc = $('sx-chat-scroll'); sc.scrollTop = sc.scrollHeight;
+}
+function markRead() {
+    if (!curChat || curChat.ro) return;
+    var c = chats.filter(function (x) { return x.id === curChat.id; })[0];
+    if (c && c.unread && c.unread[me.uid] > 0) { var o = {}; o['unread.' + me.uid] = 0; fs.collection('chats').doc(c.id).update(o).catch(function () {}); }
+}
+async function sendMsg() {
+    if (!gate() || !curChat || curChat.ro) return;
+    var ta = $('sx-msg-text'), text = ta.value.trim(); if (!text) return;
+    if (blocked[curChat.other]) return toast('لا يمكنك مراسلة حساب قمت بحظره');
+    if (Date.now() - last.msg < 700) return; last.msg = Date.now(); ta.value = '';
+    var cref = fs.collection('chats').doc(curChat.id), b = fs.batch(), un = {}; un[curChat.other] = FV.increment(1);
+    b.set(cref.collection('msgs').doc(), { from: me.uid, text: text, createdAt: FV.serverTimestamp() });
+    b.set(cref, { members: [me.uid, curChat.other].sort(), last: text.slice(0, 60), lastFrom: me.uid, lastAt: FV.serverTimestamp(), unread: un }, { merge: true });
+    try { await b.commit(); } catch (e) { console.error(e); toast('تعذّر الإرسال'); ta.value = text; }
+}
 
+/* ===== لوحة الإدارة ===== */
+function openAdmin() {
+    if (!isAdmin()) return;
+    $('sx-admin-body').innerHTML = '<div class="sx-field"><input type="search" id="sx-aq" placeholder="يوزر المستخدم أو اسمه" dir="auto" autocomplete="off"></div><div id="sx-ares"></div><div id="sx-achats"></div><h3 style="margin:14px 0 6px">البلاغات</h3><div id="sx-arep">' + SKEL + '</div>';
+    $('sx-admin').classList.add('show'); pushLayer('admin'); loadReports();
+}
+async function adminSearch(v) {
+    var el = $('sx-ares'); if (!el) return;
+    if (!v.trim()) { el.innerHTML = ''; return; }
+    try {
+        await loadBans(true); var us = await findUsers(v);
+        el.innerHTML = us.length ? us.map(function (u) {
+            return '<div class="sx-urow" style="flex-wrap:wrap"><div class="sx-ulink" data-sx="user" data-uid="' + u.id + '">' + av(u) + '<div class="sx-meta"><b>' + esc(u.displayName) + vb(u) + '</b><span>@' + esc(u.username) + (bans[u.id] ? ' · محظور' : '') + '</span></div></div>' +
+                '<div class="sx-ab"><button class="sx-btn" data-sx="a-chats" data-uid="' + u.id + '">محادثاته</button><button class="sx-btn" data-sx="a-verify" data-uid="' + u.id + '">' + (u.verified ? 'إلغاء التوثيق' : 'توثيق') + '</button><button class="sx-btn" data-sx="a-ban" data-uid="' + u.id + '">' + (bans[u.id] ? 'رفع الحظر' : 'حظر') + '</button></div></div>';
+        }).join('') : '<div class="sx-empty">لا نتائج</div>';
+    } catch (e) { el.innerHTML = errBox(e); }
+}
+async function adminChats(uid) {
+    var el = $('sx-achats'); el.innerHTML = SKEL;
+    try {
+        var s = await fs.collection('chats').where('members', 'array-contains', uid).limit(60).get(), l = [];
+        s.forEach(function (d) { var c = d.data(); c.id = d.id; l.push(c); });
+        l.sort(function (a, b) { return ms(b.lastAt) - ms(a.lastAt); });
+        await ensureUsers([uid].concat(l.map(function (c) { return c.members.filter(function (x) { return x !== uid; })[0]; })));
+        var u = UC[uid] || {};
+        el.innerHTML = '<h3 style="margin:10px 0 6px">محادثات @' + esc(u.username || '') + '</h3>' + (l.length ? l.map(function (c) {
+            var o = c.members.filter(function (x) { return x !== uid; })[0], ou = UC[o] || {};
+            return '<div class="sx-urow" data-sx="a-chat" data-c="' + c.id + '" data-uid="' + uid + '" data-o="' + o + '" style="cursor:pointer">' + av(ou) + '<div class="sx-meta"><b>' + esc(ou.displayName || 'مستخدم') + '</b><span>' + esc(c.last || '') + ' · ' + ago(c.lastAt) + '</span></div></div>';
+        }).join('') : '<div class="sx-empty">لا محادثات</div>');
+    } catch (e) { el.innerHTML = errBox(e); }
+}
+async function loadReports() {
+    var el = $('sx-arep'); if (!el) return;
+    try {
+        var s = await fs.collection('reports').orderBy('createdAt', 'desc').limit(30).get(), h = '';
+        s.forEach(function (d) { var r = d.data(); h += '<div class="sx-urow" style="flex-wrap:wrap"><div class="sx-meta"><b>منشور ' + esc(r.postId.slice(0, 6)) + '…</b><span>' + ago(r.createdAt) + '</span></div><div class="sx-ab"><button class="sx-btn" data-sx="open-post" data-id="' + r.postId + '">عرض</button><button class="sx-btn" data-sx="a-delpost" data-id="' + r.postId + '" data-r="' + d.id + '">حذف المنشور</button><button class="sx-btn" data-sx="a-banpost" data-id="' + r.postId + '">حظر صاحبه</button></div></div>'; });
+        el.innerHTML = h || '<div class="sx-empty">لا بلاغات</div>';
+    } catch (e) { el.innerHTML = errBox(e); }
+}
+async function adminVerify(uid) {
+    var u = UC[uid] || {}, v = !u.verified;
+    try { await fs.collection('users').doc(uid).update({ verified: v }); u.verified = v; sugCache = null; toast(v ? 'تم التوثيق' : 'أُلغي التوثيق'); adminSearch($('sx-aq').value); } catch (e) { console.error(e); toast('تعذّرت العملية'); }
+}
+async function adminBan(uid) {
+    var is = !!bans[uid];
+    if (uid === ADMIN_UID) return toast('لا يمكن حظر حساب الإدارة');
+    try {
+        if (is) { await fs.collection('bans').doc(uid).delete(); delete bans[uid]; }
+        else { await fs.collection('bans').doc(uid).set({ reason: 'admin', at: FV.serverTimestamp() }); bans[uid] = 1; }
+        toast(is ? 'رُفع الحظر' : 'تم الحظر'); adminSearch($('sx-aq').value);
+    } catch (e) { console.error(e); toast('تعذّرت العملية'); }
+}
+async function adminDelPost(id, rid) {
+    if (!confirm('حذف المنشور؟')) return;
+    try {
+        var d = await fs.collection('posts').doc(id).get(), b = fs.batch();
+        if (d.exists) { b.delete(fs.collection('posts').doc(id)); b.update(fs.collection('users').doc(d.data().authorUid), { postsCount: FV.increment(-1) }); }
+        if (rid) b.delete(fs.collection('reports').doc(rid));
+        await b.commit(); toast('تم الحذف'); loadReports();
+    } catch (e) { console.error(e); toast('تعذّر الحذف'); }
+}
+async function adminBanPost(id) {
+    try {
+        var d = await fs.collection('posts').doc(id).get(); if (!d.exists) return toast('المنشور محذوف');
+        var uid = d.data().authorUid; if (uid === ADMIN_UID) return toast('لا يمكن حظر حساب الإدارة');
+        if (!confirm('حظر صاحب المنشور؟')) return;
+        await fs.collection('bans').doc(uid).set({ reason: 'admin', at: FV.serverTimestamp() }); bans[uid] = 1; toast('تم حظر الحساب');
+    } catch (e) { console.error(e); toast('تعذّرت العملية'); }
+}
+
+/* ===== المصادقة ===== */
 function gate() {
     if (!me) { openAuth('login'); return false; }
     if (me.banned) { toast('حسابك محظور'); return false; }
@@ -5273,7 +5595,6 @@ function showView(v) {
     ['sx-l-err', 'sx-r-err', 'sx-p-err', 'sx-p-ok'].forEach(function (id) { $(id).textContent = ''; });
 }
 function openAuth(v) { showView(v || 'login'); $('sx-auth').classList.add('show'); pushLayer('auth'); }
-
 async function doLogin() {
     var email = $('sx-l-email').value.trim(), pass = $('sx-l-pass').value, err = $('sx-l-err'), btn = $('sx-l-btn'); err.textContent = '';
     if (!email || !pass) { err.textContent = 'أدخل البريد وكلمة المرور'; return; }
@@ -5316,7 +5637,7 @@ async function doReset() {
     btn.disabled = false;
 }
 
-
+/* ===== الأحداث ===== */
 var BACK = { 'sx-post': 'post', 'sx-auth': 'auth', 'sx-edit': 'edit', 'sx-list': 'list', 'sx-editpost': 'editpost' };
 $('secrets-overlay').addEventListener('click', function (e) {
     var car = e.target.closest('.sx-car');
@@ -5335,6 +5656,9 @@ $('secrets-overlay').addEventListener('click', function (e) {
         case 'x-edit': closeLayer('edit'); break;
         case 'x-editpost': closeLayer('editpost'); break;
         case 'x-list': closeLayer('list'); break;
+        case 'x-dm': closeLayer('dm'); break;
+        case 'x-chat': closeLayer('chat'); break;
+        case 'x-admin': closeLayer('admin'); break;
         case 'tab':
             while (layers.length > 1) hideLayer(layers.pop());
             tab = t.getAttribute('data-tab'); feedPage = 1; explorePage = 1; $('sx-main').scrollTop = 0; render();
@@ -5356,6 +5680,10 @@ $('secrets-overlay').addEventListener('click', function (e) {
         case 'publish': publish(); break;
         case 'rm-img': pending.splice(+t.getAttribute('data-i'), 1); renderCreate(); break;
         case 'like': like(id); break;
+        case 'save': toggleSave(id); break;
+        case 'share': { var sp = PC[id]; share('شاهد منشوراً من @' + ((UC[sp && sp.authorUid] || {}).username || '') + ' على لمة ماكس'); break; }
+        case 'share-profile': share('تابع @' + ((UC[uid] || {}).username || '') + ' على لمة ماكس'); break;
+        case 'likers': openLikers(id); break;
         case 'open-post': openPost(id); break;
         case 'focus-cm': { var c = $('sx-cm-text'); if (c) c.focus(); else gate(); break; }
         case 'edit-post': openEditPost(id); break;
@@ -5366,18 +5694,34 @@ $('secrets-overlay').addEventListener('click', function (e) {
         case 'more-explore': explorePage++; fillExplore(); break;
         case 'user': openUser(uid); break;
         case 'follow': toggleFollow(uid); break;
+        case 'block-menu': toggleBlock(uid); break;
         case 'list': openList(t.getAttribute('data-kind'), uid); break;
+        case 'ptab': { var host = t.closest('[data-puid]'); if (host) renderProfile(host.getAttribute('data-puid'), host, 0, t.getAttribute('data-t')); break; }
+        case 'tag': openTag(t.getAttribute('data-t').toLowerCase()); break;
+        case 'mention': openMention(t.getAttribute('data-un')); break;
         case 'notif': { var pi = t.getAttribute('data-post'); if (pi) openPost(pi); else openUser(uid); break; }
         case 'reply': replyTo = { parent: t.getAttribute('data-parent'), uid: uid, name: t.getAttribute('data-name') }; updReply(); var ct = $('sx-cm-text'); if (ct) ct.focus(); break;
         case 'reply-cancel': replyTo = null; updReply(); break;
         case 'cm-send': sendComment(); break;
         case 'cm-like': likeComment(id); break;
         case 'del-cm': delComment(id); break;
+        case 'dm': openDm(); break;
+        case 'msg': case 'chat': openChat(uid); break;
+        case 'send-msg': sendMsg(); break;
+        case 'admin': openAdmin(); break;
+        case 'a-chats': adminChats(uid); break;
+        case 'a-chat': { var A = UC[t.getAttribute('data-uid')] || {}, B = UC[t.getAttribute('data-o')] || {}; showChat(t.getAttribute('data-c'), '<div class="sx-meta"><b>@' + esc(A.username || '') + ' ↔ @' + esc(B.username || '') + '</b></div>', null, true); break; }
+        case 'a-verify': adminVerify(uid); break;
+        case 'a-ban': adminBan(uid); break;
+        case 'a-delpost': adminDelPost(id, t.getAttribute('data-r')); break;
+        case 'a-banpost': adminBanPost(id); break;
     }
 });
 $('secrets-overlay').addEventListener('input', function (e) {
-    if (e.target.id === 'sx-text') $('sx-count').textContent = e.target.value.length + '/500';
-    if (e.target.id === 'sx-q') { clearTimeout(searchT); var v = e.target.value; searchT = setTimeout(function () { doSearch(v); }, 350); }
+    var v = e.target.value;
+    if (e.target.id === 'sx-text') $('sx-count').textContent = v.length + '/500';
+    var fn = { 'sx-q': doSearch, 'sx-dmq': dmSearch, 'sx-aq': adminSearch }[e.target.id];
+    if (fn) { clearTimeout(searchT); searchT = setTimeout(function () { fn(v); }, 350); }
 });
 $('secrets-overlay').addEventListener('change', async function (e) {
     var f = e.target.files && e.target.files[0]; if (!f) return;
