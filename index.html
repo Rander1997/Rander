@@ -32,6 +32,7 @@
 
         <!-- عنوان المتجر الشامل الذي يظهر في جوجل -->
     <title>رانـدر ماكـس | Rander Max - كل ما تحتاجه في مكان واحد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap" rel="stylesheet">
 
     <!-- أيقونة التطبيق -->
     <link rel="apple-touch-icon" sizes="180x180" href="2A083784-2DAC-41C1-87F5-7C65C9DA55B5.png">
@@ -1735,13 +1736,23 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
 
         <!-- القسم الأيسر: زر أسرار وزر السلة في أقصى اليسار -->
         <div style="display: flex; align-items: center; gap: 8px;">
-            <!-- زر أسرار (مكانه الجديد بجانب السلة) -->
-            <button class="cart-btn btn" onclick="openSecretsWall()" title="حائط الأسرار" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; padding: 8px 12px; font-size: 13px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="url(#maxGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                <span>أسرار</span>
-            </button>
+            <!-- زر لمّـة Max -->
+<button class="cart-btn btn" onclick="openSecretsWall()" title="لمّـة Max" style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; padding: 6px 12px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;">
+    <span style="width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #a78bfa, #f472b6); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+            <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"/>
+            <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+            <path d="M17 10h2a2 2 0 0 1 2 2v1"/>
+            <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+            <path d="M3 13v-1a2 2 0 0 1 2 -2h2"/>
+        </svg>
+    </span>
+    <span style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
+        <span style="font-family: 'Lalezar', 'Segoe UI', sans-serif; font-size: 21px; line-height: 1.05;">لمّـة</span>
+        <span style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 9px; font-weight: 800; letter-spacing: 3px; direction: ltr; margin-top: 2px; background: linear-gradient(90deg, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">Max</span>
+    </span>
+</button>
 
             <!-- زر السلة (في أقصى اليسار مع أيقونة بتدرج ألوان Max) -->
             <button class="cart-btn btn" id="cart-counter" onclick="
