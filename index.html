@@ -2295,10 +2295,12 @@ var categoriesData = [];
 window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
+    clearInstalled();
     showInstallUI();
 });
 window.addEventListener('appinstalled', function() {
     deferredPrompt = null;
+    setInstalled();
     hideInstallUI();
 });
 
