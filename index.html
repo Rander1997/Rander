@@ -4553,32 +4553,6 @@ function showFuturisticNotificationPrompt() {
     };
 }
 
-// إنشاء زر ثابت وبارز في واجهة المتجر كحل بديل وآمن تماماً ضد قيود الأندرويد
-function renderPermanentNotificationButton() {
-    if (Notification.permission === 'granted') {
-        return;
-    }
-
-    if (!document.getElementById('permanent-notif-container')) {
-        const containerHTML = `
-            <div id="permanent-notif-container" style="text-align: center; margin: 15px auto; padding: 10px; z-index: 9999; position: relative;">
-                <button id="permanent-notif-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
-                    🔔 تفعيل إشعارات متجر رانـدر
-                </button>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('afterbegin', containerHTML);
-        
-        document.getElementById('permanent-notif-btn').onclick = function(e) {
-            requestNotificationPermission(document.getElementById('permanent-notif-container'));
-        };
-    }
-}
-
-// تشغيل وظيفة بناء الزر الثابت فور تحميل الصفحة
-document.addEventListener("DOMContentLoaded", function() {
-    renderPermanentNotificationButton();
-});
 
 
     // دالة لتوليد رابط المشاركة النظيف باستخدام الـ slug
