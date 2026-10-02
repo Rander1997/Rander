@@ -4622,7 +4622,6 @@ var tab = 'feed', feedPage = 1, feedMore = false, rt = 0, explorePage = 1;
 var curPost = null, replyTo = null, unsubCm = null, unsubN = null, notifs = [], editId = null, dt = { id: '', t: 0 };
 var layers = [], pending = [], locks = {}, last = { post: 0, cm: 0 }, registering = false, nsfwP = null, searchT = null;
 
-‎/* ========== أدوات ========== */
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function toast(t) { if (window.showToast) window.showToast(t); else alert(t); }
@@ -4649,7 +4648,6 @@ var IC = {
 function ic(n) { return '<svg viewBox="0 0 24 24">' + IC[n] + '</svg>'; }
 function vb(u) { return u && u.verified === true ? '<svg class="sx-vb" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="none"/><path d="M8 12.5l2.8 2.8L16 9.5"/></svg>' : ''; }
 
-‎/* ========== تنسيقات وعناصر إضافية ========== */
 (function inject() {
     var css = '#secrets-overlay svg.sx-vb{width:15px;height:15px;fill:#3b82f6;stroke:#fff;stroke-width:2.6;margin:0 3px;vertical-align:-3px;display:inline-block}' +
         '#secrets-overlay .sx-post{border-radius:0;border-left:0;border-right:0;border-top:0;background:var(--bg-primary);margin-bottom:6px}' +
@@ -4673,7 +4671,6 @@ function vb(u) { return u && u.verified === true ? '<svg class="sx-vb" viewBox="
         '<button class="sx-btn sx-primary" data-sx="save-post" style="width:100%">حفظ</button></div></div>');
 })();
 
-‎/* ========== فلتر الألفاظ ========== */
 var BAD = ['كس','زب','عير','نيك','ناك','عرص','طيز','خرا','قحبه','لبوه','فاجره','عاهره','ديوث','كواد','قواد','معرص','شرموط','شرموطه','منيوك','fuck','shit','bitch','dick','cunt','whore','slut','pussy','bastard','asshole','nigger'];
 var PH = ['ابن الكلب','يا كلب','ابن الحرام','ابن الزنا','ابن القحبه','يلعن ابوك','يلعن دينك'];
 var STEM = ['كسمك','كسخت','كسام','كسك','شرموط','منيوك','منيك','قحب','عرصه','زانيه','عاهر','خنيث','fuck'];
@@ -4693,9 +4690,6 @@ function clean(t) {
     return true;
 }
 
-‎/* ========== فحص الصور (NSFW) ========== */
-‎/* سبب الفشل السابق: nsfwjs كان يبحث عن ملفات النموذج في /model/ على موقعك ولا توجد.
-‎   الآن يجرّب: مجلد model/ بجانب index.html (الأفضل)، ثم نسخة من CDN. */
 var MODEL_SRCS = ['model/', 'https://cdn.jsdelivr.net/gh/infinitered/nsfwjs@2.4.2/example/nsfw_demo/public/model/'];
 function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
 function getNsfw() {
@@ -4709,7 +4703,7 @@ function getNsfw() {
     return nsfwP;
 }
 function loadImg(src) { return new Promise(function (res, rej) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = rej; i.src = src; }); }
-/* true = مخالفة، false = سليمة، null = الفاحص غير متاح (لا نمنع المستخدم) */
+    
 async function scan(list) {
     var model; try { model = await getNsfw(); } catch (e) { console.error(e); return null; }
     try {
@@ -4744,7 +4738,7 @@ async function banMe(reason) {
     render();
 }
 
-‎/* ========== المستخدمون ========== */
+
 function defAv(n, g) {
     var c = g === 'female' ? ['#f472b6', '#a855f7'] : ['#38bdf8', '#6366f1'], ch = String(n || '?').trim().charAt(0) || '?';
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="50" dy=".35em" text-anchor="middle" font-size="46" font-family="sans-serif" font-weight="700" fill="#fff">' + esc(ch) + '</text></svg>';
@@ -4785,7 +4779,7 @@ au.onAuthStateChanged(function (u) {
     loadMe(u).catch(function (e) { console.error(e); });
 });
 
-‎/* ========== طبقات وزر الرجوع ========== */
+
 function hideLayer(n) {
     if (n === 'wall') { $('secrets-overlay').classList.remove('open'); document.body.style.overflow = ''; }
     else if (n === 'auth') $('sx-auth').classList.remove('show');
@@ -4809,7 +4803,7 @@ window.openSecretsWall = function () {
     $('secrets-overlay').classList.add('open'); document.body.style.overflow = 'hidden'; pushLayer('wall'); render();
 };
 
-‎/* ========== التبويبات ========== */
+
 function render() {
     var tk = ++rt;
     document.querySelectorAll('#sx-bar [data-tab]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
@@ -4827,7 +4821,7 @@ function errBox(e) {
 }
 function okPost(p) { return !bans[p.authorUid] && (p.reportedBy || []).length < 3 && alive(p); }
 
-‎/* ---------- جلب المنشورات ---------- */
+
 async function fetchFeed() {
     var ids = [me.uid].concat(following), per = PAGE * feedPage, items = [], chunks = [];
     for (var i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
@@ -4853,7 +4847,7 @@ async function fetchExplore(n, onlyStrangers) {
     return out;
 }
 
-‎/* ---------- الرئيسية (مثل إنستغرام) ---------- */
+
 async function renderFeed(tk) {
     var V = $('sx-view');
     if (!me) { V.innerHTML = prompt_('سجّل الدخول لترى منشورات الأشخاص الذين تتابعهم'); return; }
@@ -4874,7 +4868,7 @@ async function renderFeed(tk) {
     } catch (e) { if (tk === rt) V.innerHTML = errBox(e); }
 }
 
-‎/* ---------- اكتشف (بحث + شبكة منشورات غير المتابَعين) ---------- */
+
 function followBtn(uid) {
     if (me && uid === me.uid) return '';
     var f = following.indexOf(uid) > -1;
@@ -4909,7 +4903,7 @@ function doSearch(v) {
     }).catch(function (e) { if ($('sx-res')) $('sx-res').innerHTML = errBox(e); });
 }
 
-‎/* ---------- النشر: الصور أولاً ثم النص ---------- */
+
 function renderCreate() {
     var V = $('sx-view');
     if (!me) { V.innerHTML = prompt_('سجّل الدخول لتنشر'); return; }
@@ -4948,7 +4942,7 @@ async function publish() {
     }
 }
 
-‎/* ---------- المنشورات ---------- */
+
 function postHtml(p, full) {
     var u = UC[p.authorUid] || {}, liked = me && (p.likedBy || []).indexOf(me.uid) > -1, mine = me && p.authorUid === me.uid, imgs = p.images || [];
     var car = imgs.length ? '<div class="sx-car" data-pc="' + p.id + '"><div class="sx-track">' + imgs.map(function (s) { return '<img src="' + esc(s) + '" alt="" loading="lazy">'; }).join('') + '</div>' +
@@ -5026,7 +5020,7 @@ async function report(id) {
     } catch (e) { console.error(e); toast('تعذّر الإبلاغ'); }
 }
 
-‎/* ---------- نافذة المنشور والتعليقات ---------- */
+
 async function openPost(id) {
     curPost = id; replyTo = null; updReply();
     $('sx-pv').innerHTML = SKEL; $('sx-post').classList.add('show'); pushLayer('post'); renderCmForm();
@@ -5102,7 +5096,7 @@ async function delComment(id) {
     } catch (e) { console.error(e); toast('تعذّر الحذف'); }
 }
 
-‎/* ---------- المتابعة ---------- */
+
 async function toggleFollow(uid) {
     if (!gate() || uid === me.uid || locks['f' + uid]) return; locks['f' + uid] = 1;
     var is = following.indexOf(uid) > -1, b = fs.batch();
@@ -5136,7 +5130,7 @@ async function openList(kind, uid) {
     } catch (e) { $('sx-list-body').innerHTML = errBox(e); }
 }
 
-‎/* ---------- الملف الشخصي ---------- */
+
 async function renderProfile(uid, el, tk) {
     el.innerHTML = SKEL;
     try {
@@ -5190,7 +5184,7 @@ async function saveProfile() {
     } catch (e) { console.error(e); err.textContent = 'تعذّر الحفظ'; }
 }
 
-‎/* ---------- الإشعارات ---------- */
+
 function startNotifs() {
     stopNotifs();
     unsubN = fs.collection('notifications').doc(me.uid).collection('items').orderBy('createdAt', 'desc').limit(40).onSnapshot(function (s) {
@@ -5222,7 +5216,7 @@ async function renderNotifs(tk) {
     }, 1500);
 }
 
-‎/* ========== المصادقة (بريد + كلمة مرور فقط، بدون رسالة تفعيل) ========== */
+
 function gate() {
     if (!me) { openAuth('login'); return false; }
     if (me.banned) { toast('حسابك محظور'); return false; }
@@ -5284,7 +5278,7 @@ async function doReset() {
     btn.disabled = false;
 }
 
-‎/* ========== الأحداث ========== */
+
 var BACK = { 'sx-post': 'post', 'sx-auth': 'auth', 'sx-edit': 'edit', 'sx-list': 'list', 'sx-editpost': 'editpost' };
 $('secrets-overlay').addEventListener('click', function (e) {
     var car = e.target.closest('.sx-car');
