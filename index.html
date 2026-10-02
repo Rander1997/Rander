@@ -3299,79 +3299,95 @@ itemList += (i + 1) + ". " + (item.name || item.title) + optionText + supplierTe
         }
 
         function isStandaloneMode() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function isIOSDevice() {
+    var ua = navigator.userAgent;
+    return /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function installedFlag() { try { return localStorage.getItem('lm_installed') === '1'; } catch (e) { return false; } }
+function setInstalled() { try { localStorage.setItem('lm_installed', '1'); } catch (e) {} }
+function clearInstalled() { try { localStorage.removeItem('lm_installed'); } catch (e) {} }
+function installDismissed() {
+    try {
+        var days = isIOSDevice() ? 30 : 7;
+        return Date.now() - (+localStorage.getItem('lm_inst_dismiss') || 0) < days * 864e5;
+    } catch (e) { return false; }
+}
+
+function ensureSettingsInstallBtn() {
+    if (document.getElementById('install-settings-btn')) return;
+    var card = document.querySelector('#settingsModal > div');
+    var list = card && card.lastElementChild;
+    if (!list) return;
+    var b = document.createElement('button');
+    b.id = 'install-settings-btn';
+    b.style.cssText = 'display:none;align-items:center;gap:10px;width:100%;padding:10px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;text-align:right';
+    b.textContent = '📲 تثبيت التطبيق';
+    b.onclick = triggerAppInstall;
+    list.insertBefore(b, list.firstChild);
 }
 
 function showInstallUI() {
-    if (isStandaloneMode()) return;
+    if (isStandaloneMode()) { setInstalled(); hideInstallUI(); return; }
+    ensureSettingsInstallBtn();
+    var sb = document.getElementById('install-settings-btn');
+    if (sb) sb.style.display = deferredPrompt ? 'flex' : 'none';
     var banner = document.getElementById('install-banner');
-    if (banner && !sessionStorage.getItem('dismissed_install_banner')) banner.style.display = 'flex';
+    if (!banner || installDismissed()) return;
+    var textEl = banner.querySelector('.install-banner-text');
+    var btn = banner.querySelector('.install-confirm-btn');
+    if (deferredPrompt) {
+        if (textEl) textEl.textContent = '📲 ثبّت تطبيق RANDER لتجربة تسوق أسرع!';
+        if (btn) btn.style.display = '';
+        banner.style.display = 'flex';
+    }
 }
 
 function initPWAInstaller() {
-    if (isStandaloneMode()) { hideInstallUI(); return; }
+    if (isStandaloneMode()) { setInstalled(); hideInstallUI(); return; }
+    ensureSettingsInstallBtn();
     if (deferredPrompt) { showInstallUI(); return; }
 
-    // بديل: إذا لم يصل الحدث خلال 4 ثوانٍ نعرض تعليمات يدوية
-    setTimeout(function() {
-        if (deferredPrompt || isStandaloneMode()) return;
+    setTimeout(function () {
+        if (deferredPrompt || isStandaloneMode() || installedFlag() || installDismissed()) return;
         var banner = document.getElementById('install-banner');
-        if (!banner || sessionStorage.getItem('dismissed_install_banner')) return;
-
-        var ua = navigator.userAgent;
-        var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (!banner) return;
+        var ua = navigator.userAgent, ios = isIOSDevice();
         var inApp = /FBAN|FBAV|Instagram|Telegram|; wv\)/i.test(ua);
         var textEl = banner.querySelector('.install-banner-text');
-
-        var shareIcon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin:0 4px;"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
-
-        if (isIOS) {
-            textEl.innerHTML = '📲 للتثبيت: اضغط على ' + shareIcon + 'ثم اختر «إضافة إلى الشاشة الرئيسية»';
-        } else if (inApp) {
-            textEl.innerText = '🌐 افتح الرابط في متصفح Chrome لتتمكن من تثبيت التطبيق';
-        } else {
-            textEl.innerText = '📲 للتثبيت: اضغط ⋮ في المتصفح ثم «إضافة إلى الشاشة الرئيسية»';
-        }
-
-        var installBtn = banner.querySelector('.install-confirm-btn');
-        if (installBtn) installBtn.style.display = 'none';
+        var shareIcon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin:0 4px;"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+        if (ios) textEl.innerHTML = '📲 للتثبيت: اضغط على ' + shareIcon + 'ثم اختر «إضافة إلى الشاشة الرئيسية»';
+        else if (inApp) textEl.textContent = '🌐 افتح الرابط في متصفح Chrome لتتمكن من تثبيت التطبيق';
+        else textEl.textContent = '📲 للتثبيت: اضغط ⋮ في المتصفح ثم «تثبيت التطبيق»';
+        var btn = banner.querySelector('.install-confirm-btn');
+        if (btn) btn.style.display = 'none';
         banner.style.display = 'flex';
     }, 4000);
 }
 
 function triggerAppInstall() {
-    if (!deferredPrompt) {
-        alert("التطبيق مثبت بالفعل، أو أن متصفحك لا يدعم التثبيت المباشر حالياً.");
-        return;
-    }
-    
+    if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(function(choiceResult) {
-        if (choiceResult.outcome === 'accepted') {
-            // إخفاء الزر فور موافقة المستخدم على التثبيت
-            hideInstallUI();
-        }
+    deferredPrompt.userChoice.then(function (r) {
+        if (r.outcome === 'accepted') { setInstalled(); hideInstallUI(); }
         deferredPrompt = null;
+        var sb = document.getElementById('install-settings-btn'); if (sb) sb.style.display = 'none';
     });
 }
 
 function closeInstallBanner() {
     var banner = document.getElementById('install-banner');
     if (banner) banner.style.display = 'none';
-    sessionStorage.setItem('dismissed_install_banner', 'true');
+    try { localStorage.setItem('lm_inst_dismiss', String(Date.now())); } catch (e) {}
 }
 
 function hideInstallUI() {
-    var topBtn = document.getElementById('install-pwa-btn');
     var banner = document.getElementById('install-banner');
-    if (topBtn) topBtn.style.display = 'none';
+    var sb = document.getElementById('install-settings-btn');
     if (banner) banner.style.display = 'none';
+    if (sb) sb.style.display = 'none';
 }
-        
-        window.navStack = window.navStack || [];
-        var exitTimer = null;
-
-        history.pushState({ page: 'main' }, '', '');
 
         function recordNavigationStep() {
             window.navStack.push('product-view');
