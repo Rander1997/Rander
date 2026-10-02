@@ -1696,6 +1696,33 @@ body.dark-mode #secrets-overlay{--bg-card:#1e1e1e;--bg-primary:#121212;--text-pr
 .sx-cm-form{display:flex;gap:8px;align-items:flex-end;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--border-color);background:var(--bg-card)}
 .sx-cm-form textarea{min-height:44px;max-height:110px}
 
+
+/* خط Lalezar لأزرار الهيدر */
+header .cart-btn {
+    font-family: 'Lalezar', 'Segoe UI', sans-serif;
+    font-weight: 400;
+}
+
+/* رانـدر بنفس حجم لمّـة */
+header .logo {
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+/* Max تحت رانـدر تبقى بالخط اللاتيني */
+header .logo + div {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-weight: 800;
+}
+
+/* مشاركة والسلة: الخط أصغر بصرياً فنكبّره قليلاً */
+header button[onclick="shareApp()"],
+header #cart-counter {
+    font-size: 15px !important;
+}
+
+
         
 </style>
 
