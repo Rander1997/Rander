@@ -1724,6 +1724,17 @@ header #cart-counter {
 }
 
 
+#cart-counter .cart-num {
+    background: linear-gradient(90deg, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent !important;
+    font-weight: 800;
+    direction: ltr;
+    display: inline-block;
+}
+
         
 </style>
 
@@ -3002,13 +3013,13 @@ function showFavorites(btnElement) {
         }
 
         function updateCartCounter() {
-            if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) window.cartArray = [];
-            var totalQty = cartArray.reduce(function(sum, item) {
-                return sum + (Number(item.qty) || 1);
-            }, 0);
-            var counter = document.getElementById('cart-counter');
-            if (counter) counter.innerText = "🛒 السلة (" + totalQty + ")";
-        }
+    if (typeof cartArray === 'undefined' || !Array.isArray(cartArray)) window.cartArray = [];
+    var totalQty = cartArray.reduce(function (sum, item) {
+        return sum + (Number(item.qty) || 1);
+    }, 0);
+    var counter = document.getElementById('cart-counter');
+    if (counter) counter.innerHTML = '🛒 السلة <span class="cart-num">(' + totalQty + ')</span>';
+}
 
         function changeCartQty(index, change) {
             if (typeof cartArray !== 'undefined' && cartArray[index]) {
