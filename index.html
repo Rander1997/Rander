@@ -2394,50 +2394,19 @@ function addNewProduct() {
         function saveFavsToStorage() { localStorage.setItem('rander_favs', JSON.stringify(favoritesArray)); }
 
         function showToast(text) {
-            var existingToast = document.querySelector('.toast-msg');
-            if (existingToast) existingToast.remove();
-
-            var toast = document.createElement('div');
-            toast.className = 'toast-msg';
-            
-            toast.style.cssText = "position: fixed !important; " +
-                                  "bottom: 30px !important; " +
-                                  "left: 50% !important; " +
-                                  "-webkit-transform: translateX(-50%) !important; " +
-                                  "transform: translateX(-50%) !important; " +
-                                  "text-align: center !important; " +
-                                  "z-index: 999999 !important; " +
-                                  "pointer-events: none !important; " +
-                                  "background: transparent !important; " +
-                                  "width: auto !important; " +
-                                  "height: auto !important; " +
-                                  "overflow: visible !important;";
-
-            var inner = document.createElement('div');
-            inner.innerText = text;
-            inner.style.cssText = "display: inline-block !important; " +
-                                  "background-color: #1e293b !important; " +
-                                  "color: #ffffff !important; " +
-                                  "padding: 12px 24px !important; " +
-                                  "border-radius: 30px !important; " +
-                                  "font-weight: 600 !important; " +
-                                  "font-size: 14px !important; " +
-                                  "box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important; " +
-                                  "text-align: center !important; " +
-                                  "pointer-events: auto !important; " +
-                                  "border: 1px solid rgba(255, 255, 255, 0.15) !important; " +
-                                  "white-space: nowrap !important; " +
-                                  "max-width: 90vw !important;";
-
-            toast.appendChild(inner);
-            document.body.appendChild(toast);
-
-            setTimeout(function() {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.3s ease';
-                setTimeout(function() { if(toast.parentNode) toast.remove(); }, 300);
-            }, 2500);
-        }
+    var old = document.getElementById('lm-toast');
+    if (old) old.remove();
+    var t = document.createElement('div');
+    t.id = 'lm-toast';
+    t.textContent = text;
+    t.style.cssText = 'position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);' +
+        'z-index:2147483000;background:#1e293b;color:#fff;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:600;' +
+        'box-shadow:0 8px 20px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);max-width:88vw;text-align:center;' +
+        'white-space:normal;line-height:1.5;pointer-events:none;opacity:1;transition:opacity .3s ease';
+    document.body.appendChild(t);
+    setTimeout(function () { t.style.opacity = '0'; }, 2400);
+    setTimeout(function () { if (t.parentNode) t.remove(); }, 2750);
+}
 
         function startVoiceSearch() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
