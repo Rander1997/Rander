@@ -5438,7 +5438,7 @@ function dmUnread() { return me ? chats.reduce(function (n, c) { return n + ((c.
 function updDm() { var n = dmUnread(), b = $('sx-dmbadge'); b.style.display = n ? 'flex' : 'none'; b.textContent = n > 9 ? '9+' : n; }
 function openDm() {
     if (!gate()) return;
-    $('sx-dm-body').innerHTML = '<div class="sx-field"><input type="search" id="sx-dmq" placeholder="ابحث عن حساب لبدء محادثة" dir="auto" autocomplete="off"></div><div id="sx-dmres"></div><div id="sx-dmlist"></div><p class="sx-note">المحادثات قد تُراجع من إدارة لمة ماكس عند وجود بلاغ أو مخالفة.</p>';
+    $('sx-dm-body').innerHTML = '<div class="sx-field"><input type="search" id="sx-dmq" placeholder="ابحث عن حساب لبدء محادثة" dir="auto" autocomplete="off"></div><div id="sx-dmres"></div><div id="sx-dmlist"></div><p class="sx-note"></p>';
     $('sx-dm').classList.add('show'); pushLayer('dm'); renderDm();
 }
 async function renderDm() {
