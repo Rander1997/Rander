@@ -1765,6 +1765,8 @@ header #cart-counter {
 #hx .hx-n{font-size:16px;font-weight:900;direction:ltr;line-height:1.2}
 #hx .hx-st small{font-size:10px;opacity:.85;line-height:1.3}
 #hx .hx-st svg{width:15px;height:15px;color:#a78bfa}
+#hx::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:6;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),transparent 35%)}
 #hx .hx-dots{position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:5}
 #hx .hx-dots i{width:6px;height:6px;border-radius:6px;background:rgba(255,255,255,.4);cursor:pointer;transition:all .3s ease !important}
 #hx .hx-dots i.on{width:16px;background:#fff}
