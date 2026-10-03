@@ -5006,8 +5006,24 @@ async function renderFeed(tk) {
 /* ===== اكتشف والبحث ===== */
 function followBtn(uid) {
     if (me && uid === me.uid) return '';
-    var f = following.indexOf(uid) > -1;
-    return '<button class="sx-btn ' + (f ? 'sx-line' : 'sx-primary') + '" data-sx="follow" data-uid="' + uid + '" style="padding:7px 14px;font-size:13px">' + (f ? 'إلغاء المتابعة' : 'متابعة') + '</button>';
+    var f = following.indexOf(uid) > -1, r = !f && requested[uid];
+    return '<button class="sx-btn ' + (f || r ? 'sx-line' : 'sx-primary') + '" data-sx="follow" data-uid="' + uid + '" style="padding:7px 14px;font-size:13px">' + (f ? 'إلغاء المتابعة' : r ? 'تم الطلب' : 'متابعة') + '</button>';
+}
+function refreshFollowBtns(uid) {
+    document.querySelectorAll('[data-sx="follow"][data-uid="' + uid + '"]').forEach(function (el) { el.outerHTML = followBtn(uid); });
+}
+async function toggleRequest(uid) {
+    var id = me.uid + '_' + uid, b = fs.batch(), nr = nref(uid, 'freq_' + me.uid), was = !!requested[uid];
+    if (was) { b.delete(fs.collection('followReqs').doc(id)); b.delete(nr); }
+    else {
+        b.set(fs.collection('followReqs').doc(id), { from: me.uid, to: uid, createdAt: FV.serverTimestamp() });
+        b.set(nr, { type: 'freq', fromUid: me.uid, read: false, createdAt: FV.serverTimestamp() });
+    }
+    try {
+        await b.commit();
+        if (was) delete requested[uid]; else requested[uid] = 1;
+        refreshFollowBtns(uid); toast(was ? 'أُلغي الطلب' : 'تم إرسال طلب المتابعة');
+    } catch (e) { console.error(e); toast('تعذّر تنفيذ العملية'); }
 }
 function userRow(u) {
     return '<div class="sx-urow"><div class="sx-ulink" data-sx="user" data-uid="' + u.id + '">' + av(u) + '<div class="sx-meta"><b>' + esc(u.displayName) + vb(u) + '</b><span>@' + esc(u.username) + ' · ' + (u.followersCount || 0) + ' متابع</span></div></div>' + followBtn(u.id) + '</div>';
@@ -5296,25 +5312,50 @@ async function delComment(id) {
 /* ===== المتابعة والحظر ===== */
 async function toggleFollow(uid) {
     if (!gate() || uid === me.uid || locks['f' + uid]) return; locks['f' + uid] = 1;
-    var is = following.indexOf(uid) > -1, b = fs.batch();
-    var fref = fs.collection('follows').doc(me.uid + '_' + uid), nr = nref(uid, 'follow_' + me.uid);
-    var mref = fs.collection('users').doc(me.uid), tref = fs.collection('users').doc(uid);
-    if (is) { b.delete(fref); b.update(mref, { followingCount: FV.increment(-1) }); b.update(tref, { followersCount: FV.increment(-1) }); b.delete(nr); }
-    else {
-        b.set(fref, { follower: me.uid, following: uid, createdAt: FV.serverTimestamp() });
-        b.update(mref, { followingCount: FV.increment(1) }); b.update(tref, { followersCount: FV.increment(1) });
-        b.set(nr, { type: 'follow', fromUid: me.uid, read: false, createdAt: FV.serverTimestamp() });
-    }
+    var is = following.indexOf(uid) > -1;
     try {
+        if (!is) {
+            var td = await fs.collection('users').doc(uid).get();
+            if (td.exists) { var tu = td.data(); tu.id = uid; UC[uid] = tu; }
+            if (UC[uid] && UC[uid].private === true) { await toggleRequest(uid); locks['f' + uid] = 0; return; }
+        }
+        var b = fs.batch();
+        var fref = fs.collection('follows').doc(me.uid + '_' + uid), nr = nref(uid, 'follow_' + me.uid);
+        var mref = fs.collection('users').doc(me.uid), tref = fs.collection('users').doc(uid);
+        if (is) { b.delete(fref); b.update(mref, { followingCount: FV.increment(-1) }); b.update(tref, { followersCount: FV.increment(-1) }); b.delete(nr); }
+        else {
+            b.set(fref, { follower: me.uid, following: uid, createdAt: FV.serverTimestamp() });
+            b.update(mref, { followingCount: FV.increment(1) }); b.update(tref, { followersCount: FV.increment(1) });
+            b.set(nr, { type: 'follow', fromUid: me.uid, read: false, createdAt: FV.serverTimestamp() });
+        }
         await b.commit();
         if (is) following = following.filter(function (x) { return x !== uid; }); else following.push(uid);
         var t = UC[uid]; if (t) t.followersCount = Math.max(0, (t.followersCount || 0) + (is ? -1 : 1));
         mu().followingCount = Math.max(0, (mu().followingCount || 0) + (is ? -1 : 1));
-        feedPage = 1; poolAt = 0;
-        document.querySelectorAll('[data-sx="follow"][data-uid="' + uid + '"]').forEach(function (el) { el.outerHTML = followBtn(uid); });
+        feedPage = 1; poolAt = 0; refreshFollowBtns(uid);
         var fc = $('sx-fc-' + uid); if (fc && t) fc.textContent = t.followersCount;
+        if (is && t && t.private === true) { var host = document.querySelector('[data-puid="' + uid + '"]'); if (host) renderProfile(uid, host, 0, 'posts'); }
     } catch (e) { console.error(e); toast('تعذّر تنفيذ العملية'); }
     locks['f' + uid] = 0;
+}
+async function acceptReq(uid) {
+    if (!gate() || locks['q' + uid]) return; locks['q' + uid] = 1;
+    var id = uid + '_' + me.uid, b = fs.batch();
+    b.set(fs.collection('follows').doc(id), { follower: uid, following: me.uid, createdAt: FV.serverTimestamp() });
+    b.delete(fs.collection('followReqs').doc(id));
+    b.update(fs.collection('users').doc(me.uid), { followersCount: FV.increment(1) });
+    b.update(fs.collection('users').doc(uid), { followingCount: FV.increment(1) });
+    b.delete(nref(me.uid, 'freq_' + uid));
+    b.set(nref(uid, 'facc_' + me.uid), { type: 'facc', fromUid: me.uid, read: false, createdAt: FV.serverTimestamp() });
+    try { await b.commit(); mu().followersCount = (mu().followersCount || 0) + 1; toast('تم قبول الطلب'); }
+    catch (e) { console.error(e); toast('تعذّر قبول الطلب'); }
+    locks['q' + uid] = 0;
+}
+async function declineReq(uid) {
+    if (!gate() || locks['q' + uid]) return; locks['q' + uid] = 1;
+    var b = fs.batch(); b.delete(fs.collection('followReqs').doc(uid + '_' + me.uid)); b.delete(nref(me.uid, 'freq_' + uid));
+    try { await b.commit(); toast('تم رفض الطلب'); } catch (e) { console.error(e); toast('تعذّر الرفض'); }
+    locks['q' + uid] = 0;
 }
 async function toggleBlock(uid) {
     if (!gate()) return; var is = !!blocked[uid], ref = fs.collection('blocks').doc(me.uid + '_' + uid);
