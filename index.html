@@ -4758,6 +4758,7 @@ function share(text) {
         '.sx-dot{width:10px;height:10px;border-radius:50%;background:#6366f1;flex-shrink:0}' +
         '.sx-ab{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}#secrets-overlay .sx-ab button{padding:5px 10px;font-size:12px;border:1px solid var(--border-color)!important}';
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+    var gf = $('sx-e-gender'); if (gf) gf.closest('.sx-field').insertAdjacentHTML('afterend', '<div class="sx-field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" id="sx-e-priv" style="width:20px;height:20px;padding:0;flex-shrink:0"> حساب خاص 🔒</label><p class="sx-note" style="margin-top:4px">لن يرى منشوراتك إلا من توافق على متابعته.</p></div>');
     var ov = $('secrets-overlay');
     var hd = ov.querySelector('.sx-header');
     hd.querySelector('h2').textContent = 'لمّـة Max';
