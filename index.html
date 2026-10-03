@@ -4267,9 +4267,10 @@ function renderProductsList(productsArray, gridElement) {
             <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', this.closest('.product-card').getAttribute('data-name'), ${basePrice})">إضافة للسلة 🛒</button>
         `;
 
-        // استخدام appendChild لإضافتها بترتيب تسلسلي صحيح للدفعة الحالية
+               // استخدام appendChild لإضافتها بترتيب تسلسلي صحيح للدفعة الحالية
         gridElement.appendChild(card);
     });
+    setTimeout(maybeLoadMore, 400);
 }
 
 // تشغيل دالة الجلب عند تحميل الصفحة
