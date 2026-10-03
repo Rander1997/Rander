@@ -3995,6 +3995,7 @@ function showHomeProducts(allProducts) {
 }
 
 function loadCloudProducts() {
+    window._catToken = (window._catToken || 0) + 1;
     currentCategory = null;
     currentSubCategory = null;
     lastVisibleProduct = null;
