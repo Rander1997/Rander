@@ -3405,6 +3405,10 @@ function hideInstallUI() {
     if (sb) sb.style.display = 'none';
 }
 
+        window.navStack = window.navStack || [];
+        var exitTimer = null;
+        history.pushState({ page: 'main' }, '', '');
+    
         function recordNavigationStep() {
             window.navStack.push('product-view');
             history.pushState({ depth: window.navStack.length }, '', '');
