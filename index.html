@@ -5437,19 +5437,26 @@ function openUser(uid) {
 function openEdit() {
     var u = mu();
     $('sx-e-name').value = u.displayName || ''; $('sx-e-bio').value = u.bio || ''; $('sx-e-gender').value = u.gender || 'male';
+    $('sx-e-priv').checked = u.private === true;
     $('sx-e-err').textContent = ''; $('sx-e-img').className = 'sx-av lg ' + (u.gender === 'female' ? 'g-f' : 'g-m');
     $('sx-e-img').src = u.avatar || defAv(u.displayName, u.gender); window._newAv = null;
     $('sx-edit').classList.add('show'); pushLayer('edit');
 }
+async function syncPostsPrivacy(priv) {
+    var s = await fs.collection('posts').where('authorUid', '==', me.uid).limit(400).get(), b = fs.batch(), n = 0;
+    s.forEach(function (d) { b.update(d.ref, { authorPrivate: priv }); n++; if (PC[d.id]) PC[d.id].authorPrivate = priv; });
+    if (n) await b.commit();
+}
 async function saveProfile() {
-    var u = mu(), name = $('sx-e-name').value.trim(), bio = $('sx-e-bio').value.trim(), g = $('sx-e-gender').value, err = $('sx-e-err');
+    var u = mu(), name = $('sx-e-name').value.trim(), bio = $('sx-e-bio').value.trim(), g = $('sx-e-gender').value, priv = $('sx-e-priv').checked, err = $('sx-e-err');
     if (name.length < 2) { err.textContent = 'اكتب اسماً من حرفين على الأقل'; return; }
     if (!clean(name) || !clean(bio)) { err.textContent = 'النص يحتوي على ألفاظ غير مسموحة'; return; }
     var avatar = window._newAv != null ? window._newAv : (u.avatar || '');
     try {
-        await fs.collection('users').doc(me.uid).update({ displayName: name, bio: bio, gender: g, avatar: avatar });
+        await fs.collection('users').doc(me.uid).update({ displayName: name, bio: bio, gender: g, avatar: avatar, private: priv });
+        if ((u.private === true) !== priv) await syncPostsPrivacy(priv);
         try { await au.currentUser.updateProfile({ displayName: name }); } catch (x) {}
-        u.displayName = name; u.bio = bio; u.gender = g; u.avatar = avatar;
+        u.displayName = name; u.bio = bio; u.gender = g; u.avatar = avatar; u.private = priv;
         closeLayer('edit'); toast('تم الحفظ'); render();
     } catch (e) { console.error(e); err.textContent = 'تعذّر الحفظ'; }
 }
