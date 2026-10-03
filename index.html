@@ -4001,8 +4001,10 @@ function loadCloudProducts() {
     lastVisibleProduct = null;
     window.currentCategoryFullList = null;
 
-    let productsGrid = document.getElementById('main-products-grid');
+        let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
+
+    if (allProductsCache.length) { showHomeProducts(allProductsCache); return; }
 
     function isBusy() {
         let si = document.getElementById('search-input');
