@@ -4874,6 +4874,8 @@ async function loadMe(u) {
     following = []; r[2].forEach(function (x) { following.push(x.data().following); });
     saved = {}; r[3].forEach(function (x) { saved[x.data().postId] = 1; });
     blocked = {}; r[4].forEach(function (x) { blocked[x.data().target] = 1; });
+    requested = {};
+    try { var rq = await fs.collection('followReqs').where('from', '==', u.uid).limit(200).get(); rq.forEach(function (x) { requested[x.data().to] = 1; }); } catch (e) { console.error(e); }
     $('sx-admin-btn').style.display = isAdmin() ? 'inline-flex' : 'none';
     startNotifs(); startChats(); render();
 }
