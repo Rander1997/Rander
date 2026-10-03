@@ -4660,14 +4660,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
 </script>
 
-<script>
-window.addEventListener('error', function (e) {
-    var d = document.createElement('div');
-    d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#b91c1c;color:#fff;padding:8px;font:12px monospace;direction:ltr;white-space:pre-wrap';
-    d.textContent = 'ERR: ' + e.message + ' @' + (e.lineno || '') + ':' + (e.colno || '');
-    document.body.appendChild(d);
-});
-</script>
+
 
     <script>
 (function () {
@@ -4677,6 +4670,7 @@ au.languageCode = 'ar';
 var ADMIN_UID = 'PxCmasyUKGRx8uzfwWbx9Lol0Xi1';
 var PAGE = 8, KEEP_DAYS = 90;
 var me = null, following = [], bans = {}, bansAt = 0, blocked = {}, saved = {}, UC = {}, PC = {}, CM = {};
+var requested = {};
 var tab = 'feed', feedPage = 1, feedMore = false, rt = 0, explorePage = 1, pool = [], poolAt = 0, sugCache = null;
 var curPost = null, replyTo = null, unsubCm = null, unsubN = null, unsubC = null, unsubM = null, notifs = [], chats = [], editId = null, dt = { id: '', t: 0 }, curChat = null;
 var layers = [], pending = [], locks = {}, last = { post: 0, cm: 0, msg: 0 }, registering = false, nsfwP = null, searchT = null;
