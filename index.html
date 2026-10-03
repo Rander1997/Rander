@@ -4941,7 +4941,10 @@ function errBox(e) {
     var m = String(e && e.message || e), link = (m.match(/https:\/\/console\.firebase[^\s]+/) || [])[0];
     return '<div class="sx-warn">تعذّر التحميل.' + (link ? '<br>يلزم إنشاء فهرس لمرة واحدة: <a href="' + esc(link) + '" target="_blank" style="color:inherit;text-decoration:underline">اضغط هنا ثم Create index</a> وانتظر دقيقة ثم أعد المحاولة.' : '<br>تأكد من قواعد Firestore.') + '</div>';
 }
-function okPost(p) { return !bans[p.authorUid] && !blocked[p.authorUid] && (p.reportedBy || []).length < 3 && alive(p); }
+function canSee(uid) { return !!me && (uid === me.uid || following.indexOf(uid) > -1 || isAdmin()); }
+function lockedUser(u, uid) { return !!u && u.private === true && !canSee(uid); }
+
+function okPost(p) { return !bans[p.authorUid] && !blocked[p.authorUid] && (!p.authorPrivate || canSee(p.authorUid)) && (p.reportedBy || []).length < 3 && alive(p); }
 
 /* ===== الرئيسية ===== */
 async function loadPool() {
