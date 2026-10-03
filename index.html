@@ -4174,13 +4174,14 @@ function loadMoreProducts() {
          });
 }
 
-    window.addEventListener('scroll', function() {
+    function maybeLoadMore() {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
         if (!isLoadingProducts && typeof loadMoreProducts === 'function') {
             loadMoreProducts();
         }
     }
-});
+}
+window.addEventListener('scroll', maybeLoadMore);
 
 // 4. دالة عرض المنتجات (تستخدم appendChild للإضافات المتتالية بدلاً من prepend لكي لا تنعكس أترتيب دفعات التحميل الكسول)
 function renderProductsList(productsArray, gridElement) {
