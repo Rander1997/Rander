@@ -4263,7 +4263,7 @@ function renderProductsList(productsArray, gridElement) {
                 ${variantsHtml}
             </div>
             
-            <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', '${product.name}', ${basePrice})">إضافة للسلة 🛒</button>
+            <button class="buy-button" onclick="addMultiVariantToCart(this, '${productId}', this.closest('.product-card').getAttribute('data-name'), ${basePrice})">إضافة للسلة 🛒</button>
         `;
 
         // استخدام appendChild لإضافتها بترتيب تسلسلي صحيح للدفعة الحالية
