@@ -5457,6 +5457,7 @@ function startNotifs() {
     stopNotifs();
     unsubN = fs.collection('notifications').doc(me.uid).collection('items').orderBy('createdAt', 'desc').limit(40).onSnapshot(function (s) {
         notifs = []; s.forEach(function (d) { var n = d.data(); n.id = d.id; notifs.push(n); });
+        notifs.forEach(function (n) { if (n.type === 'facc' && following.indexOf(n.fromUid) < 0) { following.push(n.fromUid); delete requested[n.fromUid]; poolAt = 0; } });
         updBadge(); if (tab === 'notifs' && $('secrets-overlay').classList.contains('open')) renderNotifs(++rt);
     }, function (e) { console.error(e); });
 }
