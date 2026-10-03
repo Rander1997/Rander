@@ -2453,14 +2453,15 @@ var allProductsCache = [];
 var searchTimer = null;
 
 function preloadAllProducts() {
-    db.collection("products").get().then(function(snapshot) {
-        allProductsCache = [];
+    if (allProductsCache.length) return Promise.resolve();
+    return db.collection("products").get().then(function(snapshot) {
+        var tmp = [];
         snapshot.forEach(function(doc) {
             var p = doc.data();
             p.id = doc.id;
-            p._search = normalizeText(String(p.name || '') + ' ' + String(p.category || ''));
-            allProductsCache.push(p);
+            tmp.push(p);
         });
+        allProductsCache = tmp;
     }).catch(function(err) { console.log("preload error", err); });
 }
 
@@ -2494,6 +2495,7 @@ function runSearch() {
     }
 
     var words = query.split(/\s+/);
+    if (!allProductsCache.length && !window._plTried) { window._plTried = true; preloadAllProducts().then(runSearch); return; }
     var results = allProductsCache.filter(function(p) {
         var hay = normalizeArabic(String(p.name || '') + ' ' + String(p.category || '') + ' ' + String(p.subCategory || ''));
         return words.every(function(w) { return hay.indexOf(w) !== -1; });
