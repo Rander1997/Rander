@@ -5472,11 +5472,12 @@ async function renderNotifs(tk) {
     if (!me) { V.innerHTML = prompt_('سجّل الدخول لترى إشعاراتك'); return; }
     if (!notifs.length) { V.innerHTML = '<div class="sx-empty">لا توجد إشعارات بعد</div>'; return; }
     await ensureUsers(notifs.map(function (n) { return n.fromUid; })); if (tk !== rt) return;
-    var T = { follow: 'بدأ بمتابعتك', like: 'أعجبه منشورك', comment: 'علّق على منشورك: ', reply: 'ردّ على تعليقك: ', clike: 'أعجبه تعليقك: ' };
+    var T = { follow: 'بدأ بمتابعتك', freq: 'يريد متابعتك', facc: 'قبل طلب متابعتك', like: 'أعجبه منشورك', comment: 'علّق على منشورك: ', reply: 'ردّ على تعليقك: ', clike: 'أعجبه تعليقك: ' };
     V.innerHTML = notifs.map(function (n) {
-        var u = UC[n.fromUid] || {};
+        var u = UC[n.fromUid] || {}, btns = '';
+        if (n.type === 'freq') btns = '<div class="sx-prow" style="margin-top:6px"><button class="sx-btn sx-primary" data-sx="req-ok" data-uid="' + n.fromUid + '" style="padding:6px 12px;font-size:13px">قبول</button><button class="sx-btn sx-line" data-sx="req-no" data-uid="' + n.fromUid + '" style="padding:6px 12px;font-size:13px">رفض</button></div>';
         return '<div class="sx-n' + (n.read ? '' : ' unread') + '" data-sx="notif" data-uid="' + n.fromUid + '" data-post="' + (n.postId || '') + '"><span class="sx-tap" data-sx="user" data-uid="' + n.fromUid + '">' + av(u, 'sm') + '</span>' +
-            '<div style="flex:1;min-width:0"><b class="sx-tap" style="display:inline" data-sx="user" data-uid="' + n.fromUid + '">' + esc(u.displayName || 'مستخدم') + vb(u) + '</b> ' + (T[n.type] || '') + esc(n.text || '') + '<small>' + ago(n.createdAt) + '</small></div></div>';
+            '<div style="flex:1;min-width:0"><b class="sx-tap" style="display:inline" data-sx="user" data-uid="' + n.fromUid + '">' + esc(u.displayName || 'مستخدم') + vb(u) + '</b> ' + (T[n.type] || '') + esc(n.text || '') + '<small>' + ago(n.createdAt) + '</small>' + btns + '</div></div>';
     }).join('');
     var un = notifs.filter(function (x) { return !x.read; });
     if (un.length) setTimeout(function () {
