@@ -5729,13 +5729,13 @@ $('secrets-overlay').addEventListener('click', function (e) {
         case 'x-dm': closeLayer('dm'); break;
         case 'x-chat': closeLayer('chat'); break;
         case 'x-admin': closeLayer('admin'); break;
-        case 'tab':
-        case 'req-ok': acceptReq(uid); break;
-        case 'req-no': declineReq(uid); break;
+                case 'tab':
             while (layers.length > 1) hideLayer(layers.pop());
             tab = t.getAttribute('data-tab'); feedPage = 1; explorePage = 1; $('sx-main').scrollTop = 0; render();
             if (tab === 'create' && me && !me.banned && !pending.length) $('sx-imgs').click();
             break;
+        case 'req-ok': acceptReq(uid); break;
+        case 'req-no': declineReq(uid); break;
         case 'pick': $('sx-imgs').click(); break;
         case 'open-login': openAuth('login'); break;
         case 'open-register': openAuth('register'); break;
