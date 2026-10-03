@@ -3815,8 +3815,9 @@ function getAllProducts() {
 function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null) {
     currentCategory = categoryIdentifier;
     currentSubCategory = subCategoryIdentifier;
-    lastVisibleProduct = null;
+        lastVisibleProduct = null;
     isLoadingProducts = false;
+    const token = window._catToken = (window._catToken || 0) + 1;
 
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
