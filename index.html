@@ -3801,11 +3801,16 @@ let currentSubCategory = null;
 let lastVisibleProduct = null;
 let isLoadingProducts = false;
 
-// دالة جديدة مخصصة لجلب منتجات قسم معين فور الضغط عليه (رئيسي أو فرعي)
-// دالة جلب منتجات القسم أو القسم الفرعي (أول 20 منتجاً مع تهيئة التمرير اللانهائي)
-// دالة جلب منتجات القسم أو القسم الفرعي بدقة لضمان ظهور 20 منتجاً كاملاً
-// دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة تامة حسب القسم أو القسم الفرعي
-// 1. دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة تامة حسب القسم أو القسم الفرعي (تعرض 20 منتجاً كدفعة أولى)
+function getAllProducts() {
+    if (allProductsCache.length) return Promise.resolve(allProductsCache);
+    return db.collection("products").get().then(function (s) {
+        var a = [];
+        s.forEach(function (d) { var p = d.data(); p.id = d.id; a.push(p); });
+        allProductsCache = sortProductsList(a);
+        return allProductsCache;
+    });
+}
+
 // دالة الفلترة الذكية والمصححة لجلب المنتجات بدقة مطلقة حسب القسم أو القسم الفرعي
 function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null) {
     currentCategory = categoryIdentifier;
