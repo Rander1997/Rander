@@ -5241,6 +5241,7 @@ async function openPost(id) {
         var d = await fs.collection('posts').doc(id).get();
         if (!d.exists) { $('sx-pv').innerHTML = '<div class="sx-empty">هذا المنشور غير متاح</div>'; return; }
         var p = d.data(); p.id = id; PC[id] = p; bump(p, 1); await ensureUsers([p.authorUid]);
+        if (p.authorPrivate && !canSee(p.authorUid)) { $('sx-pv').innerHTML = '<div class="sx-empty">هذا الحساب خاص<br>تابعه لترى منشوراته</div>'; return; }
         if (curPost !== id) return;
         $('sx-pv').innerHTML = postHtml(p, true) + '<div id="sx-cm-list"></div>';
         if (unsubCm) unsubCm();
