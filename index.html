@@ -3852,13 +3852,11 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
     }
 
     // جلب جميع المنتجات من فايربيس ومطابقتها بمرونة تامة مع الأقسام
-    db.collection("products").get().then((snapshot) => {
+        getAllProducts().then((all) => {
+        if (token !== window._catToken) return;
         let matchedProducts = [];
 
-        snapshot.forEach((doc) => {
-            let prod = doc.data();
-            prod.id = doc.id;
-
+        all.forEach((prod) => {
             let prodCat = String(prod.category || "").trim().toLowerCase();
             let prodSubCat = String(prod.subCategory || "").trim().toLowerCase();
 
@@ -3921,6 +3919,7 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
 
 
 
+                sortProductsList(matchedProducts);
         productsGrid.innerHTML = ""; 
 
         if (matchedProducts.length === 0) {
