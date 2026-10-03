@@ -4880,7 +4880,7 @@ async function loadMe(u) {
 function mu() { return UC[me.uid] || {}; }
 au.onAuthStateChanged(function (u) {
     if (registering) return;
-    if (!u) { me = null; following = []; saved = {}; blocked = {}; stopNotifs(); stopChats(); $('sx-admin-btn').style.display = 'none'; render(); return; }
+    if (!u) { me = null; following = []; saved = {}; blocked = {}; requested = {}; stopNotifs(); stopChats(); $('sx-admin-btn').style.display = 'none'; render(); return; }
     loadMe(u).catch(function (e) { console.error(e); });
 });
 
