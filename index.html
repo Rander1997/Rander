@@ -4207,6 +4207,7 @@ function renderProductsList(productsArray, gridElement) {
         card.className = 'product-card';
         card.setAttribute('data-id', productId);
         card.setAttribute('data-slug', productSlug);
+        card.setAttribute('data-name', product.name || '');
         card.setAttribute('data-category', product.category ? product.category.trim() : 'all');
 
         card.onclick = function(e) {
