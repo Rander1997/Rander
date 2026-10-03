@@ -3993,6 +3993,11 @@ function loadCloudProducts() {
     let productsGrid = document.getElementById('main-products-grid');
     if (!productsGrid) return;
 
+    function isBusy() {
+        let si = document.getElementById('search-input');
+        return currentCategory !== null || window.isFavoritesView || (si && si.value.trim());
+    }
+
     // 1) عرض فوري من الذاكرة (الزيارات التالية)
     let hadCache = false;
     try {
@@ -4005,39 +4010,71 @@ function loadCloudProducts() {
 
     if (typeof db === 'undefined') return;
 
-    // 2) تحديث صامت من Firebase
-    db.collection("products").get().then((querySnapshot) => {
-        let allProducts = [];
-        querySnapshot.forEach((doc) => {
-            let prodData = doc.data();
-            prodData.id = doc.id;
-            allProducts.push(prodData);
+    let quickShown = false;
+
+    // 3) التحميل الكامل بالخلفية
+    function startFull() {
+        db.collection("products").get().then((querySnapshot) => {
+            let allProducts = [];
+            querySnapshot.forEach((doc) => {
+                let prodData = doc.data();
+                prodData.id = doc.id;
+                allProducts.push(prodData);
+            });
+            sortProductsList(allProducts);
+            allProductsCache = allProducts; // يستعمله البحث والمفضلة، فلا حاجة لتحميل ثانٍ
+
+            try {
+                localStorage.setItem('rander_cached_products', JSON.stringify(allProducts.map(function(p) {
+                    return {
+                        id: p.id, slug: p.slug, name: p.name, price: p.price,
+                        image: p.image, images: p.images ? p.images.slice(0, 1) : undefined,
+                        category: p.category, subCategory: p.subCategory,
+                        variants: p.variants, badgeText: p.badgeText, badgeColor: p.badgeColor,
+                        displayOrder: p.displayOrder,
+                        createdAt: p.createdAt && p.createdAt.seconds ? { seconds: p.createdAt.seconds } : null
+                    };
+                })));
+            } catch (e) {}
+
+            if (isBusy()) return;
+
+            if (quickShown) {
+                // نحدّث القائمة دون مسح الشاشة: البطاقات الظاهرة تبقى والباقي يُحمَّل عند التمرير
+                window.currentCategoryFullList = allProducts;
+                window.currentBatchIndex = 20;
+                let li = document.getElementById('loading-indicator');
+                if (li) {
+                    if (allProducts.length <= 20) { li.style.display = 'block'; li.innerHTML = 'وصلت إلى نهاية المنتجات'; }
+                    else li.style.display = 'none';
+                }
+                renderProductsList(allProducts.slice(0, 20), productsGrid);
+            } else if (!hadCache || (window.currentCategoryFullList && window.currentCategoryFullList.length !== allProducts.length)) {
+                showHomeProducts(allProducts);
+            }
+        }).catch(err => {
+            console.log("خطأ في جلب المنتجات: ", err);
+            if (!hadCache && !quickShown) setTimeout(loadCloudProducts, 2000);
         });
-        sortProductsList(allProducts);
+    }
 
-        try {
-            localStorage.setItem('rander_cached_products', JSON.stringify(allProducts.map(function(p) {
-                return {
-                    id: p.id, slug: p.slug, name: p.name, price: p.price,
-                    image: p.image, images: p.images ? p.images.slice(0, 1) : undefined,
-                    category: p.category, subCategory: p.subCategory,
-                    variants: p.variants, badgeText: p.badgeText, badgeColor: p.badgeColor,
-                    displayOrder: p.displayOrder,
-                    createdAt: p.createdAt && p.createdAt.seconds ? { seconds: p.createdAt.seconds } : null
-                };
-            })));
-        } catch (e) {}
+    // زائر لديه كاش: الواجهة ظاهرة أصلاً، نحدّث بعد لحظة
+    if (hadCache) { setTimeout(startFull, 300); return; }
 
-        // لا نعيد الرسم إن كان الزبون داخل قسم أو يبحث
-        if (currentCategory !== null || (document.getElementById('search-input') && document.getElementById('search-input').value.trim())) return;
-
-        if (!hadCache || (window.currentCategoryFullList && window.currentCategoryFullList.length !== allProducts.length)) {
-            showHomeProducts(allProducts);
-        }
-    }).catch(err => {
-        console.log("خطأ في جلب المنتجات: ", err);
-        if (!hadCache) setTimeout(loadCloudProducts, 2000);
-    });
+    // 2) زائر جديد: أول 20 منتجاً فقط ليرى الواجهة بسرعة
+    db.collection("products").where("displayOrder", ">", 0).orderBy("displayOrder").limit(20).get()
+        .then((snap) => snap.empty ? db.collection("products").limit(20).get() : snap)
+        .then((snap) => {
+            let list = [];
+            snap.forEach((doc) => { let p = doc.data(); p.id = doc.id; list.push(p); });
+            if (!list.length || isBusy()) return;
+            showHomeProducts(sortProductsList(list));
+            quickShown = true;
+            let li = document.getElementById('loading-indicator');
+            if (li) { li.style.display = 'block'; li.innerHTML = '⏳ جاري تحميل المزيد...'; }
+        })
+        .catch((e) => console.log("quick load error", e))
+        .then(() => setTimeout(startFull, 400));
 }
 
 
