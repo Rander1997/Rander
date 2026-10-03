@@ -5394,8 +5394,8 @@ async function renderProfile(uid, el, tk, sub) {
         await loadBans();
         var d = await fs.collection('users').doc(uid).get(); if (!d.exists) { el.innerHTML = '<div class="sx-empty">المستخدم غير موجود</div>'; return; }
         var u = d.data(); u.id = uid; UC[uid] = u;
-        var isMe = me && me.uid === uid, hide = bans[uid] || blocked[uid], posts = [];
-        if (!hide) {
+        var isMe = me && me.uid === uid, hide = bans[uid] || blocked[uid], lock = lockedUser(u, uid), posts = [];
+        if (!hide && !lock) {
             if (sub === 'saved' && isMe) posts = (await fetchByIds(Object.keys(saved).slice(0, 30))).filter(alive);
             else {
                 var s = await fs.collection('posts').where('authorUid', '==', uid).orderBy('createdAt', 'desc').limit(30).get();
@@ -5410,13 +5410,14 @@ async function renderProfile(uid, el, tk, sub) {
         el.innerHTML = '<div class="sx-ph">' + av(u, 'lg') + '<div class="sx-stats"><div><b>' + (u.postsCount || 0) + '</b><span>منشور</span></div>' +
             '<div data-sx="list" data-kind="followers" data-uid="' + uid + '"><b id="sx-fc-' + uid + '">' + (u.followersCount || 0) + '</b><span>متابع</span></div>' +
             '<div data-sx="list" data-kind="following" data-uid="' + uid + '"><b>' + (u.followingCount || 0) + '</b><span>يتابع</span></div></div></div>' +
-            '<div style="font-weight:800">' + esc(u.displayName) + vb(u) + '</div>' +
+            '<div style="font-weight:800">' + esc(u.displayName) + vb(u) + (u.private === true ? ' 🔒' : '') + '</div>' +
             (u.verified === true ? '<span class="sx-adm">حساب موثّق</span>' : '') +
             (u.bio ? '<div style="margin:8px 0;font-size:14px;line-height:1.7;white-space:pre-wrap">' + rich(u.bio) + '</div>' : '') + btns +
-            '<div class="sx-ptabs"><button class="sx-btn sx-pt' + (sub === 'posts' ? ' on' : '') + '" data-sx="ptab" data-t="posts">' + ic('grid') + '</button>' +
-            (isMe ? '<button class="sx-btn sx-pt' + (sub === 'saved' ? ' on' : '') + '" data-sx="ptab" data-t="saved">' + ic('mark') + '</button>' : '') + '</div>' +
+            (lock ? '' : '<div class="sx-ptabs"><button class="sx-btn sx-pt' + (sub === 'posts' ? ' on' : '') + '" data-sx="ptab" data-t="posts">' + ic('grid') + '</button>' +
+            (isMe ? '<button class="sx-btn sx-pt' + (sub === 'saved' ? ' on' : '') + '" data-sx="ptab" data-t="saved">' + ic('mark') + '</button>' : '') + '</div>') +
             (bans[uid] ? '<div class="sx-warn" style="margin-top:14px">هذا الحساب محظور</div>' :
              blocked[uid] ? '<div class="sx-empty">لقد حظرت هذا الحساب</div>' :
+             lock ? '<div class="sx-empty" style="border-top:1px solid var(--border-color);margin-top:14px">🔒 هذا الحساب خاص<br>تابعه لترى منشوراته</div>' :
              posts.length ? tilesHtml(posts.filter(function (p) { return p.images && p.images.length; })) :
              '<div class="sx-empty">' + (sub === 'saved' ? 'لا منشورات محفوظة' : 'لا توجد منشورات بعد') + '</div>');
     } catch (e) { el.innerHTML = errBox(e); }
