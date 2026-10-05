@@ -923,6 +923,25 @@ function checkAdminLogin() {
                 }).catch(err => alert("❌ خطأ: " + err.message));
             }
         }
+
+// التحقق من تسجيل الدخول التلقائي عند فتح الصفحة
+firebase.auth().onAuthStateChanged((user) => {
+    if (user && user.uid === ADMIN_UID) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard-content').style.display = 'block';
+        loadAdminCategoriesData(() => {
+            loadAdminProducts();
+            loadAdminStories();
+            loadAdminCategories();
+        });
+    } else {
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('dashboard-content').style.display = 'none';
+        if (user) firebase.auth().signOut();
+    }
+});
+
+        
     </script>
 </body>
 </html>
