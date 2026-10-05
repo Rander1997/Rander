@@ -4505,36 +4505,107 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
     if (!recContainer) return;
     recContainer.innerHTML = '';
 
-    // جلب المنتجات المقترحة وعرضها
-    db.collection("products").limit(4).get().then((snapshot) => {
-        snapshot.forEach((doc) => {
-            let pId = doc.id;
-            let p = doc.data();
-            let pSlug = p.slug || pId; // استخدام الـ slug كأولوية
+    // نحتاج أولاً معرفة القسم (category) للمنتج الحالي
+    // نبحث عنه في الكاش المحلي أو في فايربيس
+    function findCurrentProduct() {
+        // البحث في allProductsCache أولاً
+        if (Array.isArray(allProductsCache) && allProductsCache.length) {
+            let found = allProductsCache.find(function(p) {
+                return p.id === currentIdentifier || p.slug === currentIdentifier;
+            });
+            if (found) return Promise.resolve(found);
+        }
+        // البحث في productsData
+        if (typeof productsData !== 'undefined') {
+            if (productsData[currentIdentifier]) return Promise.resolve(productsData[currentIdentifier]);
+            let found = Object.values(productsData).find(function(p) {
+                return p.id === currentIdentifier || p.slug === currentIdentifier;
+            });
+            if (found) return Promise.resolve(found);
+        }
+        // البحث في فايربيس
+        return db.collection("products").doc(currentIdentifier).get().then(function(doc) {
+            if (doc.exists) { let d = doc.data(); d.id = doc.id; return d; }
+            return db.collection("products").where("slug", "==", currentIdentifier).limit(1).get().then(function(s) {
+                if (!s.empty) { let d = s.docs[0].data(); d.id = s.docs[0].id; return d; }
+                return null;
+            });
+        }).catch(function() { return null; });
+    }
 
-            // استبعاد المنتج الحالي سواء طابق الـ id أو الـ slug
-            if (pId !== currentIdentifier && pSlug !== currentIdentifier) {
-                let img = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
-                
-                let card = document.createElement('div');
-                card.className = 'rec-card';
-                card.style.cssText = "background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:8px; cursor:pointer; text-align:center;";
-                card.innerHTML = `
-                    <img src="${img}" style="width:100%; height:80px; object-fit:contain; border-radius:6px; margin-bottom:4px;">
-                    <div style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
-                    <div style="font-size:11px; color:var(--accent); font-weight:bold;">${Number(p.price).toLocaleString('ar-IQ')} د.ع</div>
-                `;
-                
-                // تحديث حدث النقر ليستدعي openProductModal بالـ slug الجديد
-                card.onclick = function() {
-                    openProductModal(pSlug); 
-                };
-                
-                recContainer.appendChild(card);
+    findCurrentProduct().then(function(currentProduct) {
+        if (!currentProduct) { recContainer.innerHTML = ''; return; }
+
+        let currentCat = String(currentProduct.category || '').trim().toLowerCase();
+        let currentSubCat = String(currentProduct.subCategory || '').trim().toLowerCase();
+
+        // دالة مساعدة لبناء كرت المنتج المقترح
+        function buildRecCard(p) {
+            let pId = p.id;
+            let pSlug = p.slug || pId;
+            let img = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
+            let card = document.createElement('div');
+            card.className = 'rec-card';
+            card.style.cssText = "background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:8px; cursor:pointer; text-align:center; flex-shrink:0; width:110px;";
+            card.innerHTML = `
+                <img src="${img}" style="width:100%; height:80px; object-fit:contain; border-radius:6px; margin-bottom:4px;">
+                <div style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+                <div style="font-size:11px; color:var(--accent); font-weight:bold;">${Number(p.price).toLocaleString('en-US')} د.ع</div>
+            `;
+            card.onclick = function() { openProductModal(pSlug); };
+            return card;
+        }
+
+        // 1. نجرب جلب منتجات من نفس القسم
+        db.collection("products").get().then(function(snapshot) {
+            let sameCat = [];
+            let others = [];
+            snapshot.forEach(function(doc) {
+                let p = doc.data();
+                p.id = doc.id;
+                // استبعاد المنتج الحالي
+                if (p.id === currentProduct.id || p.slug === currentIdentifier) return;
+
+                let pCat = String(p.category || '').trim().toLowerCase();
+                let pSubCat = String(p.subCategory || '').trim().toLowerCase();
+
+                // مطابقة القسم الرئيسي أو الفرعي
+                let isSameCat = false;
+                if (currentCat && pCat === currentCat) isSameCat = true;
+                if (currentSubCat && pSubCat === currentSubCat) isSameCat = true;
+
+                if (isSameCat) sameCat.push(p);
+                else others.push(p);
+            });
+
+            let selected = [];
+
+            if (sameCat.length > 0) {
+                // يوجد منتجات في نفس القسم → اعرض منها
+                selected = sameCat.slice(0, 6);
+            } else {
+                // لا يوجد → اعرض منتجات عشوائية
+                // خلط عشوائي
+                for (let i = others.length - 1; i > 0; i--) {
+                    let j = Math.floor(Math.random() * (i + 1));
+                    let tmp = others[i]; others[i] = others[j]; others[j] = tmp;
+                }
+                selected = others.slice(0, 6);
             }
+
+            if (selected.length === 0) {
+                recContainer.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); padding:10px;">لا توجد منتجات مقترحة حالياً</div>';
+                return;
+            }
+
+            selected.forEach(function(p) {
+                recContainer.appendChild(buildRecCard(p));
+            });
+        }).catch(function(err) {
+            console.error("خطأ في جلب العناصر المقترحة:", err);
         });
-    }).catch(err => {
-        console.error("خطأ في جلب العناصر المقترحة:", err);
+    }).catch(function(err) {
+        console.error("خطأ في تحديد المنتج الحالي:", err);
     });
 }
 
