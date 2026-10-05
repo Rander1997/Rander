@@ -1795,6 +1795,41 @@ header #cart-counter {
     display: inline-block;
 }
 
+
+/* شارة "خيارات" على بطاقة المنتج */
+.options-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(99, 102, 241, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    z-index: 2;
+    letter-spacing: 0.3px;
+}
+
+/* إذا كان هناك badgeText أيضاً نحرّك "خيارات" للأسفل قليلاً */
+.product-card .badge + .options-badge {
+    top: 38px;
+}
+
+@media (max-width: 480px) {
+    .options-badge {
+        top: 8px;
+        right: 8px;
+        font-size: 9px;
+        padding: 2px 7px;
+    }
+    .product-card .badge + .options-badge {
+        top: 32px;
+    }
+}
+        
         
 </style>
 
@@ -4289,15 +4324,16 @@ function loadMoreProducts() {
 window.addEventListener('scroll', maybeLoadMore);
 
 // 4. دالة عرض المنتجات (تستخدم appendChild للإضافات المتتالية بدلاً من prepend لكي لا تنعكس أترتيب دفعات التحميل الكسول)
+// دالة عرض المنتجات — نسخة مبسطة (بدون قوائم اختيار في البطاقة)
 function renderProductsList(productsArray, gridElement) {
     productsArray.sort((a, b) => {
         let orderA = Number(a.displayOrder) > 0 ? Number(a.displayOrder) : 999999;
         let orderB = Number(b.displayOrder) > 0 ? Number(b.displayOrder) : 999999;
-        
+
         if (orderA !== orderB) {
             return orderA - orderB;
         }
-        
+
         let timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
         let timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
         return timeB - timeA;
@@ -4306,7 +4342,7 @@ function renderProductsList(productsArray, gridElement) {
     productsArray.forEach(product => {
         let productId = product.id;
         let productSlug = product.slug || productId;
-        
+
         if (document.querySelector(`[data-id="${productId}"]`)) return;
 
         let card = document.createElement('div');
@@ -4324,58 +4360,54 @@ function renderProductsList(productsArray, gridElement) {
         let mainImg = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://i.imgur.com/ZMtVEDi.png');
         let basePrice = Number(product.price) || 0;
 
-        let variantsHtml = '';
-        if (product.variants && product.variants.length > 0) {
-            product.variants.forEach((group, index) => {
-                let groupTitle = group.categoryName || group.title || `خيار ${index + 1}`;
-                let groupItems = group.items || group.options || [];
+        // هل المنتج يملك خيارات؟
+        let hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
 
-                variantsHtml += `
-                    <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 5px; gap: 6px;">
-                        <span style="font-size: 11px; font-weight: bold; color: #94a3b8; white-space: nowrap; text-align: left; width: 42px;">اختر:</span>
-                        <select class="product-option dynamic-variant-select" data-group-name="${groupTitle}" onchange="updateMultiVariantPrice(this, '${productId}', ${basePrice})" style="width: 50px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-family: inherit; font-size: 10px; cursor: pointer; text-align: right;">
-                            <option value="" disabled selected>${groupTitle}</option>
-                `;
-
-                if (Array.isArray(groupItems)) {
-                    groupItems.forEach(item => {
-                        let itemName = item.name || item.value || item;
-                        let itemPrice = item.price !== undefined && item.price !== "" ? Number(item.price) : basePrice;
-                        variantsHtml += `<option value="${itemName}" data-price="${itemPrice}">${itemName}</option>`;
-                    });
-                }
-
-                variantsHtml += `</select></div>`;
-            });
-        }
-
+        // شارة المنتج
         let badgeHtml = '';
         if (product.badgeText && product.badgeText.trim() !== '') {
-            let bColor = product.badgeColor || '#10b981'; 
+            let bColor = product.badgeColor || '#10b981';
             badgeHtml = `<span class="badge" style="background-color: ${bColor}; color: #fff;">${product.badgeText}</span>`;
         }
 
+        // شارة "خيارات" إذا كان المنتج بمواصفات
+        let optionsBadgeHtml = hasVariants
+            ? '<span class="options-badge">خيارات</span>'
+            : '';
+
         let isFav = favoritesArray.indexOf(productId) > -1;
-        
+
         card.innerHTML = `
             ${badgeHtml}
-                        <button class="fav-btn ${isFav ? 'active' : ''}" data-pid="${productId}" aria-label="المفضلة" onclick="toggleFavorite('${productId}', this)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            ${optionsBadgeHtml}
+            <button class="fav-btn ${isFav ? 'active' : ''}" data-pid="${productId}" aria-label="المفضلة" onclick="toggleFavorite('${productId}', this)">
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
             <img src="${mainImg}" class="product-image" loading="lazy" decoding="async" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">
             <div class="product-title" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">${product.name}</div>
-            
-            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('en-US')} د.ع</div>
-            
-            <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
-                ${variantsHtml}
-            </div>
-            
-            ${''}
+            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('en-US')} IQD</div>
+            <button class="buy-button" onclick="handleCardAddToCart(event, this, '${productId}', '${productSlug}', ${basePrice}, ${hasVariants})">إضافة للسلة</button>
         `;
 
-               // استخدام appendChild لإضافتها بترتيب تسلسلي صحيح للدفعة الحالية
         gridElement.appendChild(card);
     });
     setTimeout(maybeLoadMore, 400);
+}
+
+// دالة زر الإضافة من البطاقة
+function handleCardAddToCart(event, btnElement, productId, productSlug, basePrice, hasVariants) {
+    event.stopPropagation();
+    if (hasVariants) {
+        // فتح التفاصيل لاختيار الخيارات
+        openProductModal(productSlug);
+        return;
+    }
+    // بدون خيارات: إضافة مباشرة
+    let card = btnElement.closest('.product-card');
+    let productName = card ? card.getAttribute('data-name') : 'منتج';
+    if (typeof addToCart === 'function') {
+        addToCart(btnElement, productName, basePrice);
+    }
 }
 
 // تشغيل دالة الجلب عند تحميل الصفحة
