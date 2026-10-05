@@ -2407,6 +2407,20 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
         <div style="height:110px"></div>
       </div></div>
       <div class="pd-bar"><div class="pd-bar-in">
+    <button class="pd-add" id="pd-add">
+        <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="maxGradBtn" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#a78bfa"/>
+                    <stop offset="100%" stop-color="#f472b6"/>
+                </linearGradient>
+            </defs>
+            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"
+                  fill="url(#maxGradBtn)"/>
+        </svg>
+        <span id="pd-add-t">إضافة للسلة</span>
+    </button>
+
     <button class="pd-view-cart" id="pd-view-cart" onclick="pdGoToCart()">
         <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -2420,20 +2434,6 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
         </svg>
         <span>سلتي</span>
         <span class="pd-cart-count" id="pd-cart-count">0</span>
-    </button>
-
-    <button class="pd-add" id="pd-add">
-        <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="maxGradBtn" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#a78bfa"/>
-                    <stop offset="100%" stop-color="#f472b6"/>
-                </linearGradient>
-            </defs>
-            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"
-                  fill="url(#maxGradBtn)"/>
-        </svg>
-        <span id="pd-add-t">إضافة للسلة</span>
     </button>
 </div></div>
       <div class="pd-lb" id="pd-lb"><button class="pd-ic" id="pd-lb-x" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="pd-lb-img" alt=""></div>
