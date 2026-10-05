@@ -1847,7 +1847,15 @@ header #cart-counter {
   #hx .hx-st small{font-size:9px}
 }
 
-        
+        /* كلمة "سلتي" في زر السلة - بنفس لون باقي الأزرار */
+#cart-counter > span:not(.cart-num) {
+    color: #38bdf8 !important;
+    -webkit-text-fill-color: #38bdf8 !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    font-weight: 700;
+}
 
 /* عدّاد زر السلة في الهيدر - تصميم شارة بتدرج Max */
 #cart-counter .cart-num {
