@@ -334,19 +334,51 @@
         let allStoriesCache = [];
         let allCategoriesCache = [];
 
-        function checkAdminLogin() {
-            if (document.getElementById('admin-password').value === "640397") {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard-content').style.display = 'block';
-                loadAdminCategoriesData(() => {
-                    loadAdminProducts();
-                    loadAdminStories();
-                    loadAdminCategories();
-                });
-            } else {
-                alert("❌ رمز المرور غير صحيح!");
+        const ADMIN_UID = 'PxCmasyUKGRx8uzfwWbx9Lol0Xi1'; // ← ضع UID حساب الأدمن هنا
+
+function checkAdminLogin() {
+    const email = document.getElementById('admin-email').value.trim();
+    const password = document.getElementById('admin-password').value;
+    const errorEl = document.getElementById('login-error');
+    errorEl.textContent = '';
+    
+    if (!email || !password) {
+        errorEl.textContent = '⚠️ يرجى إدخال البريد وكلمة المرور';
+        return;
+    }
+    
+    firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // التحقق من أن المستخدم هو الأدمن (بالـ UID)
+            if (user.uid !== ADMIN_UID) {
+                errorEl.textContent = '🚫 هذا الحساب ليس لديه صلاحيات الإدارة';
+                firebase.auth().signOut();
+                return;
             }
-        }
+            
+            // نجح الدخول
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard-content').style.display = 'block';
+            loadAdminCategoriesData(() => {
+                loadAdminProducts();
+                loadAdminStories();
+                loadAdminCategories();
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            const messages = {
+                'auth/invalid-email': 'البريد الإلكتروني غير صحيح',
+                'auth/user-not-found': 'لا يوجد حساب بهذا البريد',
+                'auth/wrong-password': 'كلمة المرور غير صحيحة',
+                'auth/invalid-credential': 'البريد أو كلمة المرور غير صحيحة',
+                'auth/too-many-requests': 'محاولات كثيرة، حاول لاحقاً'
+            };
+            errorEl.textContent = '❌ ' + (messages[error.code] || 'فشل تسجيل الدخول');
+        });
+}
 
         function switchTab(tabName, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
