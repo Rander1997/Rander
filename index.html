@@ -3317,8 +3317,12 @@ function showFavorites(btnElement) {
     var totalQty = cartArray.reduce(function (sum, item) {
         return sum + (Number(item.qty) || 1);
     }, 0);
-    var counter = document.getElementById('cart-counter');
-    if (counter) counter.innerHTML = '🛒 السلة <span class="cart-num">(' + totalQty + ')</span>';
+    // تحديث عدّاد زر السلة في الهيدر (بدون المساس بالأيقونة أو التنسيق)
+    var headerCount = document.getElementById('header-cart-count');
+    if (headerCount) headerCount.textContent = totalQty;
+    // تحديث عدّاد زر "سلتي" في صفحة المنتج (إن وُجد)
+    var pdCount = document.getElementById('pd-cart-count');
+    if (pdCount) pdCount.textContent = totalQty;
 }
 
         function changeCartQty(index, change) {
