@@ -4664,7 +4664,6 @@ function renderProductsList(productsArray, gridElement) {
             
             <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('en-US')} د.ع</div>
             
-                        <button class="buy-button" onclick="${hasVariants ? `openProductModal('${productSlug}')` : `addMultiVariantToCart(this, '${productId}', this.closest('.product-card').getAttribute('data-name'), ${basePrice})`}">إضافة للسلة 🛒</button>
         `;
 
                // استخدام appendChild لإضافتها بترتيب تسلسلي صحيح للدفعة الحالية
