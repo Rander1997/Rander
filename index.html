@@ -2725,7 +2725,7 @@ function runSearch() {
         (function () {
 var P = null, SEL = {}, QTY = 1, GR = [], FULL = false;
 function $(i) { return document.getElementById(i); }
-function fmt(n) { return Number(n || 0).toLocaleString('en-US') + ' IQD'; }
+function fmt(n) { return Number(n || 0).toLocaleString('en-US') + ' د.ع'; }
 function imgsOf(p) { var a = (p.images && p.images.length) ? p.images : [p.image || 'https://i.imgur.com/ZMtVEDi.png']; return a.filter(Boolean); }
 function descOf(p) { return p.description || p.desc || ''; }
 function norm(doc) { var d = doc.data(); d.id = doc.id; return d; }
