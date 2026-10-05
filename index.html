@@ -2710,206 +2710,179 @@ function runSearch() {
     });
 })();
 
-        function openProductModal(identifier) {
-    if (typeof recordNavigationStep === 'function') recordNavigationStep();
-    
-    // 1. نبحث أولاً في المصفوفة المحلية إما بالـ id أو بالـ slug
-    let product = null;
-    if (productsData[identifier]) {
-        product = productsData[identifier];
-    } else {
-        // البحث داخل قيم المصفوفة بالـ slug أو الـ id
-        product = Object.values(productsData).find(p => 
-            p.id === identifier || p.slug === identifier
-        );
-    }
-
-    if (!product) {
-        // 2. إذا لم يكن موجوداً محلياً، نقوم بالبحث في فايربيس (سواء كان المدخل slug أو id)
-        db.collection("products").where("slug", "==", identifier).get().then((querySnapshot) => {
-            if (!querySnapshot.empty) {
-                let doc = querySnapshot.docs[0];
-                let data = doc.data();
-                product = {
-                    id: doc.id,
-                    slug: data.slug || "",
-                    name: data.name,
-                    price: Number(data.price) || 0,
-                    desc: data.description || data.desc || "لا يوجد وصف متاحة",
-                    images: data.images && data.images.length > 0 ? data.images : [data.image]
-                };
-                updateProductUrl(product); // تحديث الرابط
-                displayProductModal(product);
-            } else {
-                // إذا لم يوجد بالـ slug، نجرب البحث مباشرة بالطريقة القديمة باعتباره document ID
-                db.collection("products").doc(identifier).get().then((doc) => {
-                    if (doc.exists) {
-                        let data = doc.data();
-                        product = {
-                            id: doc.id,
-                            slug: data.slug || "",
-                            name: data.name,
-                            price: Number(data.price) || 0,
-                            desc: data.description || data.desc || "لا يوجد وصف متاحة",
-                            images: data.images && data.images.length > 0 ? data.images : [data.image]
-                        };
-                        updateProductUrl(product); // تحديث الرابط
-                        displayProductModal(product);
-                    } else {
-                        alert("عذراً، هذا المنتج غير موجود");
-                    }
-                });
-            }
-        }).catch(err => {
-            console.error("خطأ في جلب المنتج:", err);
-            alert("حدث خطأ أثناء جلب تفاصيل المنتج");
-        });
-        return;
-    }
-
-    updateProductUrl(product); // تحديث الرابط
-    displayProductModal(product);
+        (function () {
+var P = null, SEL = {}, QTY = 1, GR = [], FULL = false;
+function $(i) { return document.getElementById(i); }
+function fmt(n) { return Number(n || 0).toLocaleString('en-US') + ' IQD'; }
+function imgsOf(p) { var a = (p.images && p.images.length) ? p.images : [p.image || 'https://i.imgur.com/ZMtVEDi.png']; return a.filter(Boolean); }
+function descOf(p) { return p.description || p.desc || ''; }
+function norm(doc) { var d = doc.data(); d.id = doc.id; return d; }
+function catName(v) {
+    if (!v) return '';
+    var c = (window.categoriesData || []).find(function (x) { return x.id === v || x.slug === v || x.name === v; });
+    return c ? c.name : String(v);
 }
-
-// دالة مساعدة لتحديث الرابط في شريط العنوان بنظافة
-function updateProductUrl(product) {
-    const slugOrId = product.slug || product.id;
-    const newUrl = `${window.location.origin}${window.location.pathname}?product=${slugOrId}`;
-    // استخدام replaceState بدلاً من pushState لكي لا يتم حفظه كسجل دائم عند التحديث
-    window.history.replaceState({path: newUrl}, '', newUrl);
+function allLocal() {
+    var a = [].concat(Object.values(productsData || {}), window.allProductsCache || []);
+    try { a = a.concat(JSON.parse(localStorage.getItem('rander_cached_products')) || []); } catch (e) {}
+    return a;
 }
-
-    
-// قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
-function displayProductModal(product) {
-    document.getElementById('detail-title').innerText = product.name;
-    document.getElementById('detail-price').innerText = product.price.toLocaleString('en-US') + " د.ع";
-    
-    // هنا يتم وضع الوصف الذي أرسلته من لوحة الأدمن
-    let descEl = document.getElementById('detail-desc');
-    if (descEl) descEl.innerText = product.desc || "لا يوجد وصف متاح.";
-    
-    var mainImg = document.getElementById('detail-main-img');
-    let images = (product.images && product.images.length > 0) ? product.images : [product.image || 'https://i.imgur.com/ZMtVEDi.png'];
-    mainImg.src = images[0];
-
-    var thumbsContainer = document.getElementById('detail-thumbs');
-    thumbsContainer.innerHTML = '';
-    
-    // هنا يتم توليد الصور الإضافية (الثانية والثالثة) تلقائياً
-    if (images.length > 1) {
-        images.forEach(function(imgSrc, idx) {
-            var thumb = document.createElement('img');
-            thumb.src = imgSrc;
-            thumb.className = 'gallery-thumb' + (idx === 0 ? ' active' : '');
-            
-            // تنسيق بسيط للصور المصغرة لضمان ظهورها بشكل جميل ومتناسق
-            thumb.style.cssText = "width: 65px; height: 65px; border-radius: 12px; object-fit: cover; cursor: pointer; border: 2px solid " + (idx === 0 ? "#2563eb" : "#e2e8f0") + "; flex-shrink: 0; background: #f8fafc; transition: 0.2s;";
-
-            thumb.onclick = function() {
-                mainImg.src = imgSrc;
-                Array.from(thumbsContainer.querySelectorAll('.gallery-thumb')).forEach(function(t) { 
-                    t.classList.remove('active'); 
-                    t.style.borderColor = "#e2e8f0";
-                });
-                thumb.classList.add('active');
-                thumb.style.borderColor = "#2563eb";
+function find(id) { return allLocal().find(function (p) { return p && (p.id === id || p.slug === id); }) || null; }
+function groups(p) {
+    return (p.variants || []).map(function (g, i) {
+        var t = g.categoryName || g.title || ('خيار ' + (i + 1)), its = g.items || g.options || [];
+        return { title: t, color: /لون|color/i.test(t), items: (Array.isArray(its) ? its : []).map(function (it) {
+            var o = it && typeof it === 'object', pr = o && it.price !== undefined && it.price !== '' ? Number(it.price) : 0;
+            return { name: String(o ? (it.name || it.value) : it), price: pr > 0 ? pr : 0 };
+        }) };
+    });
+}
+function unit() {
+    var u = Number(P.price) || 0;
+    GR.forEach(function (g, gi) { var s = SEL[gi]; if (s !== undefined && !g.color && g.items[s].price > 0) u = g.items[s].price; });
+    return u;
+}
+function upd() {
+    var u = unit();
+    $('pd-price').textContent = fmt(u); $('pd-total').textContent = fmt(u * QTY);
+    $('pd-qty').textContent = QTY; $('pd-sub').textContent = QTY > 1 ? fmt(u) + ' × ' + QTY : '';
+}
+function fillGallery(p) {
+    var im = imgsOf(p), sl = $('pd-slides'), th = $('pd-thumbs'), dt = $('pd-dots');
+    sl.innerHTML = ''; th.innerHTML = ''; dt.innerHTML = '';
+    im.forEach(function (src, i) {
+        var d = document.createElement('div'); d.className = 'pd-slide';
+        var m = document.createElement('img'); m.src = src; m.alt = ''; m.onclick = function () { lb(src); };
+        d.appendChild(m); sl.appendChild(d);
+        var t = document.createElement('img'); t.src = src; t.alt = '';
+        t.onclick = function () { sl.children[i].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
+        th.appendChild(t); dt.appendChild(document.createElement('i'));
+    });
+    th.style.display = dt.style.display = im.length > 1 ? 'flex' : 'none';
+    $('pd-count').style.display = im.length > 1 ? '' : 'none';
+    sl.scrollLeft = 0; mark(0, im.length);
+    sl.onscroll = function () { mark(Math.round(Math.abs(sl.scrollLeft) / (sl.clientWidth || 1)), im.length); };
+}
+function mark(i, n) {
+    i = Math.max(0, Math.min(n - 1, i)); $('pd-count').textContent = (i + 1) + '/' + n;
+    [].forEach.call($('pd-dots').children, function (e, k) { e.className = k === i ? 'on' : ''; });
+    [].forEach.call($('pd-thumbs').children, function (e, k) { e.className = k === i ? 'on' : ''; });
+}
+function fillDesc(p) {
+    var t = descOf(p), el = $('pd-desc'), more = $('pd-more');
+    $('pd-descbox').style.display = t ? '' : 'none';
+    el.textContent = t; el.classList.toggle('clamp', t.length > 220); more.style.display = t.length > 220 ? '' : 'none'; more.textContent = 'عرض المزيد';
+}
+function lb(src) {
+    var b = $('pd-lb'), m = $('pd-lb-img'), z = false, last = 0;
+    m.src = src; m.style.transform = ''; b.classList.add('on');
+    m.onclick = function () { var n = Date.now(); if (n - last < 300) { z = !z; m.style.transform = z ? 'scale(2.2)' : ''; } last = n; };
+    $('pd-lb-x').onclick = function () { b.classList.remove('on'); };
+}
+function fillOpts(p) {
+    var box = $('pd-opts'); box.innerHTML = ''; GR = groups(p); SEL = {};
+    GR.forEach(function (g, gi) {
+        var d = document.createElement('div'); d.className = 'pd-group'; d.id = 'pd-g' + gi;
+        d.innerHTML = '<b></b><div class="pd-chips"></div>'; d.firstChild.textContent = g.title;
+        g.items.forEach(function (it, ii) {
+            var c = document.createElement('button'); c.type = 'button'; c.className = 'pd-chip'; c.textContent = it.name;
+            if (!g.color && it.price > 0 && it.price !== Number(p.price)) { var s = document.createElement('small'); s.textContent = fmt(it.price); c.appendChild(s); }
+            c.onclick = function () {
+                SEL[gi] = ii; [].forEach.call(d.querySelectorAll('.pd-chip'), function (x, k) { x.classList.toggle('on', k === ii); }); upd();
             };
-            thumbsContainer.appendChild(thumb);
+            d.lastChild.appendChild(c);
         });
-        thumbsContainer.style.display = 'flex';
-    } else {
-        thumbsContainer.style.display = 'none';
-    }
-
-    var addBtn = document.getElementById('detail-add-btn');
-    if (addBtn) {
-        addBtn.onclick = function() {
-            addToCartDirect(product.name, product.price);
-            closeDetailModal();
-        };
-    }
-
-    var modal = document.getElementById('detail-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.style.backdropFilter = 'blur(8px)';
-    }
-    
-    // استدعاء دالة عرض المنتجات المقترحة إذا كانت موجودة لديك
-    if (typeof renderRecommendations === 'function') {
-        renderRecommendations(product.id);
-    }
-
-    // ==========================================
-    // الإضافات الخاصة بالحركة والسحب الآلي
-    // ==========================================
-    if (images.length > 1) {
-        // إيقاف أي مؤقت سابق لكي لا يتداخل
-        if (window._autoSlideInterval) clearInterval(window._autoSlideInterval);
-        
-        // 1. التمرير التلقائي للصور كل 3 ثوانٍ مع العودة للأولى عند النهاية
-        window._autoSlideInterval = setInterval(function() {
-            if (!modal || modal.style.display === 'none') {
-                clearInterval(window._autoSlideInterval);
-                return;
-            }
-            const thumbs = Array.from(thumbsContainer.querySelectorAll('.gallery-thumb'));
-            if (thumbs.length <= 1) return;
-            
-            let activeIdx = thumbs.findIndex(t => t.classList.contains('active'));
-            let nextIdx = activeIdx + 1;
-            if (nextIdx >= thumbs.length) nextIdx = 0; // العودة للأولى إذا انتهت
-            
-            thumbs[nextIdx].click();
-        }, 3000);
-
-        // 2. السحب بالإصبع (Swipe) يميناً ويساراً على الصورة الرئيسية
-        if (!mainImg._hasSwipeListener) {
-            mainImg._hasSwipeListener = true;
-            let startX = 0;
-            
-            mainImg.addEventListener('touchstart', function(e) {
-                startX = e.changedTouches[0].screenX;
-                if (window._autoSlideInterval) clearInterval(window._autoSlideInterval); // إيقاف المؤقت مؤقتاً أثناء لمس المستخدم
-            }, {passive: true});
-
-            mainImg.addEventListener('touchend', function(e) {
-                let endX = e.changedTouches[0].screenX;
-                const thumbs = Array.from(thumbsContainer.querySelectorAll('.gallery-thumb'));
-                if (thumbs.length <= 1) return;
-                
-                let activeIdx = thumbs.findIndex(t => t.classList.contains('active'));
-                
-                if (endX < startX - 40) {
-                    // سحب لليسار (التالي)
-                    let nextIdx = (activeIdx + 1) >= thumbs.length ? 0 : activeIdx + 1;
-                    thumbs[nextIdx].click();
-                } else if (endX > startX + 40) {
-                    // سحب لليمين (السابق)
-                    let prevIdx = (activeIdx - 1) < 0 ? thumbs.length - 1 : activeIdx - 1;
-                    thumbs[prevIdx].click();
-                }
-            }, {passive: true});
-        }
-    }
+        box.appendChild(d);
+    });
 }
-
-// دالة إغلاق النافذة مع إيقاف مؤقت تقليب الصور التلقائي
-// دالة إغلاق النافذة مع إيقاف مؤقت تقليب الصور التلقائي وتطهير الرابط
-function closeDetailModal() {
-    var modal = document.getElementById('detail-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-    if (window._autoSlideInterval) {
-        clearInterval(window._autoSlideInterval);
-    }
-    
-    // إعادة الرابط لوضعه الطبيعي ونظفه عند الإغلاق
-    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+function fillSim(p) {
+    var cat = p.category, sub = p.subCategory, box = $('pd-sim'); box.innerHTML = '';
+    var list = allLocal().filter(function (x, i, a) { return x && x.id !== p.id && x.category === cat && a.findIndex(function (y) { return y.id === x.id; }) === i; });
+    list.sort(function (a, b) { return (b.subCategory === sub) - (a.subCategory === sub); });
+    list.slice(0, 10).forEach(function (x) {
+        var c = document.createElement('div'); c.className = 'pd-sc';
+        var m = document.createElement('img'); m.loading = 'lazy'; m.src = imgsOf(x)[0]; m.alt = '';
+        var n = document.createElement('div'); n.textContent = x.name;
+        var pr = document.createElement('b'); pr.textContent = fmt(x.price);
+        c.appendChild(m); c.appendChild(n); c.appendChild(pr); c.onclick = function () { openProductModal(x.slug || x.id); }; box.appendChild(c);
+    });
+    $('pd-simbox').style.display = list.length ? '' : 'none';
 }
+function show(p) {
+    P = p; QTY = 1; var m = $('detail-modal');
+    $('pd-name').textContent = p.name || '';
+    var cs = [catName(p.category), catName(p.subCategory)].filter(Boolean).join(' ‹ ');
+    $('pd-cat').textContent = cs; $('pd-cat').style.display = cs ? '' : 'none';
+    var bd = $('pd-badge'); bd.textContent = (p.badgeText || '').trim(); bd.style.display = bd.textContent ? '' : 'none'; bd.style.background = p.badgeColor || '#10b981';
+    var fv = $('pd-fav'); fv.setAttribute('data-pid', p.id); fv.classList.toggle('active', (window.favoritesArray || []).indexOf(p.id) > -1);
+    fillGallery(p); fillDesc(p); fillOpts(p); fillSim(p); upd();
+    $('pd-scroll').scrollTop = 0; var ab = $('pd-add'); ab.classList.remove('ok'); $('pd-add-t').textContent = 'إضافة إلى السلة';
+    m.classList.add('active'); m.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+}
+function enrich(p) {
+    if (typeof db === 'undefined' || !p.id) return;
+    db.collection('products').doc(p.id).get().then(function (doc) {
+        if (!doc.exists || !P || P.id !== p.id) return;
+        var d = norm(doc), imgChanged = imgsOf(d).length !== imgsOf(P).length;
+        P.description = d.description; P.desc = d.desc; if (d.images) P.images = d.images;
+        if (imgChanged) fillGallery(P); fillDesc(P);
+    }).catch(function () {});
+}
+function remote(id) {
+    if (typeof db === 'undefined') return;
+    db.collection('products').where('slug', '==', id).get().then(function (qs) {
+        if (!qs.empty) return norm(qs.docs[0]);
+        return db.collection('products').doc(id).get().then(function (doc) { return doc.exists ? norm(doc) : null; });
+    }).then(function (p) {
+        if (!p) { showToast('عذراً، هذا المنتج غير موجود'); pdBack(); return; }
+        updateProductUrl(p); show(p);
+    }).catch(function () { showToast('حدث خطأ أثناء جلب المنتج'); });
+}
+window.updateProductUrl = function (p) {
+    var u = location.origin + location.pathname + '?product=' + (p.slug || p.id);
+    history.replaceState({ path: u }, '', u);
+};
+window.openProductModal = function (id) {
+    var m = $('detail-modal');
+    if (!(m && m.classList.contains('active')) && typeof recordNavigationStep === 'function') recordNavigationStep();
+    var p = find(id);
+    if (p) { updateProductUrl(p); show(p); enrich(p); } else remote(id);
+};
+window.closeDetailModal = function () {
+    var m = $('detail-modal'); if (!m) return;
+    m.classList.remove('active'); m.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+    $('pd-lb').classList.remove('on');
+    var u = location.origin + location.pathname; history.replaceState({ path: u }, '', u);
+};
+window.pdBack = function () {
+    if (window.navStack && window.navStack.length > 0) history.back(); else closeDetailModal();
+};
+function add() {
+    for (var gi = 0; gi < GR.length; gi++) if (SEL[gi] === undefined) {
+        var g = $('pd-g' + gi); g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake');
+        g.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('اختر ' + GR[gi].title); if (navigator.vibrate) navigator.vibrate(60); return;
+    }
+    var o = GR.map(function (g, i) { return g.items[SEL[i]].name.split(' (')[0]; }), nm = String(P.name || 'منتج');
+    if (o.length) nm += ' - ' + o.join(' - ');
+    for (var k = 0; k < QTY; k++) addToCart(null, nm, unit());
+    var b = $('pd-add'); b.classList.add('ok');
+    $('pd-add-t').innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg> تمت الإضافة';
+    setTimeout(function () { b.classList.remove('ok'); $('pd-add-t').textContent = 'إضافة إلى السلة'; }, 1600);
+}
+function share() {
+    var url = location.origin + location.pathname + '?product=' + (P.slug || P.id), text = P.name + ' - ' + fmt(unit());
+    if (navigator.share) navigator.share({ title: P.name, text: text, url: url }).catch(function () {});
+    else { try { navigator.clipboard.writeText(text + '\n' + url); showToast('تم نسخ الرابط'); } catch (e) { showToast(url); } }
+}
+document.addEventListener('DOMContentLoaded', function () {
+    $('pd-add').onclick = add; $('pd-share').onclick = share;
+    $('pd-fav').onclick = function () { toggleFavorite(P.id, this); };
+    $('pd-plus').onclick = function () { QTY = Math.min(99, QTY + 1); upd(); };
+    $('pd-minus').onclick = function () { QTY = Math.max(1, QTY - 1); upd(); };
+    $('pd-more').onclick = function () { var e = $('pd-desc'), c = e.classList.toggle('clamp'); this.textContent = c ? 'عرض المزيد' : 'عرض أقل'; };
+});
+})();
 
         function addToCartDirect(productName, unitPrice) {
             addToCart(null, productName, unitPrice);
