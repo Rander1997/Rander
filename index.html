@@ -2878,10 +2878,15 @@ function add() {
     }
     var o = GR.map(function (g, i) { return g.items[SEL[i]].name.split(' (')[0]; }), nm = String(P.name || 'منتج');
     if (o.length) nm += ' - ' + o.join(' - ');
-    for (var k = 0; k < QTY; k++) addToCart(null, nm, unit());
-    var b = $('pd-add'); b.classList.add('ok');
-    $('pd-add-t').innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg> تمت الإضافة';
-    setTimeout(function () { b.classList.remove('ok'); $('pd-add-t').textContent = 'إضافة إلى السلة'; }, 1600);
+    // أضفنا المنتج مرة واحدة فقط (بدون حلقة الكمية)
+    addToCart(null, nm, unit());
+    var b = $('pd-add'); 
+    b.classList.add('ok');
+    $('pd-add-t').textContent = '✓ تمت الإضافة';
+    setTimeout(function () { 
+        b.classList.remove('ok'); 
+        $('pd-add-t').textContent = 'إضافة إلى السلة'; 
+    }, 1600);
 }
 function share() {
     var url = location.origin + location.pathname + '?product=' + (P.slug || P.id), text = P.name + ' - ' + fmt(unit());
