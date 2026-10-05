@@ -2756,8 +2756,9 @@ function unit() {
 }
 function upd() {
     var u = unit();
-    $('pd-price').textContent = fmt(u); $('pd-total').textContent = fmt(u * QTY);
-    $('pd-qty').textContent = QTY; $('pd-sub').textContent = QTY > 1 ? fmt(u) + ' × ' + QTY : '';
+    var priceEl = $('pd-price');
+    if (priceEl) priceEl.textContent = fmt(u);
+    // تم حذف التحديثات الخاصة بالإجمالي والكمية
 }
 function fillGallery(p) {
     var im = imgsOf(p), sl = $('pd-slides'), th = $('pd-thumbs'), dt = $('pd-dots');
