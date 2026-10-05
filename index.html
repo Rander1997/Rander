@@ -2982,12 +2982,47 @@ function share() {
     if (navigator.share) navigator.share({ title: P.name, text: text, url: url }).catch(function () {});
     else { try { navigator.clipboard.writeText(text + '\n' + url); showToast('تم نسخ الرابط'); } catch (e) { showToast(url); } }
 }
+/* دالة الانتقال إلى السلة */
+window.pdGoToCart = function () {
+    if (typeof closeDetailModal === 'function') closeDetailModal();
+    setTimeout(function () {
+        var modal = document.getElementById('cart-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.classList.add('active', 'open');
+        }
+        if (typeof renderCartModal === 'function') renderCartModal();
+    }, 250);
+};
+
+/* تحديث عدّاد زر سلتي */
+window.updPdCartCount = function () {
+    var el = document.getElementById('pd-cart-count');
+    if (!el) return;
+    var totalQty = 0;
+    if (typeof cartArray !== 'undefined' && Array.isArray(cartArray)) {
+        totalQty = cartArray.reduce(function (s, i) { return s + (Number(i.qty) || 1); }, 0);
+    }
+    el.textContent = totalQty;
+};
+
 document.addEventListener('DOMContentLoaded', function () {
-    $('pd-add').onclick = add; $('pd-share').onclick = share;
+    $('pd-add').onclick = add; 
+    $('pd-share').onclick = share;
     $('pd-fav').onclick = function () { toggleFavorite(P.id, this); };
-    $('pd-plus').onclick = function () { QTY = Math.min(99, QTY + 1); upd(); };
-    $('pd-minus').onclick = function () { QTY = Math.max(1, QTY - 1); upd(); };
-    $('pd-more').onclick = function () { var e = $('pd-desc'), c = e.classList.toggle('clamp'); this.textContent = c ? 'عرض المزيد' : 'عرض أقل'; };
+    $('pd-more').onclick = function () { 
+        var e = $('pd-desc'), c = e.classList.toggle('clamp'); 
+        this.textContent = c ? 'عرض المزيد' : 'عرض أقل'; 
+    };
+    
+    // تحديث عدّاد زر سلتي عند فتح صفحة المنتج
+    var dm = document.getElementById('detail-modal');
+    if (dm) {
+        var observer = new MutationObserver(function () {
+            if (dm.classList.contains('active') && typeof updPdCartCount === 'function') updPdCartCount();
+        });
+        observer.observe(dm, { attributes: true, attributeFilter: ['class'] });
+    }
 });
 })();
 
