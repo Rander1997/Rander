@@ -2386,18 +2386,63 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
 
     <!-- شريط الملاحة السفلي -->
     <nav class="bottom-nav">
-        <button class="nav-item active btn" onclick="navGoHome(this)">
-    <span style="font-size: 10px; color: #38bdf8;">⬡</span> الرئيسية
-</button>
-<button class="nav-item btn" onclick="showFavorites(this)">
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>  المفضلة
-</button>
-<button class="nav-item btn" onclick="navToggleSearch(this)">
-    <span style="font-size: 10px; color: #38bdf8;">⟨⌕⟩</span> البحث
-</button>
-<button class="nav-item btn" onclick="navGoCart(this)">
-    <span style="font-size: 10px; color: #38bdf8;">🛒</span> السلة
-</button>
+        <button class="nav-item active" onclick="navGoHome(this)">
+            <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="navGradHome" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a78bfa"/>
+                        <stop offset="100%" stop-color="#f472b6"/>
+                    </linearGradient>
+                </defs>
+                <path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"
+                      fill="none" stroke="url(#navGradHome)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>الرئيسية</span>
+        </button>
+
+        <button class="nav-item" onclick="showFavorites(this)">
+            <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="navGradFav" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a78bfa"/>
+                        <stop offset="100%" stop-color="#f472b6"/>
+                    </linearGradient>
+                </defs>
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                      fill="none" stroke="url(#navGradFav)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>المفضلة</span>
+        </button>
+
+        <button class="nav-item" onclick="navToggleSearch(this)">
+            <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="navGradSearch" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a78bfa"/>
+                        <stop offset="100%" stop-color="#f472b6"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="11" cy="11" r="7" fill="none" stroke="url(#navGradSearch)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="21" y1="21" x2="16.5" y2="16.5" stroke="url(#navGradSearch)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>البحث</span>
+        </button>
+
+        <button class="nav-item" onclick="navGoCart(this)">
+            <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="navGradCart" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a78bfa"/>
+                        <stop offset="100%" stop-color="#f472b6"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="9" cy="21" r="1" fill="url(#navGradCart)"/>
+                <circle cx="20" cy="21" r="1" fill="url(#navGradCart)"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                      fill="none" stroke="url(#navGradCart)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>السلة</span>
+        </button>
     </nav>
 
     <!-- نافذة الدفع الإلكتروني المنبثقة (زين كاش / SuperQi) -->
