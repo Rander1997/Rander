@@ -2713,7 +2713,7 @@ function updateProductUrl(product) {
 // قمنا بفصل عملية العرض لتدعم الوصف والصور الإضافية بسلاسة:
 function displayProductModal(product) {
     document.getElementById('detail-title').innerText = product.name;
-    document.getElementById('detail-price').innerText = product.price.toLocaleString('ar-IQ') + " د.ع";
+    document.getElementById('detail-price').innerText = product.price.toLocaleString('en-US') + " د.ع";
     
     // هنا يتم وضع الوصف الذي أرسلته من لوحة الأدمن
     let descEl = document.getElementById('detail-desc');
