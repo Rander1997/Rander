@@ -4385,7 +4385,7 @@ function renderProductsList(productsArray, gridElement) {
             </button>
             <img src="${mainImg}" class="product-image" loading="lazy" decoding="async" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">
             <div class="product-title" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">${product.name}</div>
-            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('en-US')} IQD</div>
+            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('en-US')} د.ع</div>
             <button class="buy-button" onclick="handleCardAddToCart(event, this, '${productId}', '${productSlug}', ${basePrice}, ${hasVariants})">إضافة للسلة</button>
         `;
 
