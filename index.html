@@ -2965,14 +2965,16 @@ function add() {
     }
     var o = GR.map(function (g, i) { return g.items[SEL[i]].name.split(' (')[0]; }), nm = String(P.name || 'منتج');
     if (o.length) nm += ' - ' + o.join(' - ');
-    // أضفنا المنتج مرة واحدة فقط (بدون حلقة الكمية)
+    // إضافة المنتج مرة واحدة
     addToCart(null, nm, unit());
+    // تحديث عدّاد زر سلتي
+    if (typeof updPdCartCount === 'function') updPdCartCount();
     var b = $('pd-add'); 
     b.classList.add('ok');
     $('pd-add-t').textContent = '✓ تمت الإضافة';
     setTimeout(function () { 
         b.classList.remove('ok'); 
-        $('pd-add-t').textContent = 'إضافة إلى السلة'; 
+        $('pd-add-t').textContent = 'إضافة للسلة'; 
     }, 1600);
 }
 function share() {
