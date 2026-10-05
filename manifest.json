@@ -1,16 +1,38 @@
 {
+  "id": "/Rander/",
   "short_name": "Rander",
   "name": "رانـدر ماكـس | Rander Max",
   "description": "متجر راندر ماكس لتسوق أحدث الإلكترونيات، إكسسوارات الهواتف، الأجهزة المنزلية، المستلزمات واللوازم المدرسية، الألعاب، والأقسام المتنوعة بأفضل الأسعار وجودة عالية.",
   "dir": "rtl",
   "lang": "ar",
   "start_url": "/Rander/index.html",
-  "scope": ".",
+  "scope": "/Rander/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#1d4ed8",
+  "categories": ["shopping", "business"],
+  "prefer_related_applications": false,
   "icons": [
+    {
+      "src": "https://d.top4top.io/p_39284yjw51.jpeg",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://d.top4top.io/p_39284yjw51.jpeg",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://d.top4top.io/p_39284yjw51.jpeg",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "https://d.top4top.io/p_39284yjw51.jpeg",
       "sizes": "192x192",
@@ -22,6 +44,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "السلة",
+      "short_name": "السلة",
+      "description": "افتح سلة التسوق",
+      "url": "/Rander/index.html?action=cart",
+      "icons": [{ "src": "https://d.top4top.io/p_39284yjw51.jpeg", "sizes": "96x96" }]
+    },
+    {
+      "name": "المفضلة",
+      "short_name": "المفضلة",
+      "description": "افتح المفضلة",
+      "url": "/Rander/index.html?action=favorites",
+      "icons": [{ "src": "https://d.top4top.io/p_39284yjw51.jpeg", "sizes": "96x96" }]
     }
   ]
 }
