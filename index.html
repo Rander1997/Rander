@@ -1853,14 +1853,87 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
 .pd-sc div{font-size:12px;font-weight:700;margin-top:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .pd-sc b{font-size:12px;color:#6366f1;direction:ltr;display:block;text-align:right}
 .pd-bar{position:absolute;bottom:0;left:0;right:0;background:var(--pd-card);border-top:1px solid var(--pd-bd);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:5}
-.pd-bar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.pd-bar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 14px}
 .pd-bar-p small{display:block;font-size:11px;color:var(--pd-mu)}.pd-bar-p b{font-size:18px;direction:ltr;display:block}
-.pd##-add{flex:1;max-width:280px;margin:0 auto;height:44px;border:none;border-radius:14px;background:var(--pd-card);color:var(--pd-tx);font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--pd-bd);box-shadow:0 4px 14px rgba(167,139,250,.18);transition:all .25s ease}
-.pd-add:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(244,114,182,.28);border-color:#a78bfa}
-.pd-add.ok{background:#10b981;color:#fff;border-color:#10b981}
-.pd-add.ok svg{stroke:#fff}
-.pd-add svg{flex-shrink:0;transition:stroke .25s}
-.pd-add.ok{background:#10b981}.pd-add svg{width:20px;height:20px;stroke:#fff}
+
+/* تنسيق مشترك لزر "سلتي" وزر "إضافة للسلة" */
+.pd-add,
+.pd-view-cart{
+    flex:0 1 auto;
+    min-width:135px;
+    max-width:180px;
+    height:42px;
+    padding:0 14px;
+    border-radius:14px;
+    background:var(--pd-card);
+    color:var(--pd-tx);
+    font:inherit;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border:1.5px solid var(--pd-bd);
+    box-shadow:0 4px 14px rgba(167,139,250,.18);
+    transition:all .25s ease;
+    white-space:nowrap;
+    -webkit-tap-highlight-color:transparent;
+}
+.pd-add:hover,
+.pd-view-cart:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(244,114,182,.28);
+    border-color:#a78bfa;
+}
+.pd-add:active,
+.pd-view-cart:active{
+    transform:translateY(0) scale(.97);
+}
+.pd-add.ok{
+    background:#10b981;
+    color:#fff;
+    border-color:#10b981;
+}
+.pd-add.ok svg path{fill:#fff}
+.pd-add svg,
+.pd-view-cart svg{
+    flex-shrink:0;
+    transition:transform .25s;
+}
+.pd-add:hover svg,
+.pd-view-cart:hover svg{
+    transform:scale(1.1);
+}
+
+/* شارة عدد المنتجات في زر "سلتي" */
+.pd-cart-count{
+    background:linear-gradient(135deg,#a78bfa,#f472b6);
+    color:#fff;
+    font-size:11px;
+    font-weight:800;
+    padding:1px 7px;
+    border-radius:10px;
+    min-width:18px;
+    text-align:center;
+    line-height:1.4;
+    direction:ltr;
+    display:inline-block;
+}
+
+/* للشاشات الصغيرة */
+@media (max-width:380px){
+    .pd-add,.pd-view-cart{
+        min-width:110px;
+        padding:0 10px;
+        font-size:12px;
+        height:40px;
+        gap:4px;
+    }
+    .pd-add svg,.pd-view-cart svg{width:16px;height:16px}
+    .pd-cart-count{font-size:10px;padding:1px 5px}
+}
 .pd-lb{position:absolute;inset:0;background:#000;z-index:9;display:none;align-items:center;justify-content:center;overflow:hidden}
 .pd-lb.on{display:flex}.pd-lb img{max-width:100%;max-height:100%;transition:transform .25s;touch-action:manipulation}
 .pd-lb .pd-ic{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px}
