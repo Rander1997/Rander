@@ -2149,39 +2149,42 @@ header #cart-counter {
             
     </main>
 
-    <!-- نافذة تفاصيل المنتج المحدثة بالكامل مع معرض صور والمنتجات المقترحة -->
-    <div id="detail-modal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 99999; justify-content: center; align-items: center; padding: 10px; direction: rtl; font-family: system-ui, sans-serif; overflow: hidden;">
-    <div class="modal-card" style="background: #ffffff; width: 100%; max-width: 520px; height: 90vh; max-height: 850px; border-radius: 24px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); display: flex; flex-direction: column; position: relative;">
-        
-        <!-- زر الإغلاق -->
-        <button onclick="closeDetailModal()" style="position: sticky; top: 0; left: 0; align-self: flex-start; background: rgba(0,0,0,0.7); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 30; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">✕</button>
-
-        <!-- حاوية الصورة الرئيسية -->
-        <div id="image-slider-container" style="position: relative; width: 100%; height: 280px; background: #f8f9fa; border-radius: 16px; overflow: hidden; touch-action: pan-y pinch-zoom; flex-shrink: 0;">
-            <img id="detail-main-img" class="gallery-main-img" src="" alt="صورة المنتج" style="width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; transform-origin: center;">
+    <!-- صفحة تفاصيل المنتج (شاشة كاملة) -->
+    <div id="detail-modal" class="pd" aria-hidden="true">
+      <div class="pd-top">
+        <button class="pd-ic" onclick="pdBack()" aria-label="رجوع"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+        <div class="pd-top-r">
+          <button class="pd-ic" id="pd-share" aria-label="مشاركة"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>
+          <button class="pd-ic fav-btn" id="pd-fav" aria-label="المفضلة"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
         </div>
-        
-        <!-- الصور المصغرة -->
-        <div class="gallery-thumbs" id="detail-thumbs" style="display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0;"></div>
-
-        <!-- معلومات المنتج -->
-        <h3 id="detail-title" style="margin: 16px 0 8px; font-size: 20px; color: #1a1a1a; font-weight: 800;"></h3>
-        <div id="detail-price" style="font-weight: bold; color: #ef4444; font-size: 22px; margin-bottom: 12px;"></div>
-        <p id="detail-desc" style="font-size: 13px; color: #4b5563; margin-bottom: 20px; line-height: 1.6; background: #f3f4f6; padding: 12px; border-radius: 12px;"></p>
-        
-        <!-- زر الإضافة للسلة -->
-        <button id="detail-add-btn" class="buy-button" style="background: #000; color: #fff; border: none; padding: 15px; border-radius: 14px; width: 100%; font-size: 17px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: 0.2s; margin-bottom: 20px; flex-shrink: 0;">إضافة إلى السلة 🛒</button>
-
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0 0 16px 0; flex-shrink: 0;">
-        
-        <!-- المنتجات المقترحة -->
-        <h4 style="font-size: 15px; font-weight: bold; color: #1a1a1a; margin-bottom: 12px; flex-shrink: 0;">🛍️ منتجات أخرى قد تعجبك:</h4>
-        <div class="rec-grid" id="detail-recommendations" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; flex-shrink: 0;"></div>
-
-        <!-- زر الإغلاق السفلي -->
-        <button onclick="closeDetailModal()" style="margin-top: 20px; background: #f3f4f6; border: 1px solid #e5e7eb; color: #374151; padding: 14px; border-radius: 12px; width: 100%; font-size: 15px; font-weight: bold; cursor: pointer; flex-shrink: 0;">إغلاق التفاصيل</button>
+      </div>
+      <div class="pd-scroll" id="pd-scroll"><div class="pd-wrap">
+        <div class="pd-gal"><div class="pd-slides" id="pd-slides"></div><span class="pd-badge" id="pd-badge"></span><span class="pd-count" id="pd-count"></span><div class="pd-dots" id="pd-dots"></div></div>
+        <div class="pd-thumbs" id="pd-thumbs"></div>
+        <div class="pd-card">
+          <span class="pd-cat" id="pd-cat"></span>
+          <h1 class="pd-name" id="pd-name"></h1>
+          <div class="pd-price" id="pd-price"></div>
+        </div>
+        <div id="pd-opts"></div>
+        <div class="pd-card pd-qtyrow"><b>الكمية</b>
+          <div class="pd-qty"><button id="pd-minus" aria-label="إنقاص"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><span id="pd-qty">1</span><button id="pd-plus" aria-label="زيادة"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <span class="pd-sub" id="pd-sub"></span></div>
+        <div class="pd-card" id="pd-descbox"><b>الوصف</b><p class="pd-desc" id="pd-desc"></p><button class="pd-more" id="pd-more">عرض المزيد</button></div>
+        <div class="pd-trust">
+          <div><svg viewBox="0 0 24 24"><path d="M1 6h13v10H1zM14 9h4l3 3v4h-7M5 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01"/></svg><span>توصيل لكل المحافظات</span></div>
+          <div><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg><span>دفع عند الاستلام</span></div>
+          <div><svg viewBox="0 0 24 24"><path d="M20 12l-8 8-9-9V3h8zM7.5 7.5h.01"/></svg><span>أسعار منافسة</span></div>
+        </div>
+        <div id="pd-simbox"><h4 class="pd-h">منتجات مشابهة</h4><div class="pd-sim" id="pd-sim"></div></div>
+        <div style="height:110px"></div>
+      </div></div>
+      <div class="pd-bar"><div class="pd-bar-in">
+        <div class="pd-bar-p"><small>الإجمالي</small><b id="pd-total"></b></div>
+        <button class="pd-add" id="pd-add"><span id="pd-add-t">إضافة إلى السلة</span></button>
+      </div></div>
+      <div class="pd-lb" id="pd-lb"><button class="pd-ic" id="pd-lb-x" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="pd-lb-img" alt=""></div>
     </div>
-</div>
 
     <!-- نافذة المراجعات -->
     <div id="reviews-modal" class="modal-overlay">
