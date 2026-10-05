@@ -2007,12 +2007,18 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
                     renderCartModal();
                 }
             " style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; border-radius: 8px; white-space: nowrap; flex-shrink: 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="url(#maxGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                <svg viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="maxGradHeaderCart" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#a78bfa"/>
+                            <stop offset="100%" stop-color="#f472b6"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"
+                          fill="url(#maxGradHeaderCart)"/>
                 </svg>
-                <span>السلة</span>
+                <span>سلتي</span>
+                <span class="cart-num" id="header-cart-count">0</span>
             </button>
         </div>
 
