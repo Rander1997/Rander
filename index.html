@@ -4816,7 +4816,7 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
                 card.innerHTML = `
                     <img src="${img}" style="width:100%; height:80px; object-fit:contain; border-radius:6px; margin-bottom:4px;">
                     <div style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
-                    <div style="font-size:11px; color:var(--accent); font-weight:bold;">${Number(p.price).toLocaleString('ar-IQ')} د.ع</div>
+                    <div style="font-size:11px; color:var(--accent); font-weight:bold;">${Number(p.price).toLocaleString('en-US')} د.ع</div>
                 `;
                 
                 // تحديث حدث النقر ليستدعي openProductModal بالـ slug الجديد
