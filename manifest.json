@@ -4,7 +4,7 @@
   "description": "متجر راندر ماكس لتسوق أحدث الإلكترونيات، إكسسوارات الهواتف، الأجهزة المنزلية، المستلزمات واللوازم المدرسية، الألعاب، والأقسام المتنوعة بأفضل الأسعار وجودة عالية.",
   "dir": "rtl",
   "lang": "ar",
-  "start_url": "index.html",
+  "start_url": "/Rander/index.html",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
