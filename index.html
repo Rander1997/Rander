@@ -4363,7 +4363,7 @@ function renderProductsList(productsArray, gridElement) {
             <img src="${mainImg}" class="product-image" loading="lazy" decoding="async" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">
             <div class="product-title" style="cursor:pointer;" onclick="openProductModal('${productSlug}')">${product.name}</div>
             
-            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('ar-IQ')} د.ع</div>
+            <div class="product-price" id="price-${productId}">${basePrice.toLocaleString('en-US')} د.ع</div>
             
             <div class="control-group" style="margin: 10px 0; display: flex; flex-direction: column;">
                 ${variantsHtml}
@@ -4388,7 +4388,7 @@ function updateCardPrice(selectElement, productId, basePrice) {
     const price = selectedOption.getAttribute('data-price') || basePrice;
     const priceElement = document.getElementById(`price-${productId}`);
     if (priceElement) {
-        priceElement.innerText = Number(price).toLocaleString('ar-IQ') + ' د.ع';
+        priceElement.innerText = Number(price).toLocaleString('en-US') + ' د.ع';
     }
 }    
 
@@ -4419,7 +4419,7 @@ function updateMultiVariantPrice(selectElement, productId, basePrice) {
 
     const priceElement = document.getElementById(`price-${productId}`);
     if (priceElement) {
-        priceElement.innerText = Number(finalPrice).toLocaleString('ar-IQ') + ' د.ع';
+        priceElement.innerText = Number(finalPrice).toLocaleString('en-US') + ' د.ع';
     }
 }
 
