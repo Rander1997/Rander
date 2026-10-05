@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+rander1997.github.io<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -377,9 +377,18 @@ function checkAdminLogin() {
                 'auth/user-not-found': 'لا يوجد حساب بهذا البريد',
                 'auth/wrong-password': 'كلمة المرور غير صحيحة',
                 'auth/invalid-credential': 'البريد أو كلمة المرور غير صحيحة',
-                'auth/too-many-requests': 'محاولات كثيرة، حاول لاحقاً'
+                'auth/too-many-requests': 'محاولات كثيرة، حاول لاحقاً',
+                'auth/operation-not-allowed': 'Email/Password غير مفعّل',
+                'auth/network-request-failed': 'تحقق من الإنترنت',
+                'auth/unauthorized-domain': 'النطاق غير مصرح به',
+                'auth/api-key-not-valid': 'API Key غير صالح',
+                'auth/invalid-api-key': 'API Key غير صحيح',
+                'auth/app-not-authorized': 'التطبيق غير مصرح به',
+                'auth/internal-error': 'خطأ داخلي في Firebase',
+                'auth/missing-email': 'البريد مفقود'
             };
-            errorEl.textContent = '❌ ' + (messages[error.code] || 'فشل تسجيل الدخول');
+            // عرض كود الخطأ الفعلي
+            errorEl.textContent = '❌ ' + (messages[error.code] || ('فشل: ' + error.code));
         });
 }
 
