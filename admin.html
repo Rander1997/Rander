@@ -211,10 +211,13 @@ rander1997.github.io<!DOCTYPE html>
                         <button type="button" onclick="addVariantGroup()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة مجموعة خيارات جديدة (مثل: اللون أو الحجم)</button>
                     </div>
                     
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيف (يتم جلبه تلقائياً من الأقسام المضافة):</label>
-                    <select id="p-category" class="form-input" required>
-                        <option value="">-- اختر التصنيف المناسب --</option>
-                    </select>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيفات (يمكنك اختيار أكثر من قسم - اضغط مطولاً للاختيار المتعدد):</label>
+<select id="p-category" class="form-input" multiple required style="min-height: 120px;">
+    <!-- سيتم جلب الأقسام هنا -->
+</select>
+<p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+    💡 على الآيباد: اضغط ضغطة مطولة على القسم، ثم اختر أقساماً إضافية.
+</p>
 
                     <!-- حقل شارة المنتج الاختيارية -->
                     <div style="margin-bottom: 15px;">
@@ -407,26 +410,34 @@ function checkAdminLogin() {
 
         // --- جلب الأقسام لتحديث قائمة التصنيفات في نموذج المنتجات ---
         function loadAdminCategoriesData(callback) {
-            db.collection("categories").get().then((snapshot) => {
-                let categories = [];
-                snapshot.forEach((doc) => {
-                    categories.push({ id: doc.id, ...doc.data() });
-                });
-                allCategoriesCache = categories;
+    db.collection("categories").get().then((snapshot) => {
+        let categories = [];
+        snapshot.forEach((doc) => {
+            categories.push({ id: doc.id, ...doc.data() });
+        });
+        allCategoriesCache = categories;
 
-                const productCategorySelect = document.getElementById('p-category');
-                if (productCategorySelect) {
-                    let currentSelected = productCategorySelect.value;
-                    productCategorySelect.innerHTML = '<option value="">-- اختر التصنيف المناسب --</option>';
-                    categories.forEach(cat => {
-                        productCategorySelect.innerHTML += `<option value="${cat.name.trim()}">${cat.name.trim()}</option>`;
-                    });
-                    productCategorySelect.value = currentSelected;
+        const productCategorySelect = document.getElementById('p-category');
+        if (productCategorySelect) {
+            // احفظ القيم المختارة حالياً (لمنتج يتم تعديله)
+            let currentSelected = Array.from(productCategorySelect.selectedOptions).map(o => o.value);
+            
+            productCategorySelect.innerHTML = '';
+            categories.forEach(cat => {
+                productCategorySelect.innerHTML += `<option value="${cat.name.trim()}">${cat.name.trim()}</option>`;
+            });
+            
+            // استعد القيم المختارة
+            Array.from(productCategorySelect.options).forEach(opt => {
+                if (currentSelected.indexOf(opt.value) > -1) {
+                    opt.selected = true;
                 }
-
-                if (callback) callback();
             });
         }
+
+        if (callback) callback();
+    });
+}
 
         // --- إدارة المتغيرات والمواصفات الديناميكية ---
         function addVariantGroup(groupTitle = '', items = []) {
