@@ -4285,6 +4285,10 @@ function loadProductsByCategory(categoryIdentifier, subCategoryIdentifier = null
         all.forEach((prod) => {
             let prodCat = String(prod.category || "").trim().toLowerCase();
             let prodSubCat = String(prod.subCategory || "").trim().toLowerCase();
+            // الأقسام المتعددة للمنتج
+let prodCategories = (prod.categories && Array.isArray(prod.categories)) 
+    ? prod.categories.map(c => String(c).trim().toLowerCase())
+    : [prodCat].filter(Boolean);
 
             // 1. إذا كان الاختيار لقسم فرعي
             if (subCategoryIdentifier) {
