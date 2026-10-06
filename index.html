@@ -4190,7 +4190,6 @@ function showFavorites(btnElement) {
 
                 if (typeof saveCartToStorage === 'function') saveCartToStorage();
                 if (typeof updateCartCounter === 'function') updateCartCounter();
-                if (typeof showToast === 'function') showToast("🛒 تم الإضافة للسلة!");
             } catch (err) {
                 console.error("خطأ في الإضافة للسلة:", err);
             }
