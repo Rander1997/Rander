@@ -5824,12 +5824,35 @@ function av(u, cls) {
     return '<img class="sx-av ' + (u.gender === 'female' ? 'g-f' : u.gender === 'male' ? 'g-m' : '') + (cls ? ' ' + cls : '') + '" src="' + esc(u.avatar || defAv(u.displayName, u.gender)) + '" alt="">';
 }
 async function ensureUsers(ids) {
-    var need = []; ids.forEach(function (i) { if (i && !UC[i] && need.indexOf(i) < 0) need.push(i); });
+    var need = []; 
+    ids.forEach(function (i) { 
+        if (i && !UC[i] && need.indexOf(i) < 0) need.push(i); 
+    });
+    
     for (var k = 0; k < need.length; k += 10) {
         var c = need.slice(k, k + 10);
-        var s = await fs.collection('users').where(FP.documentId(), 'in', c).get();
-        s.forEach(function (d) { var u = d.data(); u.id = d.id; UC[d.id] = u; });
-        c.forEach(function (i) { if (!UC[i]) UC[i] = { id: i, displayName: 'مستخدم', username: '' }; });
+        try {
+            var s = await fs.collection('users').where(FP.documentId(), 'in', c).get();
+            s.forEach(function (d) { 
+                var u = d.data(); 
+                u.id = d.id; 
+                UC[d.id] = u; 
+            });
+            // تعيين مستخدم افتراضي لأي UID لم يتم العثور عليه
+            c.forEach(function (i) { 
+                if (!UC[i]) {
+                    UC[i] = { id: i, displayName: 'مستخدم محذوف', username: 'deleted' }; 
+                }
+            });
+        } catch (e) {
+            console.error("خطأ في جلب المستخدمين:", e);
+            // في حالة حدوث خطأ، قم بتعيين مستخدم افتراضي للجميع
+            c.forEach(function (i) { 
+                if (!UC[i]) {
+                    UC[i] = { id: i, displayName: 'مستخدم غير معروف', username: 'unknown' }; 
+                }
+            });
+        }
     }
 }
 async function loadBans(force) {
@@ -6090,20 +6113,62 @@ async function publish() {
     if (!clean(text)) return toast('منشورك يحتوي على ألفاظ غير مسموحة');
     if (Date.now() - last.post < 15000) return toast('انتظر قليلاً قبل النشر مرة أخرى');
     b.disabled = true; b.textContent = 'جارٍ الفحص...';
+    
     try {
         var r = await scan(pending);
         if (r === true) { pending = []; await banMe('post-image'); return; }
+        
         var ref = fs.collection('posts').doc(), batch = fs.batch();
-        batch.set(ref, { authorUid: me.uid, text: text, tags: tagsOf(text), images: pending.slice(), likesCount: 0, commentsCount: 0, likedBy: [], reportedBy: [], unscanned: r === null,
-            createdAt: FV.serverTimestamp(), expireAt: TS.fromMillis(Date.now() + KEEP_DAYS * 864e5) });
-        batch.update(fs.collection('users').doc(me.uid), { postsCount: FV.increment(1) });
+        batch.set(ref, { 
+            authorUid: me.uid, 
+            text: text, 
+            tags: tagsOf(text), 
+            images: pending.slice(), 
+            likesCount: 0, 
+            commentsCount: 0, 
+            likedBy: [], 
+            reportedBy: [], 
+            unscanned: r === null,
+            createdAt: FV.serverTimestamp(), 
+            expireAt: TS.fromMillis(Date.now() + KEEP_DAYS * 864e5) 
+        });
+
+        // التحقق من وجود المستخدم قبل التحديث
+        var userRef = fs.collection('users').doc(me.uid);
+        var userDoc = await userRef.get();
+        
+        if (userDoc.exists) {
+            batch.update(userRef, { postsCount: FV.increment(1) });
+        } else {
+            // إنشاء المستخدم إذا لم يكن موجوداً
+            batch.set(userRef, { 
+                displayName: au.currentUser.displayName || 'مستخدم', 
+                username: 'user_' + me.uid.slice(0, 5), 
+                postsCount: 1, 
+                followersCount: 0, 
+                followingCount: 0,
+                createdAt: FV.serverTimestamp()
+            });
+        }
+
         await batch.commit();
-        last.post = Date.now(); pending = []; poolAt = 0;
-        mu().postsCount = (mu().postsCount || 0) + 1; feedPage = 1;
-        toast('تمت المشاركة'); tab = 'feed'; render();
+        
+        last.post = Date.now(); 
+        pending = []; 
+        poolAt = 0;
+        mu().postsCount = (mu().postsCount || 0) + 1; 
+        feedPage = 1;
+        toast('تمت المشاركة'); 
+        tab = 'feed'; 
+        render();
+        
     } catch (e) {
-        console.error(e); toast('تعذّر النشر: ' + (e.code || 'خطأ'));
-        if ($('sx-publish')) { b.disabled = false; b.textContent = 'مشاركة'; }
+        console.error("خطأ في النشر:", e); 
+        toast('تعذّر النشر: ' + (e.code || e.message || 'خطأ'));
+        if ($('sx-publish')) { 
+            b.disabled = false; 
+            b.textContent = 'مشاركة'; 
+        }
     }
 }
 
