@@ -4787,13 +4787,14 @@ function addMultiVariantToCart(btnElement, productId, productName, basePrice) {
     const productCategory = categorySelect ? categorySelect.value : 'all';
 
     db.collection("products").add({
-        name: productName,
-        price: productPrice,
-        image: productImage,
-        images: [productImage],
-        category: productCategory,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
+    name: productName,
+    price: productPrice,
+    image: productImage,
+    images: [productImage],
+    category: productCategory,
+    categories: [productCategory],  // ← أضف هذا
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+})
     .then(() => {
         alert("✨ تمت إضافة المنتج إلى المتجر بنجاح!");
         nameInput.value = '';
