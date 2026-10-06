@@ -2467,6 +2467,96 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
     }
 }
 
+
+/* ═══════════════════════════════════════════
+   ✅ نبضات إضافية (بديل خفيف لطيران الصورة)
+   ═══════════════════════════════════════════ */
+
+/* نبض زر الإضافة — يعمل على كل الأجهزة */
+@keyframes pd-add-pulse {
+    0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+    50%  { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(16,185,129,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+.pd-pulse {
+    animation: pd-add-pulse 0.5s ease-out !important;
+}
+
+/* نبض زر السلة */
+@keyframes pd-bump-scale {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35) rotate(-6deg); }
+    70%  { transform: scale(1.15) rotate(3deg); }
+    100% { transform: scale(1); }
+}
+.pd-bump {
+    animation: pd-bump-scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* ═══════════════════════════════════════════
+   🤖 إصلاحات خاصة بأندرويد
+   ═══════════════════════════════════════════ */
+
+/* إجبار GPU acceleration على أندرويد */
+.is-android .pd-add,
+.is-android .pd-add::before,
+.is-android .pd-add::after,
+.is-android .pd-particle,
+.is-android .pd-success-popup {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* تعطيل backdrop-filter على أندرويد (بطيء جداً) */
+.is-android .btn,
+.is-android .category-chip,
+.is-android .cart-btn,
+.is-android button {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* تعطيل نبض الخلفية على أندرويد (يستهلك CPU) */
+.is-android .pd-add::before {
+    animation: none !important;
+}
+
+/* إبقاء وميض الضوء فقط (خفيف) */
+.is-android .pd-add::after {
+    animation-duration: 6s !important; /* أبطأ = أقل استهلاكاً */
+}
+
+/* ✅ على أندرويد: الرسالة المنبثقة تظهر بسرعة */
+.is-android .pd-success-popup {
+    transition: all 0.25s ease-out !important;
+}
+
+/* ✅ الجزيئات على أندرويد: استخدام transform فقط */
+.is-android .pd-particle {
+    animation-duration: 0.8s !important;
+}
+
+/* ✅ إلغاء أي blur ثقيل */
+.is-android .pd-tooltip {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+/* ═══════════════════════════════════════════
+   📱 الأجهزة الضعيفة جداً — تبسيط كامل
+   ═══════════════════════════════════════════ */
+.is-lowend .pd-add::before,
+.is-lowend .pd-add::after {
+    display: none !important;
+}
+.is-lowend .pd-particle {
+    animation-duration: 0.6s !important;
+}
+.is-lowend .pd-add.pd-wiggle {
+    animation: none !important;
+}
+
+
     
 </style>
 </head>
@@ -5608,93 +5698,93 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <script>
 /* ═══════════════════════════════════════════
-   🎯 محرك التأثير لزر "إضافة للسلة" (v3 - مُصحّح)
+   🎯 محرك التأثير لزر "إضافة للسلة" (v4 — iOS/Android محسّن)
    ═══════════════════════════════════════════ */
 (function() {
     'use strict';
 
-    // ⛔ منع التشغيل المزدوج
     if (window.__pdEffectsLoaded) return;
     window.__pdEffectsLoaded = true;
 
-    // متغيرات الحالة
+    // ═══ كشف الجهاز ═══
+    const ua = navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const cores = navigator.hardwareConcurrency || 4;
+    const mem = navigator.deviceMemory || 4;
+    const isLowEnd = isAndroid && (cores <= 4 || mem <= 4);
+    const isChromeAndroid = isAndroid && /Chrome/i.test(ua);
+    
+    // إعدادات مخصصة لكل جهاز
+    const CONFIG = {
+        rippleEnabled: !isLowEnd && !isAndroid,        // Ripple على iOS فقط (أندرويد: pointerdown ثقيل)
+        particleCount: isLowEnd ? 6 : (isAndroid ? 8 : 16),
+        flyEnabled: !isLowEnd && !isAndroid,           // طيران الصورة على iOS فقط
+        tooltipDelay: isAndroid ? 2500 : 1500,         // تأخير أكبر على أندرويد (بطء التحميل)
+        wiggleDelay: isAndroid ? 7000 : 6000,
+        vibratePattern: isAndroid ? [60] : [40, 30, 40] // نبضة واحدة قوية على أندرويد
+    };
+
     let lastAddTime = 0;
     let wiggleTimer = null;
     let tooltipTimer = null;
-    let attachTimer = null;      // ✅ جديد: مؤقت التأخير
-    let txtObserver = null;      // ✅ جديد: مرجع للمراقب
+    let attachTimer = null;
+    let txtObserver = null;
     let attachedButton = null;
-    let tooltip = null;          // ✅ جديد: مرجع للتلميح
+    let tooltip = null;
+    let isProcessing = false; // ✅ منع نقرات متكررة أثناء المعالجة
 
-    // كشف نوع الجهاز
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const is6LowEnd = isAndroid && (navigator.hardwareConcurrency || 4) <= 4;
-
-    // ✅ إضافة class للأجهزة الضعيفة لتعطيل الفراشة عبر CSS
-    if (isLowEnd) document.documentElement.classList.add('pd-low-end');
-
-    // ═══════════════════════════════════════════
     // أدوات مساعدة
-    // ═══════════════════════════════════════════
-    function safeLS(key) {
-        try { return localStorage.getItem(key); } catch(e) { return null; }
-    }
-    function safeLSSet(key, val) {
-        try { localStorage.setItem(key, val); } catch(e) {}
-    }
+    function safeLSGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+    function safeLSSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
 
     // ═══════════════════════════════════════════
-    // 1️⃣ Ripple
+    // 1️⃣ Ripple (iOS فقط)
     // ═══════════════════════════════════════════
     function createRipple(btn, e) {
-        if (isLowEnd) return;
+        if (!CONFIG.rippleEnabled) return;
         try {
             const rect = btn.getBoundingClientRect();
             const size = Math.max(rect.width, rect.height);
-            const x = (e.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
-            const y = (e.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
-
             const ripple = document.createElement('span');
             ripple.className = 'pd-ripple';
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
+            ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;`;
             btn.appendChild(ripple);
             setTimeout(() => ripple.remove(), 700);
-        } catch (err) {}
+        } catch(e) {}
     }
 
     // ═══════════════════════════════════════════
-    // 2️⃣ الجزيئات
+    // 2️⃣ الجزيئات (بعدد متغيّر)
     // ═══════════════════════════════════════════
     function burstParticles(x, y) {
-        const count = isLowEnd ? 6 : (isAndroid ? 10 : 16);
+        const count = CONFIG.particleCount;
         const colors = ['#a78bfa', '#f472b6', '#38bdf8', '#10b981'];
+        // ✅ استخدم DocumentFragment (أسرع من appendChild المتكرر)
+        const frag = document.createDocumentFragment();
+        const particles = [];
 
         for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
             p.className = 'pd-particle';
             const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
-            const distance = 50 + Math.random() * 60;
-            p.style.left = x + 'px';
-            p.style.top = y + 'px';
-            p.style.background = colors[i % colors.length];
-            p.style.setProperty('--px', Math.cos (angle) * distance + 'px');
-           9 p.style.setProperty('--py', Math.sin(angle) * distance - 30 + 'px');
-            p.style.width  = p.style.height = (4 + Math.random() * 4) + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 1000);
+            const dist = 50 + Math.random() * 60;
+            p.style.cssText = `left:${x}px;top:${y}px;background:${colors[i % 4]};width:${4 + Math.random()*4}px;height:${4 + Math.random()*4}px;--px:${Math.cos(angle)*dist}px;--py:${Math.sin(angle)*dist - 30}px;`;
+            frag.appendChild(p);
+            particles.push(p);
         }
+        document.body.appendChild(frag);
+        setTimeout(() => particles.forEach(p => p.remove()), 1000);
     }
 
-    // ═════════17══════════════════════════════════
-    // 3 ️⃣ رسالة النجاح
+    // ═══════════════════════════════════════════
+    // 3️⃣ رسالة النجاح
     // ═══════════════════════════════════════════
     function showSuccessPopup() {
         document.querySelectorAll('.pd-success-popup').forEach(el => el.remove());
         const popup = document.createElement('div');
         popup.className = 'pd-success-popup';
-        popup.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 4 12"/></svg><span>تمت الإضافة بنجاح! 🎉</span>';
+        popup.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>تمت الإضافة! 🎉</span>';
         document.body.appendChild(popup);
         requestAnimationFrame(() => popup.classList.add('show'));
         setTimeout(() => {
@@ -5704,30 +5794,24 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ═══════════════════════════════════════════
-    // 4️⃣ الطيران إلى السلة (بـ transform للأداء)
+    // 4️⃣ طيران الصورة (iOS فقط — أندرويد يعتمد على النبض)
     // ═══════════════════════════════════════════
     function flyToCart(sourceImg) {
-        if (isLowEnd || !sourceImg) return;
+        if (!CONFIG.flyEnabled || !sourceImg) return;
         const cartBtn = document.getElementById('cart-counter') || document.getElementById('pd-view-cart');
         if (!cartBtn) return;
 
         try {
             const imgRect = sourceImg.getBoundingClientRect();
             const cartRect = cartBtn.getBoundingClientRect();
-            if (imgRect.width === 0 || imgRect.height === 0) return;
+            if (imgRect.width === 0) return;
 
             const flyImg = document.createElement('img');
             flyImg.src = sourceImg.src;
             flyImg.className = 'pd-fly-item';
-            // ✅ استخدم transform بدل left/top للأداء
-            const startX = imgRect.left;
-            const startY = imgRect.top;
-            flyImg.style.cssText = `
-                left:${startX}px;top:${startY}px;
-                width:${Math.min(imgRect.width, 80)}px;
-                height:${Math.min(imgRect.height, 80)}px;
-                transform:translate3d(0,0,0);
-            `;
+            const startX = imgRect.left, startY = imgRect.top;
+            flyImg.style.cssText = `left:${startX}px;top:${startY}px;width:${Math.min(imgRect.width,80)}px;height:${Math.min(imgRect.height,80)}px;`;
+
             document.body.appendChild(flyImg);
 
             const endX = cartRect.left + cartRect.width / 2 - 30 - startX;
@@ -5740,23 +5824,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
             setTimeout(() => {
                 flyImg.remove();
-                // ✅ class بدل style مباشر
                 cartBtn.classList.add('pd-bump');
                 setTimeout(() => cartBtn.classList.remove('pd-bump'), 250);
             }, 750);
-        } catch (err) {}
+        } catch(e) {}
     }
 
     // ═══════════════════════════════════════════
     // 5️⃣ التلميح
     // ═══════════════════════════════════════════
     function showTooltip(btn) {
-        if (safeLS('pd_tooltip_seen') === '1') return;
-        if (tooltip && tooltip.parentNode) return; // موجود بالفعل
+        if (safeLSGet('pd_tooltip_seen') === '1') return;
+        if (tooltip && tooltip.parentNode) return;
 
         tooltip = document.createElement('div');
         tooltip.className = 'pd-tooltip';
-        tooltip.textContent = '👆 اضغط هنا لإضافة المنتج';
+        tooltip.textContent = '👆 اضغط هنا للإضافة';
         btn.appendChild(tooltip);
         setTimeout(() => tooltip && tooltip.classList.add('show'), 100);
 
@@ -5770,46 +5853,75 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // ═══════════════════════════════════════════
-    // 6️⃣ تأثير الإضافة
+    // 6️⃣ تأثير الإضافة الكامل
     // ═══════════════════════════════════════════
     function triggerAddEffect(btn) {
+        if (isProcessing) return; // ✅ منع التكرار
         const now = Date.now();
-        if (now - lastAddTime < 500) return;
+        if (now - lastAddTime < 600) return;
+        
+        isProcessing = true;
         lastAddTime = now;
 
         try {
             const rect = btn.getBoundingClientRect();
             const cx = rect.left + rect.width / 2;
             const cy = rect.top + rect.height / 2;
+
+            // ✅ 1. الجزيئات (كل الأجهزة)
             burstParticles(cx, cy);
+
+            // ✅ 2. رسالة النجاح (كل الأجهزة)
             showSuccessPopup();
-            const mainImg = document.querySelector('#pd-slides img');
-            if (mainImg && mainImg.complete && mainImg.naturalWidth > 0) flyToCart(mainImg);
-            if (navigator.vibrate) {
-                try { navigator.vibrate([40, 30, 40]); } catch(e) {}
+
+            // ✅ 3. نبض زر الإضافة (كل الأجهزة) — بديل خفيف عن الطيران
+            btn.classList.add('pd-pulse');
+            setTimeout(() => btn.classList.remove('pd-pulse'), 400);
+
+            // ✅ 4. نبض زر السلة (كل الأجهزة)
+            const cartBtn = document.getElementById('cart-counter') || document.getElementById('pd-view-cart');
+            if (cartBtn) {
+                cartBtn.classList.add('pd-bump');
+                setTimeout(() => cartBtn.classList.remove('pd-bump'), 300);
             }
-        } catch (err) { console.warn('Effect error:', err); }
+
+            // ✅ 5. طيران الصورة (iOS فقط)
+            const mainImg = document.querySelector('#pd-slides img');
+            if (mainImg && mainImg.complete && mainImg.naturalWidth > 0) {
+                flyToCart(mainImg);
+            }
+
+            // ✅ 6. اهتزاز (نمط مخصص لكل جهاز)
+            if (navigator.vibrate) {
+                try { navigator.vibrate(CONFIG.vibratePattern); } catch(e) {}
+            }
+        } catch(err) {
+            console.warn('Effect error:', err);
+        }
+
+        // فك الحماية بعد 800ms
+        setTimeout(() => { isProcessing = false; }, 800);
     }
 
     // ═══════════════════════════════════════════
-    // 7️⃣ الربط
+    // 7️⃣ الربط بالأحداث
     // ═══════════════════════════════════════════
     function attachEffects() {
         const btn = document.getElementById('pd-add');
         if (!btn) return;
-        if (btn === attachedButton) return; // ✅ لا تُكرر الربط
+        if (btn === attachedButton) return;
 
-        // نظّف المراقب القديم
         if (txtObserver) { txtObserver.disconnect(); txtObserver = null; }
-
         attachedButton = btn;
 
-        // ✅ Ripple (بدون تكرار — لأنه لن يُعاد الربط)
-        btn.addEventListener('pointerdown', function(e) {
-            createRipple(btn, e);
-        }, { passive: true });
+        // ✅ Ripple (iOS فقط)
+        if (CONFIG.rippleEnabled) {
+            btn.addEventListener('pointerdown', function(e) {
+                createRipple(btn, e);
+            }, { passive: true });
+        }
 
-        // ✅ راقب النص فقط
+        // ✅ راقب النص
         const txtEl = document.getElementById('pd-add-t');
         if (txtEl) {
             txtObserver = new MutationObserver(() => {
@@ -5826,7 +5938,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // تلميح
         clearTimeout(tooltipTimer);
-        tooltipTimer = setTimeout(() => showTooltip(btn), 1500);
+        tooltipTimer = setTimeout(() => showTooltip(btn), CONFIG.tooltipDelay);
 
         // اهتزاز
         clearTimeout(wiggleTimer);
@@ -5835,31 +5947,30 @@ document.addEventListener("DOMContentLoaded", function() {
                 btn.classList.add('pd-wiggle');
                 setTimeout(() => btn.classList.remove('pd-wiggle'), 2000);
             }
-        }, 6000);
+        }, CONFIG.wiggleDelay);
     }
 
     // ═══════════════════════════════════════════
-    // 8️⃣ مراقبة فتح صفحة المنتج
+    // 8️⃣ مراقبة فتح/إغلاق صفحة المنتج
     // ═══════════════════════════════════════════
     const detailModal = document.getElementById('detail-modal');
     if (detailModal) {
         const modalObs = new MutationObserver(() => {
             if (detailModal.classList.contains('active')) {
-                clearTimeout(attachTimer);          // ✅ إلغاء المؤقت السابق
-                attachTimer = setTimeout(attachEffects, 300);
+                clearTimeout(attachTimer);
+                attachTimer = setTimeout(attachEffects, isAndroid ? 500 : 300);
             } else {
-                // تنظيف عند الإغلاق
                 clearTimeout(wiggleTimer);
                 clearTimeout(tooltipTimer);
                 clearTimeout(attachTimer);
                 if (tooltip) { tooltip.remove(); tooltip = null; }
-                attachedButton = null;              // ✅ لإعادة الربط مع منتج جديد
+                attachedButton = null;
+                isProcessing = false;
             }
         });
         modalObs.observe(detailModal, { attributes: true, attributeFilter: ['class'] });
     }
 
-    // تشغيل مبدئي
     setTimeout(attachEffects, 800);
 
 })();
