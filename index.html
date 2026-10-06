@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+
+    <script>
+// ⚡ كشف الجهاز مبكراً + إضافة class على <html>
+(function() {
+    var ua = navigator.userAgent;
+    var html = document.documentElement;
+    var isAndroid = /Android/i.test(ua);
+    var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    if (isAndroid) html.classList.add('is-android');
+    if (isIOS) html.classList.add('is-ios');
+    
+    // كشف الأجهزة الضعيفة
+    var cores = navigator.hardwareConcurrency || 4;
+    var mem = navigator.deviceMemory || 4;
+    var isLowEnd = isAndroid && (cores <= 4 || mem <= 4);
+    if (isLowEnd) html.classList.add('is-lowend');
+    
+    // كشف كروم (له سلوك مختلف في الـ animations)
+    if (isAndroid && /Chrome/i.test(ua)) html.classList.add('is-chrome-android');
+})();
+</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
