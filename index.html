@@ -2065,6 +2065,10 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
 }
 
 /* الفراشة نفسها */
+/* ═══════════════════════════════════════════
+   🦋 الفراشة — نسخة محسّنة لكل منصة
+   ═══════════════════════════════════════════ */
+
 .pd-butterfly {
     position: absolute;
     top: 50%;
@@ -2075,151 +2079,91 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
     pointer-events: none;
     z-index: 10;
     opacity: 0;
-    animation: butterflyJourney 10s linear infinite;
-    animation-delay: 2s;
-    animation-fill-mode: both;
-    filter: drop-shadow(0 2px 5px rgba(167, 139, 250, 0.5));
     transform-origin: center center;
+    will-change: transform, opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
 }
 
-/* رفرفة الأجنحة */
-/* رفرفة الأجنحة */
-.pd-butterfly svg {
-    width: 100%;
-    height: 100%;
-    transform-origin: center center;
+/* ✨ iOS: كل التأثيرات الفخمة */
+.is-ios .pd-butterfly {
+    animation: butterflyJourney 10s linear infinite 2s both;
+    filter: drop-shadow(0 2px 5px rgba(167, 139, 250, 0.5));
+}
+.is-ios .pd-butterfly svg {
     animation: wingFlutter 0.4s ease-in-out infinite alternate;
-    animation-play-state: paused; /* ⭐ يبدأ متوقفاً */
+    transform-origin: center center;
 }
-
-/* الجناحان — يتحركان بشكل متماثل */
-.pd-butterfly .wing-left {
-    transform-origin: 50% 50%;
+.is-ios .pd-butterfly .wing-left {
     animation: wingLeftMove 0.4s ease-in-out infinite alternate;
-}
-
-.pd-butterfly .wing-right {
     transform-origin: 50% 50%;
+}
+.is-ios .pd-butterfly .wing-right {
     animation: wingRightMove 0.4s ease-in-out infinite alternate;
+    transform-origin: 50% 50%;
 }
 
-/* 🎬 مسار الرحلة الجديد — الفراشة تدخل داخل الزر وتتجول */
+/* 🤖 Android: نسخة مبسّطة وسريعة */
+.is-android .pd-butterfly {
+    animation: butterflyJourneySimple 12s linear infinite 3s both;
+    /* ❌ لا drop-shadow (ثقيل جداً) */
+    /* ❌ لا wing-flutter معقد */
+    transform: translateZ(0); /* ✅ يفعّل GPU acceleration */
+}
+
+/* رفرفة مبسّطة لأندرويد — فقط transform (GPU) */
+.is-android .pd-butterfly svg {
+    animation: wingFlutterSimple 0.5s ease-in-out infinite alternate;
+    transform-origin: center center;
+    /* ❌ بدون transform-origin للأجنحة الفردية */
+}
+
+/* 🔴 الأجهزة الضعيفة: الفراشة مخفية تماماً */
+.is-lowend .pd-butterfly {
+    display: none !important;
+}
+
+/* ✨ المسار الكامل (iOS) */
 @keyframes butterflyJourney {
-    /* ═══════════════════════════════════════════
-       الظهور من خارج الزر — يمين (0-8%)
-       ═══════════════════════════════════════════ */
-    0% {
-        opacity: 0;
-        transform: translate(70px, -45px) rotate(40deg) scale(0.5);
-    }
-    4% {
-        opacity: 1;
-        transform: translate(50px, -30px) rotate(30deg) scale(0.7);
-    }
-    8% {
-        opacity: 1;
-        transform: translate(35px, -18px) rotate(20deg) scale(0.85);
-    }
-
-    /* ═══════════════════════════════════════════
-       الاقتراب والدخول — (8-15%)
-       ═══════════════════════════════════════════ */
-    15% {
-        opacity: 1;
-        transform: translate(15px, -5px) rotate(5deg) scale(1);
-    }
-
-    /* ═══════════════════════════════════════════
-       الدخول إلى داخل الزر — (15-22%)
-       ═══════════════════════════════════════════ */
-    22% {
-        opacity: 1;
-        transform: translatepx) rotate(0deg) scale(1);
-    }
-
-    /* ═══════════════════════════════════════════
-       التجول داخل الزر — يمين (22-30%)
-       ═══════════════════════════════════════════ */
-    30% {
-        opacity: 1;
-        transform: translate(22px, -3px) rotate(12deg) scale(0.98);
-    }
-
-    /* ═══════════════════════════════════════════
-       التجول داخل الزر — وسط (30-38%)
-       ═══════════════════════════════════════════ */
-    38% {
-        opacity: 1;
-        transform: translate(0px, 3px) rotate(-8deg) scale(1.03);
-    }
-
-    /* ═══════════════════════════════════════════
-       التجول داخل الزر — يسار (38-46%)
-       ═══════════════════════════════════════════ */
-    46% {
-        opacity: 1;
-        transform: translate(-22px, 0px) rotate(8deg) scale(0.98);
-    }
-
-    /* ═══════════════════════════════════════════
-       العودة للوسط — (46-54%)
-       ═══════════════════════════════════════════ */
-    54% {
-        opacity: 1;
-        transform: translate(0px, -2px) rotate(-5deg) scale(1.02);
-    }
-
-    /* ═══════════════════════════════════════════
-       الاستراحة على الزر — (54-62%)
-       ═══════════════════════════════════════════ */
-    62% {
-        opacity: 1;
-        transform: translate(0px, 0px) rotate(0deg) scale(1);
-    }
-
-    /* ═══════════════════════════════════════════
-       الخروج من الزر — (62-75%)
-       ═══════════════════════════════════════════ */
-    75% {
-        opacity: 1;
-        transform: translate(30px, -10px) rotate(15deg) scale(0.9);
-    }
-
-    /* ═══════════════════════════════════════════
-       الطيران بعيداً — (75-92%)
-       ═══════════════════════════════════════════ */
-    92% {
-        opacity: 1;
-        transform: translate(55px, -30px) rotate(30deg) scale(0.7);
-    }
-
-    /* ═══════════════════════════════════════════
-       الاختفاء — (92-100%)
-       ═══════════════════════════════════════════ */
-    100% {
-        opacity: 0;
-        transform: translate(75px, -50px) rotate(40deg) scale(0.5);
-    }
+    0% { opacity: 0; transform: translate(70px, -45px) rotate(40deg) scale(0.5); }
+    8% { opacity: 1; transform: translate(35px, -18px) rotate(20deg) scale(0.85); }
+    15% { opacity: 1; transform: translate(15px, -5px) rotate(5deg) scale(1); }
+    22% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+    30% { opacity: 1; transform: translate(22px, -3px) rotate(12deg) scale(0.98); }
+    38% { opacity: 1; transform: translate(0px, 3px) rotate(-8deg) scale(1.03); }
+    46% { opacity: 1; transform: translate(-22px, 0px) rotate(8deg) scale(0.98); }
+    54% { opacity: 1; transform: translate(0px, -2px) rotate(-5deg) scale(1.02); }
+    62% { opacity: 1; transform: translate(0px, 0px) rotate(0deg) scale(1); }
+    75% { opacity: 1; transform: translate(30px, -10px) rotate(15deg) scale(0.9); }
+    92% { opacity: 1; transform: translate(55px, -30px) rotate(30deg) scale(0.7); }
+    100% { opacity: 0; transform: translate(75px, -50px) rotate(40deg) scale(0.5); }
 }
 
-/* 🦋 رفرفة الجناحين */
+/* 🤖 مسار مبسّط لأندرويد (بدون keyframes كثيرة = أداء أعلى) */
+@keyframes butterflyJourneySimple {
+    0%, 5% { opacity: 0; transform: translate(50px, -30px) scale(0.6); }
+    15%, 70% { opacity: 1; transform: translate(0, 0) scale(1); }
+    85%, 100% { opacity: 0; transform: translate(50px, -30px) scale(0.6); }
+}
+
+/* رفرفة iOS */
 @keyframes wingFlutter {
     0% { transform: scaleX(1); }
     100% { transform: scaleX(0.7); }
 }
-
 @keyframes wingLeftMove {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(35deg); }
 }
-
 @keyframes wingRightMove {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(-35deg); }
+}
+
+/* رفرفة Android مبسّطة — scale فقط (الأخف على GPU) */
+@keyframes wingFlutterSimple {
+    0% { transform: scale(1, 1); }
+    100% { transform: scale(0.85, 1); }
 }
 
 /* 🚫 تعطيل الحركة على الأجهزة الضعيفة */
