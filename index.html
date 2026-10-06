@@ -3645,6 +3645,27 @@ window.updPdCartCount = function () {
     el.textContent = totalQty;
 };
 
+
+       /* 😴 الزر النائم — إضافة اهتزاز عند الاستيقاظ */
+document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('pd-add');
+    if (!btn) return;
+    
+    // حلقة تزامن مع أنيميشن الاستيقاظ
+    function syncShake() {
+        setTimeout(function () {
+            btn.classList.add('wake-up');
+            setTimeout(function () {
+                btn.classList.remove('wake-up');
+                syncShake(); // إعادة التشغيل
+            }, 600);
+        }, 5000); // يبدأ بعد 5 ثوانٍ من الدورة (4s نوم + 1s تأخير)
+    }
+    
+    // انتظر بعد تحميل الزر
+    setTimeout(syncShake, 2500);
+});     
+
 document.addEventListener('DOMContentLoaded', function () {
     $('pd-add').onclick = add; 
     $('pd-share').onclick = share;
