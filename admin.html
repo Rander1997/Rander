@@ -549,7 +549,12 @@ function checkAdminLogin() {
                     document.getElementById('p-desc').value = descText;
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
-                    document.getElementById('p-category').value = p.category ? p.category.trim() : '';
+                    // استعادة الأقسام المتعددة
+const categorySelect = document.getElementById('p-category');
+const productCategories = p.categories && Array.isArray(p.categories) ? p.categories : [p.category].filter(Boolean);
+Array.from(categorySelect.options).forEach(opt => {
+    opt.selected = productCategories.indexOf(opt.value) > -1;
+});
                     document.getElementById('p-badge-text').value = p.badgeText || '';
                     document.getElementById('p-badge-color').value = p.badgeColor || '#28a745';
                     document.getElementById('p-order').value = p.displayOrder !== undefined ? p.displayOrder : 0;
@@ -579,7 +584,16 @@ function checkAdminLogin() {
             const description = document.getElementById('p-desc').value.trim();
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
-            const category = document.getElementById('p-category').value.trim();
+            // قراءة الأقسام المتعددة
+const categorySelect = document.getElementById('p-category');
+const selectedCategories = Array.from(categorySelect.selectedOptions).map(o => o.value.trim()).filter(v => v);
+
+if (selectedCategories.length === 0) {
+    return alert("يرجى اختيار قسم واحد على الأقل!");
+}
+
+const category = selectedCategories[0]; // القسم الرئيسي (الأول)
+const categories = selectedCategories;   // كل الأقسام
 
             if (!name || !price || !supplier || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، اسم الشركة، التصنيف، والصورة الرئيسية على الأقل!");
 
@@ -619,20 +633,22 @@ function checkAdminLogin() {
             const productSlug = generateSlug(name);
 
             const productData = {
-                name: name,
-                slug: productSlug,
-                price: price,
-                supplier: supplier,
-                description: description,
-                desc: description,
-                category: category,
-                images: imagesArray,
-                image: mainImage,
-                variants: variants,
-                badgeText: badgeText,
-                badgeColor: badgeColor,
-                displayOrder: productOrder,
-            };
+    name: name,
+    slug: productSlug,
+    price: price,
+    supplier: supplier,
+    description: description,
+    desc: description,
+    category: category,          // القسم الرئيسي (للفلترة الأساسية)
+    categories: categories,      // ← جميع الأقسام (للفلترة المتعددة)
+    images: imagesArray,
+    image: mainImage,
+    variants: variants,
+    badgeText: badgeText,
+    badgeColor: badgeColor,
+    displayOrder: productOrder,
+};
+        
 
             if (docId) {
                 db.collection("products").doc(docId).update(productData).then(() => {
