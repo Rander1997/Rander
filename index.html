@@ -4292,22 +4292,33 @@ let prodCategories = (prod.categories && Array.isArray(prod.categories))
 
             // 1. إذا كان الاختيار لقسم فرعي
             if (subCategoryIdentifier) {
-                let cleanSubQuery = String(subCategoryIdentifier).trim().toLowerCase();
-                let subName = targetSubObj ? targetSubObj.name.trim().toLowerCase() : "";
-                let subId = targetSubObj ? targetSubObj.id.toLowerCase() : "";
-                let subSlug = targetSubObj && targetSubObj.slug ? targetSubObj.slug.toLowerCase() : "";
+    let cleanSubQuery = String(subCategoryIdentifier).trim().toLowerCase();
+    let subName = targetSubObj ? targetSubObj.name.trim().toLowerCase() : "";
+    let subId = targetSubObj ? targetSubObj.id.toLowerCase() : "";
+    let subSlug = targetSubObj && targetSubObj.slug ? targetSubObj.slug.toLowerCase() : "";
 
-                if (
-    (prodSubCat && prodSubCat === cleanSubQuery) ||
-    (subName && prodSubCat && prodSubCat === subName) ||
-    (subId && prodSubCat && prodSubCat === subId) ||
-    (subSlug && prodSubCat && prodSubCat === subSlug) ||
-    (prodCat && prodCat === cleanSubQuery) ||
-    (subName && prodCat && prodCat === subName)
-) {
-                    matchedProducts.push(prod);
-                }
-            } 
+    // فحص جميع أقسام المنتج (categories) + category + subCategory
+    let isMatch = prodCategories.some(pc => 
+        (pc === cleanSubQuery) ||
+        (subName && pc === subName) ||
+        (subId && pc === subId) ||
+        (subSlug && pc === subSlug)
+    );
+
+    // فحص إضافي على subCategory (للمنتجات القديمة)
+    if (!isMatch && prodSubCat) {
+        isMatch = (
+            (prodSubCat === cleanSubQuery) ||
+            (subName && prodSubCat === subName) ||
+            (subId && prodSubCat === subId) ||
+            (subSlug && prodSubCat === subSlug)
+        );
+    }
+
+    if (isMatch) {
+        matchedProducts.push(prod);
+    }
+} 
             // 2. إذا كان الاختيار لقسم رئيسي
             else if (categoryIdentifier) {
                 let cleanCatQuery = String(categoryIdentifier).trim().toLowerCase();
