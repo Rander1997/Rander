@@ -2382,37 +2382,56 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
    🎯 حل مشكلة سرعة أندرويد — سرعة موحدة
    ═══════════════════════════════════════════ */
 
-/* إجبار الأنيميشن على العمل بنفس السرعة على جميع الأجهزة */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-    .pd-butterfly {
-        -webkit-animation-duration: 10s;
-        animation-duration: 10s;
-        -webkit-animation-timing-function: linear;
-        animation-timing-function: linear;
-    }
+/* ═══════════════════════════════════════════
+   🎯 حل مشكلة سرعة أندرويد — سرعة موحدة
+   ═══════════════════════════════════════════ */
+
+.pd-butterfly,
+.pd-face {
+    animation-duration: 12s !important;
+    animation-timing-function: ease-in-out !important;
+    -webkit-animation-duration: 12s !important;
+    -webkit-animation-timing-function: ease-in-out !important;
+    -moz-animation-duration: 12s !important;
+    -o-animation-duration: 12s !important;
 }
 
-/* للأجهزة التي تعمل بنظام Android */
-@supports (-webkit-touch-callout: none) {
-    /* iOS — لا تغيير */
+.pd-butterfly svg,
+.pd-butterfly .wing-left,
+.pd-butterfly .wing-right {
+    animation-duration: 0.4s !important;
 }
 
+.eye-bg,
+.eye-pupil,
+.eye-closed,
+.mouth-sleep,
+.mouth-smile,
+.mouth-surprise,
+.zzz,
+.pd-add::before {
+    animation-duration: 12s !important;
+    animation-timing-function: ease-in-out !important;
+}
+
+.zzz text {
+    animation-duration: 1.5s !important;
+}
+
+/* إجبار GPU على سرعة صحيحة */
 @supports not (-webkit-touch-callout: none) {
-    /* Android & Desktop */
-    .pd-butterfly {
-        animation-duration: 10s !important;
-        animation-timing-function: linear !important;
-        -webkit-animation-duration: 10s !important;
-        -webkit-animation-timing-function: linear !important;
-    }
-    
-    .pd-butterfly svg {
-        animation-duration: 0.4s !important;
-    }
-    
-    .pd-butterfly .wing-left,
-    .pd-butterfly .wing-right {
-        animation-duration: 0.4s !important;
+    .pd-butterfly,
+    .pd-face,
+    .eye-bg,
+    .eye-pupil,
+    .eye-closed,
+    .mouth-sleep,
+    .mouth-smile,
+    .mouth-surprise,
+    .zzz,
+    .pd-add::before {
+        animation-duration: 12s !important;
+        animation-timing-function: ease-in-out !important;
     }
 }
 
