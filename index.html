@@ -2222,12 +2222,42 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
    ═══════════════════════════════════════════ */
 
 /* إجبار الأنيميشن على العمل بنفس السرعة على جميع الأجهزة */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
+/* ═══════════════════════════════════════════
+   🦋 ضبط سرعة الفراشة (نسخة موحّدة ومستقرة)
+   ═══════════════════════════════════════════ */
+
+.pd-butterfly {
+    animation: butterflyJourney 10s linear infinite 2s both;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* رفرفة الأجنحة داخل الفراشة */
+.pd-butterfly svg {
+    animation: wingFlutter 0.4s ease-in-out infinite alternate;
+}
+
+.pd-butterfly .wing-left {
+    animation: wingLeftMove 0.4s ease-in-out infinite alternate;
+}
+
+.pd-butterfly .wing-right {
+    animation: wingRightMove 0.4s ease-in-out infinite alternate;
+}
+
+/* تعطيل الفراشة على الأجهزة الضعيفة */
+@media (prefers-reduced-motion: reduce) {
+    .pd-butterfly { display: none !important; }
+}
+
+@media (max-width: 380px) {
     .pd-butterfly {
-        -webkit-animation-duration: 10s;
-        animation-duration: 10s;
-        -webkit-animation-timing-function: linear;
-        animation-timing-function: linear;
+        width: 26px;
+        height: 26px;
+        top: -24px;
+        right: -8px;
     }
 }
 
