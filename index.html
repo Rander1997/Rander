@@ -2048,15 +2048,19 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
     right: 20px;
     width: 30px;
     height: 30px;
-    margin-top: -15px; /* لضبط التوسيط */
+    margin-top: -15px;
     pointer-events: none;
     z-index: 10;
     opacity: 0;
-    animation: butterflyJourney 10s ease-in-out infinite;
+    animation: butterflyJourney 10s linear infinite;
     animation-delay: 2s;
+    animation-fill-mode: both;
     filter: drop-shadow(0 2px 5px rgba(167, 139, 250, 0.5));
-    will-change: transform, opacity;
     transform-origin: center center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 /* رفرفة الأجنحة */
