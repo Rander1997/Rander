@@ -2264,6 +2264,212 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
     -moz-animation-duration: 10s !important;
     -o-animation-duration: 10s !important;
 }
+
+
+
+/* ═══════════════════════════════════════════
+   🎯 تأثير احترافي لزر "إضافة للسلة"
+   ═══════════════════════════════════════════ */
+
+/* 1. نبض خلفي لجذب الانتباه */
+.pd-add::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #a78bfa, #f472b6, #38bdf8);
+    opacity: 0;
+    z-index: -1;
+    animation: pd-attention-pulse 3s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+@keyframes pd-attention-pulse {
+    0%, 70%, 100% { opacity: 0; transform: scale(1); }
+    80% { opacity: 0.6; transform: scale(1.08); }
+    90% { opacity: 0.3; transform: scale(1.04); }
+}
+
+/* 2. وميض خفيف يمر عبر الزر (Shine Effect) */
+.pd-add::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-20deg);
+    z-index: 1;
+    pointer-events: none;
+    animation: pd-shine 4s ease-in-out infinite;
+    animation-delay: 3s;
+}
+
+@keyframes pd-shine {
+    0%, 60%, 100% { right: -100%; }
+    75% { right: 120%; }
+}
+
+/* 3. اهتزاز خفيف للزر لجذب الانتباه (بعد 5 ثوان من فتح المنتج) */
+.pd-add.pd-wiggle {
+    animation: pd-wiggle 0.6s ease-in-out 3;
+}
+
+@keyframes pd-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-2deg) scale(1.02); }
+    75% { transform: rotate(2deg) scale(1.02); }
+}
+
+/* 4. تأثير النقر - Ripple */
+.pd-add .pd-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,0.6), transparent 70%);
+    transform: scale(0);
+    animation: pd-ripple-effect 0.7s ease-out;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes pd-ripple-effect {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* 5. جزيئات متطايرة عند الإضافة */
+.pd-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999999;
+    animation: pd-particle-fly 1s ease-out forwards;
+}
+
+@keyframes pd-particle-fly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--px), var(--py)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* 6. رسالة "تمت الإضافة" المنبثقة */
+.pd-success-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 12px 40px rgba(16,185,129,0.4);
+    z-index: 999998;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pd-success-popup.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.pd-success-popup svg {
+    width: 24px;
+    height: 24px;
+    stroke: #fff;
+    stroke-width: 3;
+    fill: none;
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+}
+
+.pd-success-popup.show svg {
+    animation: pd-check-draw 0.5s ease-out 0.2s forwards;
+}
+
+@keyframes pd-check-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* 7. حركة أيقونة السلة للأعلى (Fly to cart) */
+.pd-fly-item {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: cover;
+    z-index: 999997;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.5, -0.5, 0.7, 1);
+}
+
+/* 8. تلميح "اضغط هنا" للمبتدئين */
+.pd-tooltip {
+    position: absolute;
+    top: -50px;
+    right: 50%;
+    transform: translateX(50%);
+    background: #1e293b;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 100;
+}
+
+.pd-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 50%;
+    transform: translateX(50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: #1e293b;
+}
+
+.pd-tooltip.show {
+    opacity: 1;
+    animation: pd-tooltip-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes pd-tooltip-bounce {
+    0%, 100% { transform: translateX(50%) translateY(0); }
+    50% { transform: translateX(50%) translateY(-6px); }
+}
+
+/* 📱 للجوال: تقليل التأثيرات لتوفير الأداء */
+@media (prefers-reduced-motion: reduce) {
+    .pd-add::before,
+    .pd-add::after,
+    .pd-add.pd-wiggle {
+        animation: none !important;
+    }
+}
+
     
 </style>
 </head>
@@ -6858,6 +7064,249 @@ v.addEventListener('click', function (e) { if (panel && !e.target.closest('.lms-
 </script>
     
 
+
+<script>
+/* ═══════════════════════════════════════════
+   🎯 محرك التأثير الاحترافي لزر "إضافة للسلة"
+   ═══════════════════════════════════════════ */
+(function() {
+    'use strict';
+
+    // متغيرات التحكم
+    let tooltipShown = false;
+    let wiggleTimer = null;
+
+    // ═══════════════════════════════════════════
+    // 1️⃣ تأثير النقر - Ripple Effect
+    // ═══════════════════════════════════════════
+    function createRipple(button, event) {
+        const rect = button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = (event.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
+        const y = (event.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
+
+        const ripple = document.createElement('span');
+        ripple.className = 'pd-ripple';
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+
+        button.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+    }
+
+    // ═══════════════════════════════════════════
+    // 2️⃣ جزيئات متطايرة (Confetti)
+    // ═══════════════════════════════════════════
+    function burstParticles(x, y) {
+        const colors = ['#a78bfa', '#f472b6', '#38bdf8', '#10b981', '#f59e0b', '#ec4899'];
+        const count = 18;
+
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'pd-particle';
+            const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+            const distance = 60 + Math.random() * 80;
+            const px = Math.cos(angle) * distance;
+            const py = Math.sin(angle) * distance - 40;
+
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.setProperty('--px', px + 'px');
+            p.style.setProperty('--py', py + 'px');
+            p.style.width = p.style.height = (5 + Math.random() * 6) + 'px';
+
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 1100);
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // 3️⃣ رسالة "تمت الإضافة" المنبثقة
+    // ═══════════════════════════════════════════
+    function showSuccessPopup() {
+        // إزالة أي رسالة سابقة
+        document.querySelectorAll('.pd-success-popup').forEach(el => el.remove());
+
+        const popup = document.createElement('div');
+        popup.className = 'pd-success-popup';
+        popup.innerHTML = `
+            <svg viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>تمت الإضافة بنجاح! 🎉</span>
+        `;
+        document.body.appendChild(popup);
+
+        // إظهار
+        requestAnimationFrame(() => popup.classList.add('show'));
+
+        // إخفاء تلقائي
+        setTimeout(() => {
+            popup.classList.remove('show');
+            setTimeout(() => popup.remove(), 400);
+        }, 1500);
+    }
+
+    // ═══════════════════════════════════════════
+    // 4️⃣ صورة المنتج تطير إلى السلة
+    // ═══════════════════════════════════════════
+    function flyToCart(sourceImg) {
+        const cartBtn = document.getElementById('cart-counter') ||
+                        document.getElementById('pd-view-cart') ||
+                        document.querySelector('.bottom-nav .nav-item:last-child');
+
+        if (!cartBtn || !sourceImg) return;
+
+        const imgRect = sourceImg.getBoundingClientRect();
+        const cartRect = cartBtn.getBoundingClientRect();
+
+        // استنساخ الصورة
+        const flyImg = document.createElement('img');
+        flyImg.src = sourceImg.src;
+        flyImg.className = 'pd-fly-item';
+        flyImg.style.left = imgRect.left + 'px';
+        flyImg.style.top = imgRect.top + 'px';
+        flyImg.style.width = imgRect.width + 'px';
+        flyImg.style.height = imgRect.height + 'px';
+
+        document.body.appendChild(flyImg);
+
+        // حركة الطيران بعد إطار واحد
+        requestAnimationFrame(() => {
+            flyImg.style.left = (cartRect.left + cartRect.width / 2 - 30) + 'px';
+            flyImg.style.top = (cartRect.top + cartRect.height / 2 - 30) + 'px';
+            flyImg.style.width = '60px';
+            flyImg.style.height = '60px';
+            flyImg.style.transform = 'scale(0.3) rotate(360deg)';
+            flyImg.style.opacity = '0.3';
+        });
+
+        setTimeout(() => {
+            flyImg.remove();
+
+            // تأثير نبض على أيقونة السلة
+            if (cartBtn) {
+                cartBtn.style.transition = 'transform 0.2s';
+                cartBtn.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    cartBtn.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }, 850);
+    }
+
+    // ═══════════════════════════════════════════
+    // 5️⃣ التلميح الذكي للمبتدئين
+    // ═══════════════════════════════════════════
+    function showTooltip(button) {
+        if (tooltipShown || localStorage.getItem('pd_tooltip_seen') === '1') return;
+        tooltipShown = true;
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'pd-tooltip';
+        tooltip.textContent = '👆 اضغط هنا لإضافة المنتج';
+
+        button.style.position = 'relative';
+        button.appendChild(tooltip);
+
+        setTimeout(() => tooltip.classList.add('show'), 100);
+
+        // إخفاء بعد 4 ثوان
+        setTimeout(() => {
+            tooltip.classList.remove('show');
+            setTimeout(() => tooltip.remove(), 400);
+            try { localStorage.setItem('pd_tooltip_seen', '1'); } catch(e) {}
+        }, 4000);
+    }
+
+    // ═══════════════════════════════════════════
+    // 6️⃣ اهتزاز الزر لجذب الانتباه
+    // ═══════════════════════════════════════════
+    function startWiggleAfterDelay(button) {
+        clearTimeout(wiggleTimer);
+        wiggleTimer = setTimeout(() => {
+            if (!button || !document.body.contains(button)) return;
+            button.classList.add('pd-wiggle');
+            setTimeout(() => button.classList.remove('pd-wiggle'), 2000);
+        }, 5000); // بعد 5 ثوان
+    }
+
+    // ═══════════════════════════════════════════
+    // 7️⃣ ربط كل شيء بزر الإضافة
+    // ═══════════════════════════════════════════
+    function attachEffects() {
+        const addBtn = document.getElementById('pd-add');
+        if (!addBtn || addBtn.dataset.effectsAttached === '1') return;
+
+        addBtn.dataset.effectsAttached = '1';
+
+        // أ) تأثير Ripple عند النقر
+        addBtn.addEventListener('click', function(e) {
+            createRipple(addBtn, e);
+        }, true);
+
+        // ب) عند الإضافة الفعلية (الحدث ينطلق بعد نجاح addToCart)
+        // نراقب تغيير النص
+        const observer = new MutationObserver(() => {
+            const txt = document.getElementById('pd-add-t');
+            if (txt && txt.textContent.includes('تمت الإضافة')) {
+                // 🎉 انفجار الجزيئات
+                const rect = addBtn.getBoundingClientRect();
+                burstParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+                // 🎊 رسالة النجاح
+                showSuccessPopup();
+
+                // 🛒 صورة المنتج تطير إلى السلة
+                const mainImg = document.querySelector('#pd-slides img, .pd-slide img');
+                if (mainImg) flyToCart(mainImg);
+
+                // 📳 اهتزاز خفيف على الجوال
+                if (navigator.vibrate) {
+                    navigator.vibrate([30, 50, 30]);
+                }
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        // ج) تلميح للمبتدئين
+        setTimeout(() => showTooltip(addBtn), 1500);
+
+        // د) اهتزاز لجذب الانتباه
+        startWiggleAfterDelay(addBtn);
+    }
+
+    // ═══════════════════════════════════════════
+    // 8️⃣ تشغيل عند فتح صفحة المنتج
+    // ═══════════════════════════════════════════
+    const detailModal = document.getElementById('detail-modal');
+    if (detailModal) {
+        const modalObserver = new MutationObserver(() => {
+            if (detailModal.classList.contains('active')) {
+                setTimeout(attachEffects, 300);
+            } else {
+                clearTimeout(wiggleTimer);
+                tooltipShown = false;
+            }
+        });
+        modalObserver.observe(detailModal, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // تشغيل أولي في حال كانت الصفحة مفتوحة
+    setTimeout(attachEffects, 1000);
+
+})();
+</script>
+
+
+    
 
 </body>
 </html>
