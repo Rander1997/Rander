@@ -2024,116 +2024,24 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
    🦋 فراشة تطير حول زر "إضافة للسلة"
    ═══════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════
-   🦋 الزر النائم والفراشة — القصة الكاملة
-   ═══════════════════════════════════════════ */
-
-/* ─────────────────────────────────────────
-   الحاوية الأساسية للزر
-   ───────────────────────────────────────── */
+/* حاوية الفراشة — نسبية للزر */
 .pd-add {
     position: relative;
     overflow: visible;
-    isolation: isolate;
-    transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    z-index: 1; /* الزر نفسه */
 }
 
-/* ─────────────────────────────────────────
-   وجه الزر — يظهر وسط الزر
-   ───────────────────────────────────────── */
-.pd-face {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 70px;
-    height: 42px;
-    margin-top: -21px;
-    margin-left: -35px;
-    z-index: 30;
-    pointer-events: none;
-    opacity: 0;
-    animation: faceJourney 12s ease-in-out infinite;
-    animation-delay: 2s;
-    transform-origin: center center;
-    will-change: opacity, transform;
+.pd-add > svg:not(.pd-butterfly svg),
+.pd-add > span:not(.pd-butterfly) {
+    position: relative;
+    z-index: 2; /* محتوى الزر */
 }
 
-.pd-face svg {
-    width: 100%;
-    height: 100%;
-    display: block;
+.pd-butterfly {
+    z-index: 20; /* الفراشة فوق كل شيء */
 }
 
-/* ─────────────────────────────────────────
-   العيون — التحكم في الفتح والإغلاق
-   ───────────────────────────────────────── */
-.eye {
-    transition: transform 0.3s ease;
-}
-
-.eye-bg,
-.eye-pupil {
-    animation: eyeOpen 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-.eye-closed {
-    animation: eyeClosed 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-.eye-left .eye-pupil {
-    animation: pupilLeft 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-.eye-right .eye-pupil {
-    animation: pupilRight 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-/* ─────────────────────────────────────────
-   الفم — يتغير حسب الحالة
-   ───────────────────────────────────────── */
-.mouth-sleep {
-    animation: mouthSleep 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-.mouth-smile {
-    animation: mouthSmile 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-.mouth-surprise {
-    animation: mouthSurprise 12s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-/* ─────────────────────────────────────────
-   Zzz — تظهر عند النوم فقط
-   ───────────────────────────────────────── */
-.zzz {
-    animation: zzzShow 12s ease-in-out infinite;
-    animation-delay: 2s;
-    transform-origin: center;
-}
-
-.zzz text {
-    animation: zzzFloat 1.5s ease-in-out infinite alternate;
-}
-
-.zzz text:nth-child(2) {
-    animation-delay: 0.3s;
-}
-
-.zzz text:nth-child(3) {
-    animation-delay: 0.6s;
-}
-
-/* ═══════════════════════════════════════════
-   🎬 مسار الرحلة (الفراشة) — 12 ثانية
-   ═══════════════════════════════════════════ */
+/* الفراشة نفسها */
 .pd-butterfly {
     position: absolute;
     top: 50%;
@@ -2142,23 +2050,30 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
     height: 30px;
     margin-top: -15px;
     pointer-events: none;
-    z-index: 20;
+    z-index: 10;
     opacity: 0;
-    animation: butterflyJourney 12s ease-in-out infinite;
+    animation: butterflyJourney 10s linear infinite;
     animation-delay: 2s;
+    animation-fill-mode: both;
     filter: drop-shadow(0 2px 5px rgba(167, 139, 250, 0.5));
     transform-origin: center center;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
+/* رفرفة الأجنحة */
+/* رفرفة الأجنحة */
 .pd-butterfly svg {
     width: 100%;
     height: 100%;
     transform-origin: center center;
     animation: wingFlutter 0.4s ease-in-out infinite alternate;
+    animation-play-state: paused; /* ⭐ يبدأ متوقفاً */
 }
 
+/* الجناحان — يتحركان بشكل متماثل */
 .pd-butterfly .wing-left {
     transform-origin: 50% 50%;
     animation: wingLeftMove 0.4s ease-in-out infinite alternate;
@@ -2169,194 +2084,124 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
     animation: wingRightMove 0.4s ease-in-out infinite alternate;
 }
 
-/* ═══════════════════════════════════════════
-   🎬 1. رحلة الفراشة — 12 ثانية
-   ═══════════════════════════════════════════ */
+/* 🎬 مسار الرحلة الجديد — الفراشة تدخل داخل الزر وتتجول */
 @keyframes butterflyJourney {
-    /* 0-15% (0-1.8s): خارج الشاشة */
-    0% { opacity: 0; transform: translate(80px, -50px) rotate(40deg) scale(0.5); }
-    10% { opacity: 1; transform: translate(50px, -30px) rotate(25deg) scale(0.75); }
-    
-    /* 15-25% (1.8-3s): الاقتراب */
-    25% { opacity: 1; transform: translate(20px, -10px) rotate(10deg) scale(0.95); }
-    
-    /* 25-30% (3-3.6s): الدخول */
-    30% { opacity: 1; transform: translate(0px, 0px) rotate(0deg) scale(1); }
-    
-    /* 30-45% (3.6-5.4s): التجول يمين */
-    38% { opacity: 1; transform: translate(18px, -4px) rotate(10deg) scale(0.98); }
-    
-    /* 45-60% (5.4-7.2s): التجول وسط */
-    52% { opacity: 1; transform: translate(-5px, 2px) rotate(-8deg) scale(1.02); }
-    
-    /* 60-72% (7.2-8.6s): التجول يسار */
-    65% { opacity: 1; transform: translate(-22px, 0px) rotate(8deg) scale(0.98); }
-    
-    /* 72-82% (8.6-9.8s): العودة للوسط */
-    78% { opacity: 1; transform: translate(0px, -2px) rotate(-4deg) scale(1.02); }
-    
-    /* 82-88% (9.8-10.6s): الاستراحة */
-    85% { opacity: 1; transform: translate(0px, 0px) rotate(0deg) scale(1); }
-    
-    /* 88-95% (10.6-11.4s): الخروج */
-    95% { opacity: 1; transform: translate(35px, -15px) rotate(20deg) scale(0.85); }
-    
-    /* 95-100% (11.4-12s): الاختفاء */
-    100% { opacity: 0; transform: translate(70px, -45px) rotate(40deg) scale(0.5); }
+    /* ═══════════════════════════════════════════
+       الظهور من خارج الزر — يمين (0-8%)
+       ═══════════════════════════════════════════ */
+    0% {
+        opacity: 0;
+        transform: translate(70px, -45px) rotate(40deg) scale(0.5);
+    }
+    4% {
+        opacity: 1;
+        transform: translate(50px, -30px) rotate(30deg) scale(0.7);
+    }
+    8% {
+        opacity: 1;
+        transform: translate(35px, -18px) rotate(20deg) scale(0.85);
+    }
+
+    /* ═══════════════════════════════════════════
+       الاقتراب والدخول — (8-15%)
+       ═══════════════════════════════════════════ */
+    15% {
+        opacity: 1;
+        transform: translate(15px, -5px) rotate(5deg) scale(1);
+    }
+
+    /* ═══════════════════════════════════════════
+       الدخول إلى داخل الزر — (15-22%)
+       ═══════════════════════════════════════════ */
+    22% {
+        opacity: 1;
+        transform: translatepx) rotate(0deg) scale(1);
+    }
+
+    /* ═══════════════════════════════════════════
+       التجول داخل الزر — يمين (22-30%)
+       ═══════════════════════════════════════════ */
+    30% {
+        opacity: 1;
+        transform: translate(22px, -3px) rotate(12deg) scale(0.98);
+    }
+
+    /* ═══════════════════════════════════════════
+       التجول داخل الزر — وسط (30-38%)
+       ═══════════════════════════════════════════ */
+    38% {
+        opacity: 1;
+        transform: translate(0px, 3px) rotate(-8deg) scale(1.03);
+    }
+
+    /* ═══════════════════════════════════════════
+       التجول داخل الزر — يسار (38-46%)
+       ═══════════════════════════════════════════ */
+    46% {
+        opacity: 1;
+        transform: translate(-22px, 0px) rotate(8deg) scale(0.98);
+    }
+
+    /* ═══════════════════════════════════════════
+       العودة للوسط — (46-54%)
+       ═══════════════════════════════════════════ */
+    54% {
+        opacity: 1;
+        transform: translate(0px, -2px) rotate(-5deg) scale(1.02);
+    }
+
+    /* ═══════════════════════════════════════════
+       الاستراحة على الزر — (54-62%)
+       ═══════════════════════════════════════════ */
+    62% {
+        opacity: 1;
+        transform: translate(0px, 0px) rotate(0deg) scale(1);
+    }
+
+    /* ═══════════════════════════════════════════
+       الخروج من الزر — (62-75%)
+       ═══════════════════════════════════════════ */
+    75% {
+        opacity: 1;
+        transform: translate(30px, -10px) rotate(15deg) scale(0.9);
+    }
+
+    /* ═══════════════════════════════════════════
+       الطيران بعيداً — (75-92%)
+       ═══════════════════════════════════════════ */
+    92% {
+        opacity: 1;
+        transform: translate(55px, -30px) rotate(30deg) scale(0.7);
+    }
+
+    /* ═══════════════════════════════════════════
+       الاختفاء — (92-100%)
+       ═══════════════════════════════════════════ */
+    100% {
+        opacity: 0;
+        transform: translate(75px, -50px) rotate(40deg) scale(0.5);
+    }
 }
 
-/* ═══════════════════════════════════════════
-   🎬 2. رفرفة الأجنحة
-   ═══════════════════════════════════════════ */
+/* 🦋 رفرفة الجناحين */
 @keyframes wingFlutter {
     0% { transform: scaleX(1); }
     100% { transform: scaleX(0.7); }
 }
+
 @keyframes wingLeftMove {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(35deg); }
 }
+
 @keyframes wingRightMove {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(-35deg); }
 }
 
-/* ═══════════════════════════════════════════
-   🎬 3. ظهور وجه الزر
-   ═══════════════════════════════════════════ */
-@keyframes faceJourney {
-    /* 0-15%: مخفي */
-    0% { opacity: 0; transform: scale(0.5); }
-    15% { opacity: 0; transform: scale(0.5); }
-    
-    /* 15-30%: ظهور تدريجي */
-    30% { opacity: 1; transform: scale(1); }
-    
-    /* 30-88%: مرئي */
-    88% { opacity: 1; transform: scale(1); }
-    
-    /* 88-100%: يختفي تدريجياً */
-    100% { opacity: 0; transform: scale(0.5); }
-}
-
-/* ═══════════════════════════════════════════
-   🎬 4. فتح وإغلاق العيون
-   ═══════════════════════════════════════════ */
-@keyframes eyeOpen {
-    0%, 15% { opacity: 0; }   /* نائم */
-    20%, 25% { opacity: 1; }  /* استيقاظ */
-    25%, 30% { opacity: 0.9; } /* دهشة */
-    30%, 88% { opacity: 1; }  /* متابعة */
-    92%, 100% { opacity: 0; } /* نائم */
-}
-
-@keyframes eyeClosed {
-    0%, 15% { opacity: 1; }   /* نائم — الجفن ظاهر */
-    18% { opacity: 1; }       /* لحظة الاستيقاظ */
-    20%, 88% { opacity: 0; }  /* العين مفتوحة */
-    92%, 100% { opacity: 1; } /* نائم */
-}
-
-@keyframes pupilLeft {
-    0%, 30% { transform: translate(0, 0); }
-    38% { transform: translate(3px, 0); }   /* ينظر يمين */
-    50% { transform: translate(-3px, 0); }  /* ينظر يسار */
-    60% { transform: translate(2px, 0); }
-    70% { transform: translate(-2px, 0); }
-    85%, 100% { transform: translate(0, 0); }
-}
-
-@keyframes pupilRight {
-    0%, 30% { transform: translate(0, 0); }
-    38% { transform: translate(3px, 0); }
-    50% { transform: translate(-3px, 0); }
-    60% { transform: translate(2px, 0); }
-    70% { transform: translate(-2px, 0); }
-    85%, 100% { transform: translate(0, 0); }
-}
-
-/* ═══════════════════════════════════════════
-   🎬 5. حركات الفم
-   ═══════════════════════════════════════════ */
-@keyframes mouthSleep {
-    0%, 15% { opacity: 1; }    /* نائم — فم مسترخي */
-    20%, 88% { opacity: 0; }   /* مستيقظ */
-    92%, 100% { opacity: 1; }  /* نائم */
-}
-
-@keyframes mouthSmile {
-    0%, 28% { opacity: 0; }    /* لا يبتسم */
-    30% { opacity: 1; }        /* يبتسم عند الاستيقاظ */
-    85% { opacity: 1; }        /* يبتسم أثناء المتابعة */
-    88%, 100% { opacity: 0; }  /* يختفي */
-}
-
-@keyframes mouthSurprise {
-    0%, 22% { opacity: 0; }
-    25%, 27% { opacity: 1; }   /* دهشة لحظية */
-    28%, 100% { opacity: 0; }
-}
-
-/* ═══════════════════════════════════════════
-   🎬 6. Zzz عند النوم
-   ═══════════════════════════════════════════ */
-@keyframes zzzShow {
-    0%, 15% { opacity: 1; }
-    18%, 88% { opacity: 0; }
-    92%, 100% { opacity: 1; }
-}
-
-@keyframes zzzFloat {
-    0% { transform: translateY(0) scale(1); opacity: 0.4; }
-    100% { transform: translateY(-6px) scale(1.1); opacity: 1; }
-}
-
-/* ═══════════════════════════════════════════
-   🎬 7. تفتيح الزر (Glow) أثناء التفاعل
-   ═══════════════════════════════════════════ */
-.pd-add::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, #a78bfa, #f472b6);
-    opacity: 0;
-    z-index: -1;
-    filter: blur(8px);
-    animation: buttonGlow 12s ease-in-out infinite;
-    animation-delay: 2s;
-    pointer-events: none;
-}
-
-@keyframes buttonGlow {
-    0%, 15% { opacity: 0; }
-    25% { opacity: 0.4; }
-    30%, 85% { opacity: 0.7; }
-    92%, 100% { opacity: 0; }
-}
-
-/* ═══════════════════════════════════════════
-   🎬 8. اهتزاز الزر عند الاستيقاظ
-   ═══════════════════════════════════════════ */
-.pd-add.wake-up {
-    animation: buttonShake 0.5s ease-in-out;
-}
-
-@keyframes buttonShake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-3px); }
-    40% { transform: translateX(3px); }
-    60% { transform: translateX(-2px); }
-    80% { transform: translateX(2px); }
-}
-
-/* ═══════════════════════════════════════════
-   🚫 تعطيل على الأجهزة الضعيفة
-   ═══════════════════════════════════════════ */
+/* 🚫 تعطيل الحركة على الأجهزة الضعيفة */
 @media (prefers-reduced-motion: reduce) {
-    .pd-butterfly,
-    .pd-face,
-    .pd-add::before {
+    .pd-butterfly {
         animation: none;
         display: none;
     }
@@ -2370,68 +2215,43 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
         top: -24px;
         right: -8px;
     }
-    .pd-face {
-        width: 60px;
-        height: 36px;
-        margin-top: -18px;
-        margin-left: -30px;
+}
+
+/* ═══════════════════════════════════════════
+   🎯 حل مشكلة سرعة أندرويد — سرعة موحدة
+   ═══════════════════════════════════════════ */
+
+/* إجبار الأنيميشن على العمل بنفس السرعة على جميع الأجهزة */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .pd-butterfly {
+        -webkit-animation-duration: 10s;
+        animation-duration: 10s;
+        -webkit-animation-timing-function: linear;
+        animation-timing-function: linear;
     }
 }
 
-/* ═══════════════════════════════════════════
-   🎯 حل مشكلة سرعة أندرويد — سرعة موحدة
-   ═══════════════════════════════════════════ */
-
-/* ═══════════════════════════════════════════
-   🎯 حل مشكلة سرعة أندرويد — سرعة موحدة
-   ═══════════════════════════════════════════ */
-
-.pd-butterfly,
-.pd-face {
-    animation-duration: 12s !important;
-    animation-timing-function: ease-in-out !important;
-    -webkit-animation-duration: 12s !important;
-    -webkit-animation-timing-function: ease-in-out !important;
-    -moz-animation-duration: 12s !important;
-    -o-animation-duration: 12s !important;
+/* للأجهزة التي تعمل بنظام Android */
+@supports (-webkit-touch-callout: none) {
+    /* iOS — لا تغيير */
 }
 
-.pd-butterfly svg,
-.pd-butterfly .wing-left,
-.pd-butterfly .wing-right {
-    animation-duration: 0.4s !important;
-}
-
-.eye-bg,
-.eye-pupil,
-.eye-closed,
-.mouth-sleep,
-.mouth-smile,
-.mouth-surprise,
-.zzz,
-.pd-add::before {
-    animation-duration: 12s !important;
-    animation-timing-function: ease-in-out !important;
-}
-
-.zzz text {
-    animation-duration: 1.5s !important;
-}
-
-/* إجبار GPU على سرعة صحيحة */
 @supports not (-webkit-touch-callout: none) {
-    .pd-butterfly,
-    .pd-face,
-    .eye-bg,
-    .eye-pupil,
-    .eye-closed,
-    .mouth-sleep,
-    .mouth-smile,
-    .mouth-surprise,
-    .zzz,
-    .pd-add::before {
-        animation-duration: 12s !important;
-        animation-timing-function: ease-in-out !important;
+    /* Android & Desktop */
+    .pd-butterfly {
+        animation-duration: 10s !important;
+        animation-timing-function: linear !important;
+        -webkit-animation-duration: 10s !important;
+        -webkit-animation-timing-function: linear !important;
+    }
+    
+    .pd-butterfly svg {
+        animation-duration: 0.4s !important;
+    }
+    
+    .pd-butterfly .wing-left,
+    .pd-butterfly .wing-right {
+        animation-duration: 0.4s !important;
     }
 }
 
@@ -2834,10 +2654,11 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
       </div></div>
       <div class="pd-bar"><div class="pd-bar-in">
     <button class="pd-add" id="pd-add">
-        <!-- 🦋 الفراشة SVG -->
+        <!-- 🦋 الفراشة SVG — تطير حول الزر -->
         <span class="pd-butterfly" aria-hidden="true">
             <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <defs>
+                    <!-- تدرج Max للفراشة -->
                     <linearGradient id="bflyGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stop-color="#a78bfa"/>
                         <stop offset="100%" stop-color="#c084fc"/>
@@ -2851,90 +2672,65 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
                         <stop offset="100%" stop-color="#f472b6"/>
                     </linearGradient>
                 </defs>
+
+                <!-- الجناح الأيسر العلوي -->
                 <g class="wing-left">
-                    <path d="M30 32 C 20 18, 4 16, 6 28 C 8 38, 20 36, 30 32 Z"
-                          fill="url(#bflyGradLeft)" stroke="#7c3aed" stroke-width="0.8"/>
+                    <path d="M30 32
+                             C 20 18, 4 16, 6 28
+                             C 8 38, 20 36, 30 32 Z"
+                          fill="url(#bflyGradLeft)"
+                          stroke="#7c3aed"
+                          stroke-width="0.8"/>
+                    <!-- تفاصيل الجناح -->
                     <circle cx="15" cy="26" r="2" fill="#f5f3ff" opacity="0.7"/>
-                    <path d="M14 30 Q 20 30, 26 32" stroke="#7c3aed" stroke-width="0.6"
-                          fill="none" opacity="0.6"/>
+                    <path d="M14 30 Q 20 30, 26 32"
+                          stroke="#7c3aed"
+                          stroke-width="0.6"
+                          fill="none"
+                          opacity="0.6"/>
                 </g>
+
+                <!-- الجناح الأيمن العلوي -->
                 <g class="wing-right">
-                    <path d="M34 32 C 44 18, 60 16, 58 28 C 56 38, 44 36, 34 32 Z"
-                          fill="url(#bflyGradRight)" stroke="#db2777" stroke-width="0.8"/>
+                    <path d="M34 32
+                             C 44 18, 60 16, 58 28
+                             C 56 38, 44 36, 34 32 Z"
+                          fill="url(#bflyGradRight)"
+                          stroke="#db2777"
+                          stroke-width="0.8"/>
+                    <!-- تفاصيل الجناح -->
                     <circle cx="49" cy="26" r="2" fill="#fdf2f8" opacity="0.7"/>
-                    <path d="M50 30 Q 44 30, 38 32" stroke="#db2777" stroke-width="0.6"
-                          fill="none" opacity="0.6"/>
+                    <path d="M50 30 Q 44 30, 38 32"
+                          stroke="#db2777"
+                          stroke-width="0.6"
+                          fill="none"
+                          opacity="0.6"/>
                 </g>
-                <ellipse cx="32" cy="32" rx="2" ry="9" fill="url(#bflyBody)"/>
-                <circle cx="32" cy="23" r="2.2" fill="#7c3aed"/>
-                <path d="M31 21 Q 28 17, 26 16" stroke="#7c3aed" stroke-width="0.9"
-                      fill="none" stroke-linecap="round"/>
-                <path d="M33 21 Q 36 17, 38 16" stroke="#7c3aed" stroke-width="0.9"
-                      fill="none" stroke-linecap="round"/>
+
+                <!-- جسم الفراشة -->
+                <ellipse cx="32" cy="32" rx="2" ry="9"
+                         fill="url(#bflyBody)"/>
+                <!-- رأس الفراشة -->
+                <circle cx="32" cy="23" r="2.2"
+                        fill="#7c3aed"/>
+                <!-- قرون الاستشعار -->
+                <path d="M31 21 Q 28 17, 26 16"
+                      stroke="#7c3aed"
+                      stroke-width="0.9"
+                      fill="none"
+                      stroke-linecap="round"/>
+                <path d="M33 21 Q 36 17, 38 16"
+                      stroke="#7c3aed"
+                      stroke-width="0.9"
+                      fill="none"
+                      stroke-linecap="round"/>
                 <circle cx="26" cy="16" r="1.1" fill="#a78bfa"/>
                 <circle cx="38" cy="16" r="1.1" fill="#f472b6"/>
             </svg>
         </span>
 
-        <!-- 😴 وجه الزر — يظهر ويتحرك -->
-        <span class="pd-face" aria-hidden="true">
-            <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="faceGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#a78bfa"/>
-                        <stop offset="100%" stop-color="#f472b6"/>
-                    </linearGradient>
-                </defs>
-
-                <!-- العين اليسرى — مفتوحة -->
-                <g class="eye eye-left">
-                    <circle class="eye-bg" cx="30" cy="20" r="6" fill="#ffffff" opacity="0"/>
-                    <circle class="eye-pupil" cx="30" cy="20" r="2.8" fill="url(#faceGrad)" opacity="0"/>
-                    <!-- جفن مغلق (يظهر عند النوم) -->
-                    <path class="eye-closed" d="M24 20 Q 30 24, 36 20"
-                          stroke="url(#faceGrad)" stroke-width="2.5"
-                          fill="none" stroke-linecap="round"/>
-                </g>
-
-                <!-- العين اليمنى — مفتوحة -->
-                <g class="eye eye-right">
-                    <circle class="eye-bg" cx="70" cy="20" r="6" fill="#ffffff" opacity="0"/>
-                    <circle class="eye-pupil" cx="70" cy="20" r="2.8" fill="url(#faceGrad)" opacity="0"/>
-                    <!-- جفن مغلق (يظهر عند النوم) -->
-                    <path class="eye-closed" d="M64 20 Q 70 24, 76 20"
-                          stroke="url(#faceGrad)" stroke-width="2.5"
-                          fill="none" stroke-linecap="round"/>
-                </g>
-
-                <!-- الفم — يتحول حسب الحالة -->
-                <g class="mouth-group">
-                    <!-- فم نائم (خط أفقي مع فتحة) -->
-                    <path class="mouth-sleep" d="M44 42 Q 50 48, 56 42"
-                          stroke="url(#faceGrad)" stroke-width="2.5"
-                          fill="none" stroke-linecap="round"/>
-                    <!-- فم مبتسم -->
-                    <path class="mouth-smile" d="M38 40 Q 50 52, 62 40"
-                          stroke="url(#faceGrad)" stroke-width="2.5"
-                          fill="none" stroke-linecap="round" opacity="0"/>
-                    <!-- فم دهشة (O) -->
-                    <ellipse class="mouth-surprise" cx="50" cy="42" rx="4" ry="5"
-                             fill="none" stroke="url(#faceGrad)" stroke-width="2.5" opacity="0"/>
-                </g>
-
-                <!-- Zzz — تظهر عند النوم -->
-                <g class="zzz" opacity="0">
-                    <text x="75" y="12" font-size="10" font-weight="700"
-                          fill="url(#faceGrad)" font-family="system-ui">Z</text>
-                    <text x="82" y="6" font-size="14" font-weight="700"
-                          fill="url(#faceGrad)" font-family="system-ui">Z</text>
-                    <text x="92" y="0" font-size="18" font-weight="700"
-                          fill="url(#faceGrad)" font-family="system-ui">Z</text>
-                </g>
-            </svg>
-        </span>
-
-        <!-- أيقونة السلة -->
-        <svg class="pd-cart-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+        <!-- أيقونة السلة الأصلية -->
+        <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <linearGradient id="maxGradBtn" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#a78bfa"/>
@@ -3663,27 +3459,6 @@ window.updPdCartCount = function () {
     }
     el.textContent = totalQty;
 };
-
-
-       /* 😴 الزر النائم — إضافة اهتزاز عند الاستيقاظ */
-document.addEventListener('DOMContentLoaded', function () {
-    var btn = document.getElementById('pd-add');
-    if (!btn) return;
-    
-    // حلقة تزامن مع أنيميشن الاستيقاظ
-    function syncShake() {
-        setTimeout(function () {
-            btn.classList.add('wake-up');
-            setTimeout(function () {
-                btn.classList.remove('wake-up');
-                syncShake(); // إعادة التشغيل
-            }, 600);
-        }, 5000); // يبدأ بعد 5 ثوانٍ من الدورة (4s نوم + 1s تأخير)
-    }
-    
-    // انتظر بعد تحميل الزر
-    setTimeout(syncShake, 2500);
-});     
 
 document.addEventListener('DOMContentLoaded', function () {
     $('pd-add').onclick = add; 
@@ -5824,35 +5599,12 @@ function av(u, cls) {
     return '<img class="sx-av ' + (u.gender === 'female' ? 'g-f' : u.gender === 'male' ? 'g-m' : '') + (cls ? ' ' + cls : '') + '" src="' + esc(u.avatar || defAv(u.displayName, u.gender)) + '" alt="">';
 }
 async function ensureUsers(ids) {
-    var need = []; 
-    ids.forEach(function (i) { 
-        if (i && !UC[i] && need.indexOf(i) < 0) need.push(i); 
-    });
-    
+    var need = []; ids.forEach(function (i) { if (i && !UC[i] && need.indexOf(i) < 0) need.push(i); });
     for (var k = 0; k < need.length; k += 10) {
         var c = need.slice(k, k + 10);
-        try {
-            var s = await fs.collection('users').where(FP.documentId(), 'in', c).get();
-            s.forEach(function (d) { 
-                var u = d.data(); 
-                u.id = d.id; 
-                UC[d.id] = u; 
-            });
-            // تعيين مستخدم افتراضي لأي UID لم يتم العثور عليه
-            c.forEach(function (i) { 
-                if (!UC[i]) {
-                    UC[i] = { id: i, displayName: 'مستخدم محذوف', username: 'deleted' }; 
-                }
-            });
-        } catch (e) {
-            console.error("خطأ في جلب المستخدمين:", e);
-            // في حالة حدوث خطأ، قم بتعيين مستخدم افتراضي للجميع
-            c.forEach(function (i) { 
-                if (!UC[i]) {
-                    UC[i] = { id: i, displayName: 'مستخدم غير معروف', username: 'unknown' }; 
-                }
-            });
-        }
+        var s = await fs.collection('users').where(FP.documentId(), 'in', c).get();
+        s.forEach(function (d) { var u = d.data(); u.id = d.id; UC[d.id] = u; });
+        c.forEach(function (i) { if (!UC[i]) UC[i] = { id: i, displayName: 'مستخدم', username: '' }; });
     }
 }
 async function loadBans(force) {
@@ -6113,62 +5865,20 @@ async function publish() {
     if (!clean(text)) return toast('منشورك يحتوي على ألفاظ غير مسموحة');
     if (Date.now() - last.post < 15000) return toast('انتظر قليلاً قبل النشر مرة أخرى');
     b.disabled = true; b.textContent = 'جارٍ الفحص...';
-    
     try {
         var r = await scan(pending);
         if (r === true) { pending = []; await banMe('post-image'); return; }
-        
         var ref = fs.collection('posts').doc(), batch = fs.batch();
-        batch.set(ref, { 
-            authorUid: me.uid, 
-            text: text, 
-            tags: tagsOf(text), 
-            images: pending.slice(), 
-            likesCount: 0, 
-            commentsCount: 0, 
-            likedBy: [], 
-            reportedBy: [], 
-            unscanned: r === null,
-            createdAt: FV.serverTimestamp(), 
-            expireAt: TS.fromMillis(Date.now() + KEEP_DAYS * 864e5) 
-        });
-
-        // التحقق من وجود المستخدم قبل التحديث
-        var userRef = fs.collection('users').doc(me.uid);
-        var userDoc = await userRef.get();
-        
-        if (userDoc.exists) {
-            batch.update(userRef, { postsCount: FV.increment(1) });
-        } else {
-            // إنشاء المستخدم إذا لم يكن موجوداً
-            batch.set(userRef, { 
-                displayName: au.currentUser.displayName || 'مستخدم', 
-                username: 'user_' + me.uid.slice(0, 5), 
-                postsCount: 1, 
-                followersCount: 0, 
-                followingCount: 0,
-                createdAt: FV.serverTimestamp()
-            });
-        }
-
+        batch.set(ref, { authorUid: me.uid, text: text, tags: tagsOf(text), images: pending.slice(), likesCount: 0, commentsCount: 0, likedBy: [], reportedBy: [], unscanned: r === null,
+            createdAt: FV.serverTimestamp(), expireAt: TS.fromMillis(Date.now() + KEEP_DAYS * 864e5) });
+        batch.update(fs.collection('users').doc(me.uid), { postsCount: FV.increment(1) });
         await batch.commit();
-        
-        last.post = Date.now(); 
-        pending = []; 
-        poolAt = 0;
-        mu().postsCount = (mu().postsCount || 0) + 1; 
-        feedPage = 1;
-        toast('تمت المشاركة'); 
-        tab = 'feed'; 
-        render();
-        
+        last.post = Date.now(); pending = []; poolAt = 0;
+        mu().postsCount = (mu().postsCount || 0) + 1; feedPage = 1;
+        toast('تمت المشاركة'); tab = 'feed'; render();
     } catch (e) {
-        console.error("خطأ في النشر:", e); 
-        toast('تعذّر النشر: ' + (e.code || e.message || 'خطأ'));
-        if ($('sx-publish')) { 
-            b.disabled = false; 
-            b.textContent = 'مشاركة'; 
-        }
+        console.error(e); toast('تعذّر النشر: ' + (e.code || 'خطأ'));
+        if ($('sx-publish')) { b.disabled = false; b.textContent = 'مشاركة'; }
     }
 }
 
