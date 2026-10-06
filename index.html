@@ -5784,7 +5784,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll('.pd-success-popup').forEach(el => el.remove());
         const popup = document.createElement('div');
         popup.className = 'pd-success-popup';
-        popup.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>تمت الإضافة! 🎉</span>';
+        popup.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>تمت الإضافة</span>';
         document.body.appendChild(popup);
         requestAnimationFrame(() => popup.classList.add('show'));
         setTimeout(() => {
