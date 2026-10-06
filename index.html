@@ -4315,31 +4315,28 @@ let prodCategories = (prod.categories && Array.isArray(prod.categories))
                 let catId = targetCatObj ? targetCatObj.id.toLowerCase() : "";
                 let catSlug = targetCatObj && targetCatObj.slug ? targetCatObj.slug.toLowerCase() : "";
 
-                let isDirectMain = (
-                    prodCat === cleanCatQuery || 
-                    (catName && prodCat === catName) || 
-                    (catId && prodCat === catId) || 
-                    (catSlug && prodCat === catSlug)
-                );
+                let isDirectMain = prodCategories.some(pc => 
+    pc === cleanCatQuery || 
+    (catName && pc === catName) || 
+    (catId && pc === catId) || 
+    (catSlug && pc === catSlug)
+);
 
                 // فحص ما إذا كان المنتج ينتمي لأي قسم فرعي تابع لهذا القسم الرئيسي
                 let isBelongToChildSub = false;
-                if (targetCatObj && typeof categoriesData !== 'undefined') {
-                    let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id || c.parentId === categoryIdentifier);
-                    isBelongToChildSub = childSubs.some(sub => {
-    let sName = sub.name ? sub.name.trim().toLowerCase() : "";
-    let sId = sub.id ? sub.id.toLowerCase() : "";
-    let sSlug = sub.slug ? sub.slug.toLowerCase() : "";
-    return (
-    (prodSubCat && sName && prodSubCat === sName) ||
-    (prodSubCat && sId && prodSubCat === sId) ||
-    (prodSubCat && sSlug && prodSubCat === sSlug) ||
-    (prodCat && sName && prodCat === sName) ||
-    (prodCat && sId && prodCat === sId) ||
-    (prodCat && sSlug && prodCat === sSlug)
-);
-});
-                }
+if (targetCatObj && typeof categoriesData !== 'undefined') {
+    let childSubs = categoriesData.filter(c => c.parentId === targetCatObj.id || c.parentId === categoryIdentifier);
+    isBelongToChildSub = childSubs.some(sub => {
+        let sName = sub.name ? sub.name.trim().toLowerCase() : "";
+        let sId = sub.id ? sub.id.toLowerCase() : "";
+        let sSlug = sub.slug ? sub.slug.toLowerCase() : "";
+        return prodCategories.some(pc => 
+            (pc && sName && pc === sName) ||
+            (pc && sId && pc === sId) ||
+            (pc && sSlug && pc === sSlug)
+        );
+    });
+}
 
                 if (isDirectMain || isBelongToChildSub) {
                     matchedProducts.push(prod);
