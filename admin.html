@@ -687,22 +687,21 @@ window.updateCategoryStyle = function(cb) {
             };
 
             if (docId) {
-                db.collection("products").doc(docId).update(productData).then(() => {
-                    alert("تم تعديل المنتج بنجاح 🛠️");
-                    resetProductForm();
-                    loadAdminProducts();
-                    localStorage.removeItem('rander_cloud_products_cache');
-                }).catch(err => alert("خطأ: " + err.message));
-            } else {
-                productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                db.collection("products").add(productData).then(() => {
-                    alert("تم إضافة المنتج ونشره بنجاح في المتجر 🚀");
-                    resetProductForm();
-                    loadAdminProducts();
-                    localStorage.removeItem('rander_cloud_products_cache');
-                }).catch(err => alert("خطأ: " + err.message));
-            }
-        }
+    db.collection("products").doc(docId).set(productData, { merge: true }).then(() => {
+        alert("تم تعديل المنتج بنجاح 🛠️");
+        resetProductForm();
+        loadAdminProducts();
+        localStorage.removeItem('rander_cloud_products_cache');
+    }).catch(err => alert("خطأ: " + err.message));
+} else {
+    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    db.collection("products").add(productData).then(() => {
+        alert("تم إضافة المنتج ونشره بنجاح في المتجر 🚀");
+        resetProductForm();
+        loadAdminProducts();
+        localStorage.removeItem('rander_cloud_products_cache');
+    }).catch(err => alert("خطأ: " + err.message));
+}
 
         function resetProductForm() {
             document.getElementById('product-form').reset();
