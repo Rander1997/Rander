@@ -36,9 +36,9 @@ rander1997.github.io<!DOCTYPE html>
       function generateSlug(text) {
           if (!text) return '';
           return text.toString().toLowerCase().trim()
-              .replace(/\s+/g, '-')           // استبدال المسافات بشرطات
-              .replace(/[^\w\-أ-ي]+/g, '')    // الحفاظ على الحروف العربية والإنجليزية والشرطات
-              .replace(/\-\-+/g, '-');        // منع تكرار الشرطات
+              .replace(/\s+/g, '-')
+              .replace(/[^\w\-أ-ي]+/g, '')
+              .replace(/\-\-+/g, '-');
       }
     </script>
 
@@ -145,6 +145,34 @@ rander1997.github.io<!DOCTYPE html>
         .items-table th { background: var(--bg-primary); }
 
         #dashboard-content { display: none; }
+
+        /* تنسيق صناديق الاختيار للأقسام */
+        .cat-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .cat-checkbox-label.checked {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .cat-checkbox-label input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -190,7 +218,6 @@ rander1997.github.io<!DOCTYPE html>
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">💵 السعر الأساسي للمنتج (د.ع):</label>
                     <input type="text" id="p-price" placeholder="مثلاً: 250000" class="form-input" required>
 
-                    <!-- حقل الشركة الموردة للمنتج -->
                     <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">🏢 اسم الشركة الموردة للمنتج:</label>
                     <input type="text" id="p-supplier" placeholder="مثلاً: شركة الفرات للتجارة" class="form-input" required>
                     
@@ -211,27 +238,24 @@ rander1997.github.io<!DOCTYPE html>
                         <button type="button" onclick="addVariantGroup()" style="background: rgba(29, 78, 216, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">+ إضافة مجموعة خيارات جديدة (مثل: اللون أو الحجم)</button>
                     </div>
                     
-                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيفات (يمكنك اختيار أكثر من قسم - اضغط مطولاً للاختيار المتعدد):</label>
-<select id="p-category" class="form-input" multiple required style="min-height: 120px;">
-    <!-- سيتم جلب الأقسام هنا -->
-</select>
-<p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
-    💡 على الآيباد: اضغط ضغطة مطولة على القسم، ثم اختر أقساماً إضافية.
-</p>
+                    <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 4px;">📂 التصنيفات (اختر قسماً أو أكثر):</label>
+                    <div id="p-category-box" style="display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; min-height: 60px; margin-bottom: 12px;">
+                        <!-- سيتم جلب الأقسام هنا كـ checkboxes -->
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px; margin-bottom: 14px;">
+                        💡 اضغط على الأقسام لتحديدها — يمكنك اختيار أكثر من قسم.
+                    </p>
 
-                    <!-- حقل شارة المنتج الاختيارية -->
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">نص الشارة (اختياري - مثل: جديد، تخفيض)</label>
                         <input type="text" id="p-badge-text" placeholder="اتركه فارغاً إذا لا تريد شارة" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
                     </div>
 
-                    <!-- حقل اختيار لون الشارة -->
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">لون الشارة</label>
                         <input type="color" id="p-badge-color" value="#28a745" class="form-input" style="width: 100%; height: 40px; padding: 2px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
                     </div>
 
-                    <!-- حقل ترتيب العرض في الرئيسية -->
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض في الرئيسية (اختياري - الأقل يظهر أولاً)</label>
                         <input type="number" id="p-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
@@ -271,7 +295,6 @@ rander1997.github.io<!DOCTYPE html>
                     <input type="text" id="s-title" placeholder="عنوان الستوري (مثلاً: عرض خاص)" class="form-input" required>
                     <input type="text" id="s-price" placeholder="سعر الستوري بـ (د.ع) مثلاً: 15000" class="form-input" required>
                     
-                    <!-- حقل الشركة الموردة للستوري -->
                     <input type="text" id="s-supplier" placeholder="اسم الشركة الموردة للستوري (مثلاً: شركة الفرات)" class="form-input" required>
                     
                     <input type="text" id="s-images" placeholder="روابط الصور مفصولة بفواصل (مثال: link1.jpg, link2.jpg)" class="form-input" required>
@@ -314,7 +337,6 @@ rander1997.github.io<!DOCTYPE html>
                         <option value="">-- قسم رئيسي (بدون أب) --</option>
                     </select>
 
-                    <!-- حقل ترتيب القسم (رئيسي أو فرعي) -->
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 12px; font-weight: bold; color: var(--accent); display: block; margin-bottom: 5px;">ترتيب العرض (اختياري - الأقل يظهر أولاً)</label>
                         <input type="number" id="cat-order" placeholder="مثال: 1، 2، 3 (اتركه فارغاً للترتيب التلقائي)" class="form-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;" value="0">
@@ -340,7 +362,7 @@ rander1997.github.io<!DOCTYPE html>
         let allStoriesCache = [];
         let allCategoriesCache = [];
 
-        const ADMIN_UID = 'M87p9ZYTwydZtqsGrVbKLgBahB93'; // ← ضع UID حساب الأدمن هنا
+        const ADMIN_UID = 'M87p9ZYTwydZtqsGrVbKLgBahB93';
 
 function checkAdminLogin() {
     const email = document.getElementById('admin-email').value.trim();
@@ -357,14 +379,12 @@ function checkAdminLogin() {
         .then((userCredential) => {
             const user = userCredential.user;
             
-            // التحقق من أن المستخدم هو الأدمن (بالـ UID)
             if (user.uid !== ADMIN_UID) {
                 errorEl.textContent = '🚫 هذا الحساب ليس لديه صلاحيات الإدارة';
                 firebase.auth().signOut();
                 return;
             }
             
-            // نجح الدخول
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard-content').style.display = 'block';
             loadAdminCategoriesData(() => {
@@ -390,7 +410,6 @@ function checkAdminLogin() {
                 'auth/internal-error': 'خطأ داخلي في Firebase',
                 'auth/missing-email': 'البريد مفقود'
             };
-            // عرض كود الخطأ الفعلي
             errorEl.textContent = '❌ ' + (messages[error.code] || ('فشل: ' + error.code));
         });
 }
@@ -417,27 +436,37 @@ function checkAdminLogin() {
         });
         allCategoriesCache = categories;
 
-        const productCategorySelect = document.getElementById('p-category');
-        if (productCategorySelect) {
-            // احفظ القيم المختارة حالياً (لمنتج يتم تعديله)
-            let currentSelected = Array.from(productCategorySelect.selectedOptions).map(o => o.value);
+        const box = document.getElementById('p-category-box');
+        if (box) {
+            // احفظ المحدد حالياً (عند التعديل)
+            let currentSelected = Array.from(box.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
             
-            productCategorySelect.innerHTML = '';
+            box.innerHTML = '';
             categories.forEach(cat => {
-                productCategorySelect.innerHTML += `<option value="${cat.name.trim()}">${cat.name.trim()}</option>`;
-            });
-            
-            // استعد القيم المختارة
-            Array.from(productCategorySelect.options).forEach(opt => {
-                if (currentSelected.indexOf(opt.value) > -1) {
-                    opt.selected = true;
-                }
+                const name = cat.name.trim();
+                const isChecked = currentSelected.indexOf(name) > -1;
+                box.innerHTML += `
+                    <label class="cat-checkbox-label${isChecked ? ' checked' : ''}">
+                        <input type="checkbox" value="${name}" ${isChecked ? 'checked' : ''} onchange="updateCategoryStyle(this)">
+                        <span>${name}</span>
+                    </label>
+                `;
             });
         }
 
         if (callback) callback();
     });
 }
+
+// دالة تحديث شكل الـ checkbox عند التحديد
+window.updateCategoryStyle = function(cb) {
+    const label = cb.closest('label');
+    if (cb.checked) {
+        label.classList.add('checked');
+    } else {
+        label.classList.remove('checked');
+    }
+};
 
         // --- إدارة المتغيرات والمواصفات الديناميكية ---
         function addVariantGroup(groupTitle = '', items = []) {
@@ -504,6 +533,7 @@ function checkAdminLogin() {
             products.forEach((p) => {
                 let id = p.id;
                 let mainImg = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
+                let cats = p.categories && Array.isArray(p.categories) && p.categories.length ? p.categories.join('، ') : (p.category || 'عام');
                 
                 tbody.innerHTML += `
                     <tr>
@@ -511,7 +541,7 @@ function checkAdminLogin() {
                         <td>
                             <b>${p.name}</b><br>
                             <span style="color:var(--accent);">${p.price ? Number(p.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                            <small style="color:var(--text-secondary);">التصنيف: ${p.category || 'عام'} | الشركة: <b>${p.supplier || 'غير محدد'}</b></small>
+                            <small style="color:var(--text-secondary);">التصنيفات: ${cats} | الشركة: <b>${p.supplier || 'غير محدد'}</b></small>
                         </td>
                         <td>
                             <div style="display: flex; gap: 6px;">
@@ -529,6 +559,7 @@ function checkAdminLogin() {
             const filtered = allProductsCache.filter(p => 
                 (p.name && p.name.toLowerCase().includes(query)) || 
                 (p.category && p.category.toLowerCase().includes(query)) ||
+                (p.categories && Array.isArray(p.categories) && p.categories.join(' ').toLowerCase().includes(query)) ||
                 (p.supplier && p.supplier.toLowerCase().includes(query))
             );
             renderProductsTable(filtered);
@@ -549,12 +580,17 @@ function checkAdminLogin() {
                     document.getElementById('p-desc').value = descText;
                     document.getElementById('p-main-image').value = mainImg;
                     document.getElementById('p-extra-images').value = extraImgs;
+                    
                     // استعادة الأقسام المتعددة
-const categorySelect = document.getElementById('p-category');
-const productCategories = p.categories && Array.isArray(p.categories) ? p.categories : [p.category].filter(Boolean);
-Array.from(categorySelect.options).forEach(opt => {
-    opt.selected = productCategories.indexOf(opt.value) > -1;
-});
+                    const categoryBox = document.getElementById('p-category-box');
+                    const productCategories = p.categories && Array.isArray(p.categories) ? p.categories : [p.category].filter(Boolean);
+                    if (categoryBox) {
+                        categoryBox.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                            cb.checked = productCategories.indexOf(cb.value) > -1;
+                            updateCategoryStyle(cb);
+                        });
+                    }
+                    
                     document.getElementById('p-badge-text').value = p.badgeText || '';
                     document.getElementById('p-badge-color').value = p.badgeColor || '#28a745';
                     document.getElementById('p-order').value = p.displayOrder !== undefined ? p.displayOrder : 0;
@@ -584,16 +620,18 @@ Array.from(categorySelect.options).forEach(opt => {
             const description = document.getElementById('p-desc').value.trim();
             const mainImage = document.getElementById('p-main-image').value.trim();
             const extraRaw = document.getElementById('p-extra-images').value.trim();
-            // قراءة الأقسام المتعددة
-const categorySelect = document.getElementById('p-category');
-const selectedCategories = Array.from(categorySelect.selectedOptions).map(o => o.value.trim()).filter(v => v);
+            
+            // قراءة الأقسام المتعددة من checkboxes
+            const categoryBox = document.getElementById('p-category-box');
+            const selectedCheckboxes = categoryBox.querySelectorAll('input[type="checkbox"]:checked');
+            const selectedCategories = Array.from(selectedCheckboxes).map(cb => cb.value.trim()).filter(v => v);
 
-if (selectedCategories.length === 0) {
-    return alert("يرجى اختيار قسم واحد على الأقل!");
-}
+            if (selectedCategories.length === 0) {
+                return alert("يرجى اختيار قسم واحد على الأقل!");
+            }
 
-const category = selectedCategories[0]; // القسم الرئيسي (الأول)
-const categories = selectedCategories;   // كل الأقسام
+            const category = selectedCategories[0];
+            const categories = selectedCategories;
 
             if (!name || !price || !supplier || !mainImage || !category) return alert("يرجى ملء الاسم، السعر، اسم الشركة، التصنيف، والصورة الرئيسية على الأقل!");
 
@@ -629,26 +667,24 @@ const categories = selectedCategories;   // كل الأقسام
             const badgeColor = document.getElementById('p-badge-color').value;
             const productOrder = Number(document.getElementById('p-order').value) || 0;
             
-            // توليد الـ slug التلقائي للمنتج
             const productSlug = generateSlug(name);
 
             const productData = {
-    name: name,
-    slug: productSlug,
-    price: price,
-    supplier: supplier,
-    description: description,
-    desc: description,
-    category: category,          // القسم الرئيسي (للفلترة الأساسية)
-    categories: categories,      // ← جميع الأقسام (للفلترة المتعددة)
-    images: imagesArray,
-    image: mainImage,
-    variants: variants,
-    badgeText: badgeText,
-    badgeColor: badgeColor,
-    displayOrder: productOrder,
-};
-        
+                name: name,
+                slug: productSlug,
+                price: price,
+                supplier: supplier,
+                description: description,
+                desc: description,
+                category: category,
+                categories: categories,
+                images: imagesArray,
+                image: mainImage,
+                variants: variants,
+                badgeText: badgeText,
+                badgeColor: badgeColor,
+                displayOrder: productOrder,
+            };
 
             if (docId) {
                 db.collection("products").doc(docId).update(productData).then(() => {
@@ -676,6 +712,15 @@ const categories = selectedCategories;   // كل الأقسام
             document.getElementById('save-btn').innerText = "نشر المنتج في المتجر 🚀";
             document.getElementById('save-btn').style.background = "#28a745";
             document.getElementById('cancel-btn').style.display = "none";
+            
+            // إزالة التحديد من كل الأقسام
+            const categoryBox = document.getElementById('p-category-box');
+            if (categoryBox) {
+                categoryBox.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                    updateCategoryStyle(cb);
+                });
+            }
         }
 
         // --- إدارة الستوريات ---
@@ -703,8 +748,8 @@ const categories = selectedCategories;   // كل الأقسام
                         <td><img src="${mainStoryImg}" style="width: 35px; height: 50px; object-fit: cover; border-radius:4px;"></td>
                         <td>
                             <b>${s.title}</b><br>
-                            <span style="color:var(--accent);">${s.price ? Number(s.price).toLocaleString('ar-IQ') : 0} د.ع</span><br>
-                            <small style="color:var(--text-secondary);">الشركة: <b>${s.supplier || 'غير محدد'}</b></small>
+                            <span            style="color:var(--accent);">${s.price ? render Number(s.price).toLocaleStringSt('ar-IQ') : ories0} د.ع</span><brTable>
+                            <small style="color(filter:var(--text-secondary);">الشركة: <b>${s.supplier || 'غير محدد'}</b></small>
                         </td>
                         <td>
                             <div style="display: flex; gap: 6px;">
@@ -723,7 +768,7 @@ const categories = selectedCategories;   // كل الأقسام
                 (s.title && s.title.toLowerCase().includes(query)) || 
                 (s.supplier && s.supplier.toLowerCase().includes(query))
             );
-            renderStoriesTable(filtered);
+ed);
         }
 
         function prepareEditStory(id) {
@@ -757,18 +802,18 @@ const categories = selectedCategories;   // كل الأقسام
             const images = imagesInput ? imagesInput.split(',').map(img => img.trim()).filter(img => img !== "") : [];
 
             if (!title || images.length === 0 || !price || !supplier) {
-                return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط صورة واحدة على الأقل!");
+                return alert("يرجى ملء العنوان، السعر، اسم الشركة، ورابط ص (ورة واحدة على الأقل!");
             }
 
-            // توليد الـ slug التلقائي للستوري
-            const storySlug = generateSlug(title);
+            const storySlug = generateSldocug(title);
 
-            const storyData = { 
-                title: title, 
-                slug: storySlug,
+           .exists const storyData = { 
+                title: title,) 
+                slug: storySlug {
+,
                 price: price, 
                 supplier: supplier, 
-                images: images,
+                                   images: images,
                 image: images[0]
             };
 
@@ -891,8 +936,7 @@ const categories = selectedCategories;   // كل الأقسام
 
         function prepareEditCategory(id) {
             db.collection("categories").doc(id).get().then((doc) => {
-                if (doc.exists) {
-                    let cat = doc.data();
+                if let cat = doc.data();
                     document.getElementById('edit-cat-id').value = id;
                     document.getElementById('cat-name').value = cat.name || '';
                     document.getElementById('cat-order').value = cat.order !== undefined ? cat.order : 0;
@@ -917,7 +961,6 @@ const categories = selectedCategories;   // كل الأقسام
 
             if (!name) return alert("يرجى إدخال اسم القسم!");
 
-            // توليد الـ slug التلقائي للقسم
             const categorySlug = generateSlug(name);
 
             const catData = { 
