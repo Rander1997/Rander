@@ -1929,7 +1929,14 @@ body.dark-mode #detail-modal.pd{--pd-bg:#0b1220;--pd-card:#162033;--pd-tx:#f1f5f
 .pd-card{background:var(--pd-card);border:1px solid var(--pd-bd);border-radius:18px;margin:10px 12px;padding:14px 16px}
 .pd-cat{display:inline-block;font-size:12px;color:var(--pd-mu);background:var(--pd-bg);border:1px solid var(--pd-bd);padding:3px 10px;border-radius:20px}
 .pd-name{font-size:22px;font-weight:800;line-height:1.5;margin:8px 0 6px}
-.pd-price{font-size:24px;font-weight:800;color:#6366f1;direction:ltr;text-align:right}
+.pd-price{
+    font-size:24px;
+    font-weight:800;
+    color:#6366f1;
+    text-align:right;
+    unicode-bidi:isolate;
+    direction:rtl;
+}
 .pd-group{margin:10px 12px;padding:14px 16px;background:var(--pd-card);border:1px solid var(--pd-bd);border-radius:18px}
 .pd-group>b{display:block;margin-bottom:10px;font-size:15px}
 .pd-chips{display:flex;flex-wrap:wrap;gap:8px}
