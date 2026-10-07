@@ -4766,11 +4766,15 @@ function showFavorites(btnElement) {
         }
 
         function closeCartModal() {
-            var cartModal = document.getElementById('cart-modal');
-            if (cartModal) {
-                cartModal.style.display = 'none';
-            }
-        }
+    var cartModal = document.getElementById('cart-modal');
+    if (cartModal) {
+        cartModal.style.display = 'none';
+    }
+    // ✅ إعادة التمرير للصفحة بعد إغلاق السلة
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+}
 
         function navGoCart(btnElement) {
             if (btnElement && typeof setActiveNav === 'function') setActiveNav(btnElement);
