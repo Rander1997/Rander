@@ -5877,13 +5877,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const isChromeAndroid = isAndroid && /Chrome/i.test(ua);
     
     // إعدادات مخصصة لكل جهاز
+    // إعدادات مخصصة لكل جهاز
     const CONFIG = {
-        rippleEnabled: !isLowEnd && !isAndroid,        // Ripple على iOS فقط (أندرويد: pointerdown ثقيل)
-        particleCount: isLowEnd ? 6 : (isAndroid ? 8 : 16),
-        flyEnabled: !isLowEnd && !isAndroid,           // طيران الصورة على iOS فقط
-        tooltipDelay: isAndroid ? 2500 : 1500,         // تأخير أكبر على أندرويد (بطء التحميل)
-        wiggleDelay: isAndroid ? 7000 : 6000,
-        vibratePattern: isAndroid ? [60] : [40, 30, 40] // نبضة واحدة قوية على أندرويد
+        rippleEnabled: !isLowEnd,                     // ✅ Ripple على كل الأجهزة (ما عدا الضعيفة جداً)
+        particleCount: isLowEnd ? 6 : (isAndroid ? 10 : 16),
+        flyEnabled: !isLowEnd,                        // ✅ طيران الصورة على كل الأجهزة (ما عدا الضعيفة جداً)
+        tooltipDelay: isAndroid ? 2000 : 1500,
+        wiggleDelay: isAndroid ? 6000 : 6000,
+        vibratePattern: isAndroid ? [40, 30, 40] : [40, 30, 40]
     };
 
     let lastAddTime = 0;
