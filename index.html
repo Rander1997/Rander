@@ -688,9 +688,14 @@ body.dark-mode .cart-modal {
     width: 100%;
     max-width: 480px;
     max-height: 92vh;
+    max-height: 92dvh; /* ✅ dvh أفضل للجوال */
     border-radius: var(--cart-radius-lg);
     padding: 0;
-    overflow: hidden;
+    overflow-y: auto;          /* ✅ التمرير على الحاوية الرئيسية */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;  /* ✅ تمرير سلس على iOS/Android */
+    overscroll-behavior: contain;       /* ✅ منع تمرير الصفحة الخلفية */
+    touch-action: pan-y;                /* ✅ السماح بالتمرير الرأسي فقط */
     display: flex;
     flex-direction: column;
     box-shadow: 
@@ -768,14 +773,13 @@ body.dark-mode .cart-modal {
 
 /* ═══ قائمة المنتجات ═══ */
 .cart-items-list {
-    flex: 1;
-    overflow-y: auto;
+    /* ✅ تم إزالة overflow لأنه موجود في الأب */
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    min-height: 100px;
-    max-height: 280px;
+    flex-shrink: 0;
+    /* ⚠️ لا يوجد max-height هنا لأن الأب يتولى التمرير */
     scrollbar-width: thin;
     scrollbar-color: var(--cart-border) transparent;
 }
@@ -851,71 +855,81 @@ body.dark-mode .cart-modal {
 }
 
 .cart-qty-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: var(--cart-bg);
-    border: 1px solid var(--cart-border);
-    color: var(--cart-text);
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    /* ✅ خلفية بيضاء صريحة */
+    background: #ffffff !important;
+    /* ✅ حدود واضحة */
+    border: 1.5px solid #cbd5e1 !important;
+    /* ✅ لون النص واضح */
+    color: #0f172a !important;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 900;
     transition: all 0.15s ease;
     padding: 0;
     font-family: inherit;
     line-height: 1;
+    /* ✅ إلغاء أي تأثيرات موروثة */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.cart-qty-btn:hover {
-    background: var(--cart-accent);
-    color: #fff;
-    border-color: var(--cart-accent);
+/* زر الزائد (+) بتصميم مميز */
+.cart-qty-btn[aria-label="زيادة"] {
+    background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
 }
 
+.cart-qty-btn[aria-label="زيادة"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45) !important;
+}
+
+/* زر الناقص (−) بتصميم مميز */
+.cart-qty-btn[aria-label="تقليل"] {
+    background: #ffffff !important;
+    color: #6366f1 !important;
+    border-color: #c7d2fe !important;
+}
+
+.cart-qty-btn[aria-label="تقليل"]:hover {
+    background: #eef2ff !important;
+    border-color: #a5b4fc !important;
+}
+
+/* تأثير الضغط */
 .cart-qty-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.88) !important;
 }
 
-.cart-qty-value {
-    min-width: 32px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--cart-text);
-    font-variant-numeric: tabular-nums;
+/* ✅ الوضع الليلي */
+body.dark-mode .cart-qty-btn {
+    background: #334155 !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
 }
 
-.cart-item-remove {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--cart-danger);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    padding: 0;
+body.dark-mode .cart-qty-btn[aria-label="زيادة"] {
+    background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
 }
 
-.cart-item-remove:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-}
-
-.cart-item-remove:active {
-    transform: scale(0.9);
-}
-
-.cart-item-remove svg {
-    width: 16px;
-    height: 16px;
-    stroke-width: 2;
+body.dark-mode .cart-qty-btn[aria-label="تقليل"] {
+    background: #1e293b !important;
+    color: #a5b4fc !important;
+    border-color: #4338ca !important;
 }
 
 /* ═══ قسم بيانات الزبون ═══ */
@@ -2353,6 +2367,56 @@ header #cart-counter {
     box-shadow: 0 2px 6px rgba(167, 139, 250, 0.35);
 }
 
+
+/* ✅ استثناء كامل لأزرار السلة من أي تأثيرات عامة */
+#cart-modal .cart-qty-btn,
+#cart-modal .cart-item-remove,
+#cart-modal .cart-close,
+#cart-modal .cart-submit {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none;
+    /* إزالة أي transition موروثة */
+    transition: all 0.15s ease !important;
+}
+
+/* إعادة التأثيرات الخاصة لكل زر */
+#cart-modal .cart-qty-btn[aria-label="زيادة"] {
+    background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+#cart-modal .cart-qty-btn[aria-label="تقليل"] {
+    background: #ffffff !important;
+    color: #6366f1 !important;
+    border: 1.5px solid #c7d2fe !important;
+}
+
+#cart-modal .cart-item-remove {
+    background: transparent !important;
+    color: #ef4444 !important;
+    border: none !important;
+}
+
+#cart-modal .cart-submit {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+/* ✅ تجاوز القواعد العامة على الأزرار داخل السلة */
+#cart-modal button {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+#cart-modal button:not(.cart-qty-btn):not(.cart-item-remove):not(.cart-close):not(.cart-submit) {
+    /* لا تأثير على الأزرار الأخرى */
+}
+
+
+        
         
 </style>
         
