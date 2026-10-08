@@ -4170,8 +4170,10 @@ function addNewProduct() {
     t.textContent = text;
     t.style.cssText = 'position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);' +
         'z-index:2147483000;background:#1e293b;color:#fff;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:600;' +
-        'box-shadow:0 8px 20px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);max-width:88vw;text-align:center;' +
-        'white-space:normal;line-height:1.5;pointer-events:none;opacity:1;transition:opacity .3s ease';
+        'box-shadow:0 8px 20px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.15);' +
+        'max-width:calc(100vw - 32px);text-align:center;' +
+        'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' +
+        'line-height:1.5;pointer-events:none;opacity:1;transition:opacity .3s ease';
     document.body.appendChild(t);
     setTimeout(function () { t.style.opacity = '0'; }, 2400);
     setTimeout(function () { if (t.parentNode) t.remove(); }, 2750);
